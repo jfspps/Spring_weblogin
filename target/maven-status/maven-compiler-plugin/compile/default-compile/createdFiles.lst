@@ -1,0 +1,4 @@
+com/springsecurity/weblogin/WebLoginApplication.class
+com/springsecurity/weblogin/SpringSecurityInitializer.class
+com/springsecurity/weblogin/controllers/userController.class
+com/springsecurity/weblogin/SecurityConfiguration.class

@@ -19,6 +19,12 @@ public class userController {
         return "welcome";
     }
 
+    //this overrides the default Spring Security login page
+    @GetMapping("/login")
+    public String loginPage(){
+        return "login";
+    }
+
     @GetMapping("/authenticated")
     public String userLogin(Model model) {
         model.addAttribute("user", getUsername());

@@ -2,18 +2,12 @@
 <html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Authenticated user</title>
+    <title>Admin page</title>
 </head>
 <body>
 
 <div>
-    <h1>Welcome on board</h1>
-    <p sec:authorize="hasRole('ADMIN')">
-        You are in the ADMIN group
-    </p>
-    <p sec:authorize="hasRole('USER')">
-        You are in the USER group
-    </p>
+    <h1>Admin page</h1>
 
     Authenticated username:
     <div sec:authentication="name"></div>

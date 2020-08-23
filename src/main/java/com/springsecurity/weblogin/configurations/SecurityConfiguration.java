@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/userPage").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/adminPage").hasAnyRole("ADMIN")
                 //override the default login page (see controller)
-                .and().formLogin().loginPage("/login").permitAll()
+                .and().formLogin().loginPage("/login").permitAll().failureUrl("/login-error")
                 .and().logout().logoutSuccessUrl("/welcome").permitAll()
                 .and().csrf().disable();
     }

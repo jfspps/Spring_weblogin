@@ -25,6 +25,12 @@ public class userController {
         return "login";
     }
 
+    @GetMapping("/login-error")
+    public String loginError(Model model) {
+        model.addAttribute("loginError", true);
+        return "login";
+    }
+
     @GetMapping("/authenticated")
     public String userLogin(Model model) {
         model.addAttribute("user", getUsername());

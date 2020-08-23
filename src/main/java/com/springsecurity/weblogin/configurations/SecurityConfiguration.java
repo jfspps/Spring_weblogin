@@ -1,5 +1,6 @@
 package com.springsecurity.weblogin.configurations;
 
+import com.springsecurity.weblogin.controllers.CustomAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +32,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationFailureHandler customAuthFailureHandler(){
+        return new CustomAuthenticationFailureHandler();
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
@@ -40,7 +47,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/userPage").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/adminPage").hasAnyRole("ADMIN")
                 //override the default login page (see controller)
-                .and().formLogin().loginPage("/login").permitAll().failureUrl("/login-error")
+                .and().formLogin()
+                    // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead
+                    .loginPage("/login").permitAll().failureUrl("/login-error")
                 .and().logout().logoutSuccessUrl("/welcome").permitAll()
                 .and().csrf().disable();
     }

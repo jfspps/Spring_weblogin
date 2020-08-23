@@ -25,6 +25,7 @@ public class userController {
         return "login";
     }
 
+    //sets login-error to true and triggers login.html to display 'wrong user or password'
     @GetMapping("/login-error")
     public String loginError(Model model) {
         model.addAttribute("loginError", true);

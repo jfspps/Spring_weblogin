@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin;
+package com.springsecurity.weblogin.configurations;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 

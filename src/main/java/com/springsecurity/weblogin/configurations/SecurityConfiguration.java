@@ -1,6 +1,6 @@
 package com.springsecurity.weblogin.configurations;
 
-import com.springsecurity.weblogin.controllers.CustomAuthenticationFailureHandler;
+import com.springsecurity.weblogin.exceptions.CustomAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

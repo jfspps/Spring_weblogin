@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin.controllers;
+package com.springsecurity.weblogin.exceptions;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;

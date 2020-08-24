@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -39,6 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        //see 'Pro Spring Security' for HTTP header based req-res authentication (formLogin uses body based req-res)
+
         http.authorizeRequests()
                 //set pages which do not require authentication
                 .antMatchers("/", "/welcome", "/login").permitAll()
@@ -51,6 +54,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead
                     .loginPage("/login").permitAll().failureUrl("/login-error")
                 .and().logout().logoutSuccessUrl("/welcome").permitAll()
-                .and().csrf().disable();
+                .and().csrf().disable()
+                .rememberMe().key("remember-me").rememberMeParameter("remember_me")
+                .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)
+                //maximum of one session per user
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1);
+
+        //ensures all data streams are HTTPS based (will require certification on deployment)
+//        http.requiresChannel().anyRequest().requiresSecure();
     }
 }

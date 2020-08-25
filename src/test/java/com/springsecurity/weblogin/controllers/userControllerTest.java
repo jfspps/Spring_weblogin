@@ -7,11 +7,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest
@@ -35,9 +38,19 @@ class userControllerTest {
                 .andExpect(view().name("welcome"));
     }
 
+    //this passes with any username
     @WithMockUser("admin")
     @Test
     void loginPage_admin() throws Exception {
+        mockMvc.perform(get("/authenticated"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("authenticated"));
+    }
+
+    //this passes with any username
+    @WithMockUser("random")
+    @Test
+    void loginPage_random() throws Exception {
         mockMvc.perform(get("/authenticated"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("authenticated"));
@@ -49,7 +62,8 @@ class userControllerTest {
     void loginPage_user() throws Exception {
         mockMvc.perform(get("/authenticated"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("authenticated"));
+                .andExpect(view().name("authenticated"))
+                .andExpect(model().attributeExists("user"));
     }
 
     @WithAnonymousUser
@@ -61,8 +75,13 @@ class userControllerTest {
     }
 
     @Test
-    void loginError() {
+    void loginAuthHttpBasicPASS() throws Exception {
+        RequestBuilder requestBuilder = formLogin().user("admin").password("admin123");
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().is3xxRedirection());
 
+        //need to test login and redirection to previous page (functions from UI)
     }
 
     @Test

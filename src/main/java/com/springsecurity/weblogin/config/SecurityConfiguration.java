@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin.configurations;
+package com.springsecurity.weblogin.config;
 
 import com.springsecurity.weblogin.exceptions.CustomAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +59,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)
                 //maximum of one session per user
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1);
+
+        // needed to access H2-console with Spring Security (use /console instead of /h2-console)
+        // can be commented out without affecting above requests
+        // thanks, John Thompson (https://springframework.guru/using-the-h2-database-console-in-spring-boot-with-spring-security/)
+        http.csrf().disable();
+        http.headers().frameOptions().disable();
 
         //ensures all data streams are HTTPS based (will require certification on deployment)
 //        http.requiresChannel().anyRequest().requiresSecure();

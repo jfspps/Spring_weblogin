@@ -10,11 +10,11 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: mysql
     show-sql: true
-    #    properties:
-    #      javax:
-    #        persistence:
-    #          schema-generation:
-    #            create-source: metadata
-    #            scripts:
-    #              action: create
-    #              create-target: web_login.sql
+    properties:
+      javax:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            scripts:
+              action: create
+              create-target: web_login.sql

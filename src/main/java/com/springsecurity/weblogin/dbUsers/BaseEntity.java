@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin.dbUserModel;
+package com.springsecurity.weblogin.dbUsers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class BaseEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    public boolean isNew() {
-//        return this.id == null;
-//    }
+    public boolean isNew() {
+        return this.id == null;
+    }
 }

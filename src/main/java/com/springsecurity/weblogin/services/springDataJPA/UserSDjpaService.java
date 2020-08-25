@@ -1,6 +1,6 @@
 package com.springsecurity.weblogin.services.springDataJPA;
 
-import com.springsecurity.weblogin.dbUserModel.User;
+import com.springsecurity.weblogin.dbUsers.User;
 import com.springsecurity.weblogin.repositories.UserRepository;
 import com.springsecurity.weblogin.services.dbUserServices.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Slf4j
 @Service
-@Profile("springDataJPA")
+@Profile("SDjpa")
 public class UserSDjpaService implements UserService {
 
     private final UserRepository userRepository;

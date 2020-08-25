@@ -1,6 +1,6 @@
 package com.springsecurity.weblogin.services.map;
 
-import com.springsecurity.weblogin.dbUserModel.User;
+import com.springsecurity.weblogin.dbUsers.User;
 import com.springsecurity.weblogin.services.dbUserServices.UserService;
 import com.springsecurity.weblogin.exceptions.NotFoundException;
 import lombok.NoArgsConstructor;

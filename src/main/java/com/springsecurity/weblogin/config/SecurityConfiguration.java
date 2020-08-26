@@ -42,6 +42,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //see 'Pro Spring Security' for HTTP header based req-res authentication (formLogin uses body based req-res)
 
+        //the order of the antMatchers is important
+        //note that any Spring Boot /webjars or CSS stylesheets from the project's /resources directory may need to be
+        //to the antMatchers() list (in addition to "/", "/welcome" etc.) as "/webjars/**" and "/resources/**"
+
         http.authorizeRequests()
                 //set pages which do not require authentication
                 .antMatchers("/", "/welcome", "/login").permitAll()
@@ -53,6 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().formLogin()
                     // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead
                     .loginPage("/login").permitAll().failureUrl("/login-error")
+                .and().httpBasic()
                 .and().logout().logoutSuccessUrl("/welcome").permitAll()
                 .and().csrf().disable()
                 .rememberMe().key("remember-me").rememberMeParameter("remember_me")

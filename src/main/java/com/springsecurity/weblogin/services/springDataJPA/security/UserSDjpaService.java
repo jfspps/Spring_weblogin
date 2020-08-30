@@ -1,8 +1,8 @@
-package com.springsecurity.weblogin.services.springDataJPA;
+package com.springsecurity.weblogin.services.springDataJPA.security;
 
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.repositories.security.UserRepository;
-import com.springsecurity.weblogin.services.dbUserServices.UserService;
+import com.springsecurity.weblogin.services.securityServices.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -39,6 +39,11 @@ public class UserSDjpaService implements UserService {
     }
 
     @Override
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    @Override
     public void delete(User objectT) {
         userRepository.delete(objectT);
     }
@@ -47,4 +52,5 @@ public class UserSDjpaService implements UserService {
     public void deleteById(Long aLong) {
         userRepository.deleteById(aLong);
     }
+
 }

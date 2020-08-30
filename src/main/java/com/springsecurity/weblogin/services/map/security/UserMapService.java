@@ -1,7 +1,7 @@
-package com.springsecurity.weblogin.services.map;
+package com.springsecurity.weblogin.services.map.security;
 
 import com.springsecurity.weblogin.model.security.User;
-import com.springsecurity.weblogin.services.dbUserServices.UserService;
+import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.exceptions.NotFoundException;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +38,15 @@ public class UserMapService extends AbstractMapService<User, Long> implements Us
     @Override
     public Set<User> findAll() {
         return super.findAll();
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return this.findAll()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

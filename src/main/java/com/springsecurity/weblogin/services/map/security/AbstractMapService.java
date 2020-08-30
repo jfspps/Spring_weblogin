@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin.services.map;
+package com.springsecurity.weblogin.services.map.security;
 
 import com.springsecurity.weblogin.model.BaseEntity;
 

@@ -21,7 +21,7 @@ Web-login is intended to be incorporated into other Spring based projects, and e
 The service methods are declared in [/services/BaseService](./src/main/java/com/springsecurity/weblogin/services/BaseService.java) 
 interface, and then defined in [/services/map](./src/main/java/com/springsecurity/weblogin/services/map) and 
 [/services/springDataJPA](./src/main/java/com/springsecurity/weblogin/services/springDataJPA) for the h2 HashMap and 
-MySQL JPA services, respectively. Additional custom methods, respectively, can be declared in [/services/dbUserServices](./src/main/java/com/springsecurity/weblogin/services/dbUserServices)
+MySQL JPA services, respectively. Additional custom methods, respectively, can be declared in [/services/dbUserServices](src/main/java/com/springsecurity/weblogin/services/securityServices)
  and/or [/repositories](./src/main/java/com/springsecurity/weblogin/repositories).
  
 MySQL connection settings are enabled by declaring the 'dev' profile (in addition to 'SDjpa') in [application.properties](./src/main/resources/application.properties).

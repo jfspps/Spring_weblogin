@@ -1,7 +1,7 @@
 package com.springsecurity.weblogin.services.springDataJPA;
 
-import com.springsecurity.weblogin.dbUsers.User;
-import com.springsecurity.weblogin.repositories.UserRepository;
+import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.repositories.security.UserRepository;
 import com.springsecurity.weblogin.services.dbUserServices.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -34,7 +34,7 @@ public class UserSDjpaService implements UserService {
     @Override
     public Set<User> findAll() {
         Set<User> users = new HashSet<>();
-        userRepository.findAll().forEach(users::add);
+        users.addAll(userRepository.findAll());
         return users;
     }
 

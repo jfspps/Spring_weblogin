@@ -16,7 +16,7 @@ Both the in-memory h2 (based on a HashMap) and JPA enabled MySQL databases (via 
 
 Web-login is intended to be incorporated into other Spring based projects, and edited as desired. Initial security options (credentials, authorisation,
  session cookies and duration) are set in [/config/SecurityConfiguration](./src/main/java/com/springsecurity/weblogin/config/SecurityConfiguration.java).
-  The model user is defined in [/dbUsers](./src/main/java/com/springsecurity/weblogin/dbUsers). 
+  The model user is defined in [/dbUsers](src/main/java/com/springsecurity/weblogin/model). 
 
 The service methods are declared in [/services/BaseService](./src/main/java/com/springsecurity/weblogin/services/BaseService.java) 
 interface, and then defined in [/services/map](./src/main/java/com/springsecurity/weblogin/services/map) and 

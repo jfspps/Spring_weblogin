@@ -46,6 +46,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         //note that any Spring Boot /webjars or CSS stylesheets from the project's /resources directory may need to be
         //to the antMatchers() list (in addition to "/", "/welcome" etc.) as "/webjars/**" and "/resources/**"
 
+// What is the difference between "/api/v1/user/*" and "/api/v1/user/**"?
+// The former allows for any characters up to the first instance of a boundary character (&, =, / and ?) at which point,
+// matching is terminated. The latter ignores boundary characters and allows for any character sequence.
+
         http.authorizeRequests()
                 //set pages which do not require authentication
                 .antMatchers("/", "/welcome", "/login").permitAll()

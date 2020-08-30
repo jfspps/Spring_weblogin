@@ -1,6 +1,6 @@
 package com.springsecurity.weblogin.services.map;
 
-import com.springsecurity.weblogin.dbUsers.BaseEntity;
+import com.springsecurity.weblogin.model.BaseEntity;
 
 import java.util.*;
 

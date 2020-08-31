@@ -52,6 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // The former allows for any characters up to the first instance of a boundary character (&, =, / and ?) at which point,
         // matching is terminated. The latter ignores boundary characters and allows for any character sequence.
 
+        //note, the ROLE_ is automatically prepended to Role here, under SDjpa
         http.authorizeRequests()
                 //set pages which do not require authentication
                 .antMatchers("/h2-console/**").permitAll()
@@ -59,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 //set pages which require authentication
                 .antMatchers("/authenticated/**").hasAnyRole("ADMIN", "USER", "TEACHER", "GUARDIAN")
                 .antMatchers("/userPage").hasAnyRole("ADMIN", "USER", "TEACHER", "GUARDIAN")
-                .antMatchers("/adminPage").hasAnyRole("ADMIN")
+                .antMatchers("/adminPage").hasRole("ADMIN")
                 //override the default login page (see controller)
                 .and().formLogin()
                     // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead

@@ -22,7 +22,7 @@ public class UserMapService extends AbstractMapService<User, Long> implements Us
         if (object != null) {
             return super.save(object);
         } else
-            System.out.println("Empty object passed to User()");
+            System.out.println("Cannot save null Users");
         return null;
     }
 

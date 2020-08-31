@@ -3,10 +3,16 @@ package com.springsecurity.weblogin.services.springDataJPA.security;
 import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.repositories.security.AuthorityRepository;
 import com.springsecurity.weblogin.services.securityServices.AuthorityService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
+@Service
+@Profile("SDjpa")
 public class AuthoritySDjpaService implements AuthorityService {
 
     private final AuthorityRepository authorityRepository;

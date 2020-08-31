@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin.services;
+package com.springsecurity.weblogin.services.securityServices;
 
 import java.util.Set;
 

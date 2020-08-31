@@ -1,9 +1,7 @@
 package com.springsecurity.weblogin.model.security;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.springsecurity.weblogin.model.BaseEntity;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -12,12 +10,13 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
-public class Authority {
+public class Authority extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     private String role;
 

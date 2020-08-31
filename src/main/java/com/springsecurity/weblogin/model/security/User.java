@@ -4,33 +4,27 @@ import com.springsecurity.weblogin.model.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@NoArgsConstructor
 @Entity
 public class User extends BaseEntity {
 
-    @NotNull
     @Size(min = 1, max = 255)
     private String username;
 
-    @NotNull
     @Size(min = 8, max = 255)
     private String password;
 
     @Builder.Default
     private boolean enabled = true;
 
-    @NotNull
-    private String authority;
-
-    //Singular (Lombok) builds a singular Set with one Authority in authorities
+    //Singular (Lombok) builds a singular Set with one Authority in authorities, called "authority"
     @Singular
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "user_authority",

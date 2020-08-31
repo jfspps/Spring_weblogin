@@ -21,9 +21,6 @@ public class User extends BaseEntity {
     @Size(min = 8, max = 255)
     private String password;
 
-    @Builder.Default
-    private boolean enabled = true;
-
     //Singular (Lombok) builds a singular Set with one Authority in authorities, called "authority"
     @Singular
     @ManyToMany(cascade = CascadeType.MERGE)
@@ -35,6 +32,9 @@ public class User extends BaseEntity {
     //adding other Spring's UserDetails interface properties
 
     //override the null value with true
+    @Builder.Default
+    private Boolean enabled = true;
+
     @Builder.Default
     private Boolean accountNonExpired = true;
 

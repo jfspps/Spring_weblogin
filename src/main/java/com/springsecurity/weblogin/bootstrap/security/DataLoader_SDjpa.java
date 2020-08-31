@@ -23,10 +23,10 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     private final PasswordEncoder DBpasswordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (authorityRepository.findAll().size() == 0){
             populateH2();
-            log.debug("Authority database finished populated");
+            log.debug("Authority database finished populating");
         } else
             log.debug("Authority database already contains data; no changes made");
     }
@@ -36,7 +36,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         Authority adminAuthority = authorityRepository.save(Authority.builder().role("ADMIN").build());
         Authority teacherAuthority = authorityRepository.save(Authority.builder().role("TEACHER").build());
         Authority guardianAuthority = authorityRepository.save(Authority.builder().role("GUARDIAN").build());
-        log.debug("Authorities added");
+        log.debug("Authorities added: " + authorityRepository.findAll().size());
 
         userRepository.save(User.builder()
                 .username("admin")
@@ -58,6 +58,6 @@ public class DataLoader_SDjpa implements CommandLineRunner {
                 .password(DBpasswordEncoder.encode("guardian456"))
                 .authority(guardianAuthority)
                 .build());
-        log.debug("Users added");
+        log.debug("Users added: " + userRepository.findAll().size());
     }
 }

@@ -23,7 +23,7 @@ public class DataLoader_h2 implements CommandLineRunner {
     private final PasswordEncoder DBpasswordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (authorityService.findAll().isEmpty()){
             populateH2();
             log.debug("Authority database finished populating");
@@ -36,7 +36,7 @@ public class DataLoader_h2 implements CommandLineRunner {
         Authority adminAuthority = authorityService.save(Authority.builder().role("ADMIN").build());
         Authority teacherAuthority = authorityService.save(Authority.builder().role("TEACHER").build());
         Authority guardianAuthority = authorityService.save(Authority.builder().role("GUARDIAN").build());
-        log.debug("Authorities added");
+        log.debug("Authorities added: " + authorityService.findAll().size());
 
         userService.save(User.builder()
                 .username("admin")
@@ -58,6 +58,6 @@ public class DataLoader_h2 implements CommandLineRunner {
                 .password(DBpasswordEncoder.encode("guardian456"))
                 .authority(guardianAuthority)
                 .build());
-        log.debug("Users added");
+        log.debug("Users added: " + userService.findAll().size());
     }
 }

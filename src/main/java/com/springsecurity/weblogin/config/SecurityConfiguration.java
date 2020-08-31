@@ -17,16 +17,20 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    //commenting configure() and PasswordEncoder would direct Spring to load JPAUserDetailsService =======================
     @Autowired
     PasswordEncoder passwordEncoder;
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //inMemoryAuthentication can be substituted with SDjpa + bootstrap initialisation
         auth.inMemoryAuthentication().passwordEncoder(passwordEncoder)
                 .withUser("user").password(passwordEncoder.encode("user123")).roles("USER")
                 .and()
                 .withUser("admin").password(passwordEncoder.encode("admin123")).roles("USER", "ADMIN");
     }
+
+    // ===================================================================================================================
 
     @Bean
     public PasswordEncoder passwordEncoder(){

@@ -14,15 +14,32 @@
     <p sec:authorize="hasRole('USER')">
         You are in the USER group
     </p>
+    <br />
 
     Authenticated username:
     <div sec:authentication="name"></div>
     Authenticated user roles:
     <div sec:authentication="principal.authorities"></div>
 
-    <a href="/adminPage">Admin page</a>
-    <a href="/userPage">User page</a>
-    <a href="/logout">Sign out</a>
+    <br />
+    <form th:action="@{/CRUD}" method="get" class="form-horizontal" id="search-student-form">
+        <button type="submit" class="btn btn-info">List all users</button>
+    </form>
+
+    <table>
+        <!--/*@thymesVar id="found" type="com.springsecurity.weblogin.model.security.User"*/-->
+        <tr th:each="found: ${usersFound}">
+            <td th:text="${found.username}"></td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td><a href="/adminPage">Admin page</a></td>
+            <td><a href="/userPage">User page</a></td>
+            <td><a href="/logout">Sign out</a></td>
+        </tr>
+    </table>
 </div>
 
 </body>

@@ -4,6 +4,7 @@ import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.repositories.security.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Profile("SDjpa")
+@Slf4j
 public class JPAUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -40,10 +42,10 @@ public class JPAUserDetailsService implements UserDetailsService {
         User user = new User();
         try {
             user = userRepository.findByUsername(username);
+            log.debug("Found user: " + username + " with JPAUserDetailsService");
         } catch (UsernameNotFoundException exception){
             System.out.println("User name, " + username + ", not found");
         }
-
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 user.getEnabled(), user.getAccountNonExpired(), user.getCredentialsNonExpired(),
                 user.getAccountNonLocked(), convertToSpringAuthorities(user.getAuthorities()));

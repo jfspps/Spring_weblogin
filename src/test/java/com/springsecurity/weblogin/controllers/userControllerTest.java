@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,11 +30,20 @@ class userControllerTest {
     @Autowired
     WebApplicationContext context;
 
-    MockMvc mockMvc;
+    protected MockMvc mockMvc;
+
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final String adminPwd = "admin123";
+    private final String userPwd = "user123";
+    String adminPwdBCrypt;
+    String userPwdBCrypt;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        adminPwdBCrypt = bCryptPasswordEncoder.encode(adminPwd);
+        userPwdBCrypt = bCryptPasswordEncoder.encode(userPwd);
     }
 
     @WithAnonymousUser
@@ -94,7 +104,7 @@ class userControllerTest {
         mockMvc
                 .perform(post("/login")
                         .param("username", "user")
-                        .param("password", "user123")
+                        .param("password", userPwd)
                         .session(session)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -109,7 +119,7 @@ class userControllerTest {
 
     @Test
     void loginAuthHttpBasicUserPASS() throws Exception {
-        mockMvc.perform(get("/authenticated").with(httpBasic("user", "user123")))
+        mockMvc.perform(get("/authenticated").with(httpBasic("user", userPwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("authenticated"))
                 .andExpect(model().attributeExists("user"));
@@ -117,7 +127,7 @@ class userControllerTest {
 
     @Test
     void loginAuthHttpBasicAdminPASS() throws Exception {
-        mockMvc.perform(get("/authenticated").with(httpBasic("admin", "admin123")))
+        mockMvc.perform(get("/authenticated").with(httpBasic("admin", adminPwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("authenticated"));
     }
@@ -134,28 +144,28 @@ class userControllerTest {
 
     @Test
     void userPage_withUser() throws Exception {
-        mockMvc.perform(get("/userPage").with(httpBasic("user", "user123")))
+        mockMvc.perform(get("/userPage").with(httpBasic("user", userPwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("userPage"));
     }
 
     @Test
     void userPage_withAdmin() throws Exception {
-        mockMvc.perform(get("/userPage").with(httpBasic("admin", "admin123")))
+        mockMvc.perform(get("/userPage").with(httpBasic("admin", adminPwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("userPage"));
     }
 
     @Test
     void adminPage_withAdmin() throws Exception {
-        mockMvc.perform(get("/adminPage").with(httpBasic("admin", "admin123")))
+        mockMvc.perform(get("/adminPage").with(httpBasic("admin", adminPwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("adminPage"));
     }
 
     @Test
     void adminPage_withUser() throws Exception {
-        mockMvc.perform(get("/adminPage").with(httpBasic("user", "user123")))
+        mockMvc.perform(get("/adminPage").with(httpBasic("user", userPwd)))
                 .andExpect(status().is4xxClientError());
     }
 

@@ -33,7 +33,9 @@ public class DataLoader_h2 implements CommandLineRunner {
 
     private void populateH2(){
         //example, as per Student Record Management (SRM) account
+        //ROLE_ prefix applies to JPAUserDetailsService, hence not applicable to H2 profile
         Authority adminAuthority = authorityService.save(Authority.builder().role("ADMIN").build());
+        Authority userAuthority = authorityService.save(Authority.builder().role("USER").build());
         Authority teacherAuthority = authorityService.save(Authority.builder().role("TEACHER").build());
         Authority guardianAuthority = authorityService.save(Authority.builder().role("GUARDIAN").build());
         log.debug("Authorities added: " + authorityService.findAll().size());
@@ -46,6 +48,11 @@ public class DataLoader_h2 implements CommandLineRunner {
         userService.save(User.builder()
                 .username("user")
                 .password(DBpasswordEncoder.encode("user123"))
+                .authority(userAuthority)
+                .build());
+        userService.save(User.builder()
+                .username("teacher")
+                .password(DBpasswordEncoder.encode("teacher123"))
                 .authority(teacherAuthority)
                 .build());
         userService.save(User.builder()

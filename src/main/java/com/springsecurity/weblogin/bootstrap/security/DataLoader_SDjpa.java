@@ -33,10 +33,12 @@ public class DataLoader_SDjpa implements CommandLineRunner {
 
     private void populateH2(){
         //example, as per Student Record Management (SRM) account
-        Authority adminAuthority = authorityRepository.save(Authority.builder().role("ADMIN").build());
-        Authority teacherAuthority = authorityRepository.save(Authority.builder().role("TEACHER").build());
-        Authority guardianAuthority = authorityRepository.save(Authority.builder().role("GUARDIAN").build());
-        log.debug("Authorities added: " + authorityRepository.findAll().size());
+        //use ROLE_ prefix with JPAUserDetailsService; w/o ROLE_ prefix for in-memory
+        Authority adminAuthority = authorityRepository.save(Authority.builder().role("ROLE_ADMIN").build());
+        Authority userAuthority = authorityRepository.save(Authority.builder().role("ROLE_USER").build());
+        Authority teacherAuthority = authorityRepository.save(Authority.builder().role("ROLE_TEACHER").build());
+        Authority guardianAuthority = authorityRepository.save(Authority.builder().role("ROLE_GUARDIAN").build());
+        log.debug("Authorities added: " + authorityRepository.count());
 
         userRepository.save(User.builder()
                 .username("admin")
@@ -46,6 +48,11 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         userRepository.save(User.builder()
                 .username("user")
                 .password(DBpasswordEncoder.encode("user123"))
+                .authority(userAuthority)
+                .build());
+        userRepository.save(User.builder()
+                .username("teacher")
+                .password(DBpasswordEncoder.encode("teacher123"))
                 .authority(teacherAuthority)
                 .build());
         userRepository.save(User.builder()
@@ -58,6 +65,6 @@ public class DataLoader_SDjpa implements CommandLineRunner {
                 .password(DBpasswordEncoder.encode("guardian456"))
                 .authority(guardianAuthority)
                 .build());
-        log.debug("Users added: " + userRepository.findAll().size());
+        log.debug("Accounts added: " + userRepository.count());
     }
 }

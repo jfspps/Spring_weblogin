@@ -6,6 +6,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.Set;
 
+//USER <--> ROLE <--> AUTHORITY
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,12 +16,8 @@ import java.util.Set;
 @Entity
 public class Authority extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    private String role;
+    private String permission;
 
     @ManyToMany(mappedBy = "authorities")
-    private Set<User> users;
+    private Set<Role> roles;
 }

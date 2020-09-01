@@ -8,17 +8,17 @@
 
 <div>
     <h1>Welcome on board</h1>
-    <p sec:authorize="hasRole('ADMIN')">
+    <p sec:authorize="hasAuthority('admin.read')">
         You are in the ADMIN group
     </p>
-    <p sec:authorize="hasRole('USER')">
+    <p sec:authorize="hasAuthority('user.read')">
         You are in the USER group
     </p>
 
-    Authenticated username:
-    <div sec:authentication="name"></div>
-    Authenticated user roles:
-    <div sec:authentication="principal.authorities"></div>
+<!--    Authenticated username:-->
+<!--    <div sec:authentication="name"></div>-->
+<!--    Authenticated user roles:-->
+<!--    <div sec:authentication="principal.authorities"></div>-->
 
     <a href="/adminPage">Admin page</a>
     <a href="/userPage">User page</a>

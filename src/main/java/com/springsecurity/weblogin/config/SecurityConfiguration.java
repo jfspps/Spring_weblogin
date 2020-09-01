@@ -14,7 +14,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 
 @Configuration
 //use @Secured annotation to enable authorisation
-@EnableGlobalMethodSecurity(securedEnabled = true)
+//@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -51,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         //note that any Spring Boot /webjars or CSS stylesheets from the project's /resources directory may need to be
         //to the antMatchers() list (in addition to "/", "/welcome" etc.) as "/webjars/**" and "/resources/**"
 
-        // What is the difference between "/api/v1/user/*" and "/api/v1/user/**"?
+        // The difference between "/api/v1/user/*" and "/api/v1/user/**"
         // The former allows for any characters up to the first instance of a boundary character (&, =, / and ?) at which point,
         // matching is terminated. The latter ignores boundary characters and allows for any character sequence.
 
@@ -60,10 +61,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 //set pages which do not require authentication
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/", "/welcome", "/login").permitAll()
-                //set pages which require authentication
-                .antMatchers("/authenticated/**").hasAnyRole("ADMIN", "USER", "TEACHER", "GUARDIAN")
-                .antMatchers("/userPage").hasAnyRole("ADMIN", "USER", "TEACHER", "GUARDIAN")
-                .antMatchers("/adminPage").hasRole("ADMIN")
                 //override the default login page (see controller)
                 .and().formLogin()
                     // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead

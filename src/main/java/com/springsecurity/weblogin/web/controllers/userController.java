@@ -1,8 +1,10 @@
-package com.springsecurity.weblogin.controllers;
+package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.securityServices.UserService;
-import org.springframework.security.access.annotation.Secured;
+import com.springsecurity.weblogin.web.permissionAnnot.AdminRead;
+import com.springsecurity.weblogin.web.permissionAnnot.GuardianRead;
+import com.springsecurity.weblogin.web.permissionAnnot.TeacherRead;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,18 +53,21 @@ public class userController {
         return "login";
     }
 
+    @GuardianRead
     @GetMapping("/authenticated")
     public String userLogin(Model model) {
         model.addAttribute("user", getUsername());
         return "authenticated";
     }
 
+    @GuardianRead
     @GetMapping("/userPage")
     public String userPage(Model model) {
         model.addAttribute("user", getUsername());
         return "userPage";
     }
 
+    @AdminRead
     @GetMapping("/adminPage")
     public String adminPage(Model model) {
         model.addAttribute("user", getUsername());
@@ -70,6 +75,7 @@ public class userController {
     }
 
     //this overrides the default GET logout page
+    @GuardianRead
     @GetMapping("/logout")
     public String logoutPage(HttpServletRequest request, HttpServletResponse response){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -79,8 +85,7 @@ public class userController {
         return "welcome";
     }
 
-    //need to prefix with ROLE_ here
-    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @TeacherRead
     @GetMapping("/CRUD")
     public String listUsers(Model model){
         Set<User> userSet = new HashSet<>();

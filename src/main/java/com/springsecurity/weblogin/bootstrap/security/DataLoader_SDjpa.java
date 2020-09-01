@@ -1,70 +1,132 @@
 package com.springsecurity.weblogin.bootstrap.security;
 
 import com.springsecurity.weblogin.model.security.Authority;
+import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
-import com.springsecurity.weblogin.repositories.security.AuthorityRepository;
-import com.springsecurity.weblogin.repositories.security.UserRepository;
+import com.springsecurity.weblogin.services.securityServices.AuthorityService;
+import com.springsecurity.weblogin.services.securityServices.RoleService;
+import com.springsecurity.weblogin.services.securityServices.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Component
 @Slf4j
-@Profile("SDjpa")
 @RequiredArgsConstructor
+@Profile(value = {"dev", "SDjpa"})
 public class DataLoader_SDjpa implements CommandLineRunner {
 
-    private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
-    private final PasswordEncoder DBpasswordEncoder = new BCryptPasswordEncoder();
+    private final UserService userService;
+    private final AuthorityService authorityService;
+    private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
-        if (authorityRepository.findAll().size() == 0){
+        log.debug("Users on file: " + userService.findAll().size());
+        log.debug("Authorities on file: " + authorityService.findAll().size());
+        log.debug("Roles on file: " + roleService.findAll().size());
+
+        if (userService.findAll().size() == 0){
             populateH2();
-            log.debug("Authority database finished populating");
+            log.debug("Users database finished populating");
         } else
-            log.debug("Authority database already contains data; no changes made");
+            log.debug("Users database already contains data; no changes made");
     }
 
     private void populateH2(){
-        //example, as per Student Record Management (SRM) account
-        //use ROLE_ prefix with JPAUserDetailsService; w/o ROLE_ prefix for in-memory
-        Authority adminAuthority = authorityRepository.save(Authority.builder().role("ROLE_ADMIN").build());
-        Authority userAuthority = authorityRepository.save(Authority.builder().role("ROLE_USER").build());
-        Authority teacherAuthority = authorityRepository.save(Authority.builder().role("ROLE_TEACHER").build());
-        Authority guardianAuthority = authorityRepository.save(Authority.builder().role("ROLE_GUARDIAN").build());
-        log.debug("Authorities added: " + authorityRepository.count());
 
-        userRepository.save(User.builder()
+        // Privileges Admin > User > Teacher > Guardian
+        //admin authorities
+        Authority createAdmin = authorityService.save(Authority.builder().permission("admin.create").build());
+        Authority updateAdmin = authorityService.save(Authority.builder().permission("admin.update").build());
+        Authority readAdmin = authorityService.save(Authority.builder().permission("admin.read").build());
+        Authority deleteAdmin = authorityService.save(Authority.builder().permission("admin.delete").build());
+
+        //user authorities
+        Authority createUser = authorityService.save(Authority.builder().permission("user.create").build());
+        Authority updateUser = authorityService.save(Authority.builder().permission("user.update").build());
+        Authority readUser = authorityService.save(Authority.builder().permission("user.read").build());
+        Authority deleteUser = authorityService.save(Authority.builder().permission("user.delete").build());
+
+        //teacher authorities
+        Authority createTeacher = authorityService.save(Authority.builder().permission("teacher.create").build());
+        Authority updateTeacher = authorityService.save(Authority.builder().permission("teacher.update").build());
+        Authority readTeacher = authorityService.save(Authority.builder().permission("teacher.read").build());
+        Authority deleteTeacher = authorityService.save(Authority.builder().permission("teacher.delete").build());
+
+        //guardian authorities
+        Authority createGuardian = authorityService.save(Authority.builder().permission("guardian.create").build());
+        Authority updateGuardian = authorityService.save(Authority.builder().permission("guardian.update").build());
+        Authority readGuardian = authorityService.save(Authority.builder().permission("guardian.read").build());
+        Authority deleteGuardian = authorityService.save(Authority.builder().permission("guardian.delete").build());
+
+        Role adminRole = roleService.save(Role.builder().roleName("ADMIN").build());
+        Role userRole = roleService.save(Role.builder().roleName("USER").build());
+        Role teacherRole = roleService.save(Role.builder().roleName("TEACHER").build());
+        Role guardianRole = roleService.save(Role.builder().roleName("GUARDIAN").build());
+
+        //Set.Of returns an immutable set, so new HashSet instantiates a mutable Set
+        adminRole.setAuthorities(new HashSet<>(Set.of(createAdmin, updateAdmin, readAdmin, deleteAdmin,
+                createUser, readUser, updateUser, deleteUser, createTeacher, readTeacher, updateTeacher, deleteTeacher,
+                createGuardian, readGuardian, updateGuardian, deleteGuardian)));
+
+        userRole.setAuthorities(new HashSet<>(Set.of(createUser, readUser, updateUser, deleteUser,
+                createTeacher, readTeacher, updateTeacher, deleteTeacher,
+                createGuardian, readGuardian, updateGuardian, deleteGuardian)));
+
+        teacherRole.setAuthorities(new HashSet<>(Set.of(createTeacher, readTeacher, updateTeacher, deleteTeacher,
+                createGuardian, readGuardian, updateGuardian, deleteGuardian)));
+
+        guardianRole.setAuthorities(new HashSet<>(Set.of(createGuardian, readGuardian, updateGuardian, deleteGuardian)));
+
+//        //use ROLE_ prefix with JPAUserDetailsService; w/o ROLE_ prefix for in-memory
+//        Authority userAuthority = authorityRepository.save(Authority.builder().role("ROLE_USER").build());
+//        Authority teacherAuthority = authorityRepository.save(Authority.builder().role("ROLE_TEACHER").build());
+//        Authority guardianAuthority = authorityRepository.save(Authority.builder().role("ROLE_GUARDIAN").build());
+
+        roleService.save(adminRole);
+        roleService.save(userRole);
+        roleService.save(teacherRole);
+        roleService.save(guardianRole);
+
+        log.debug("Roles added: " + roleService.findAll().size());
+        log.debug("Authorities added: " + authorityService.findAll().size());
+
+        userService.save(User.builder()
                 .username("admin")
-                .password(DBpasswordEncoder.encode("admin123"))
-                .authority(adminAuthority)  //singular set, courtesy of Project Lombok
+                .password(passwordEncoder.encode("admin123"))
+                .role(adminRole)
                 .build());
-        userRepository.save(User.builder()
+        userService.save(User.builder()
                 .username("user")
-                .password(DBpasswordEncoder.encode("user123"))
-                .authority(userAuthority)
+                .password(passwordEncoder.encode("user123"))
+                .role(userRole)
                 .build());
-        userRepository.save(User.builder()
+        userService.save(User.builder()
                 .username("teacher")
-                .password(DBpasswordEncoder.encode("teacher123"))
-                .authority(teacherAuthority)
+                .password(passwordEncoder.encode("teacher123"))
+                .role(teacherRole)
                 .build());
-        userRepository.save(User.builder()
+        userService.save(User.builder()
                 .username("guardian1")
-                .password(DBpasswordEncoder.encode("guardian123"))
-                .authority(guardianAuthority)
+                .password(passwordEncoder.encode("guardian123"))
+                .role(guardianRole)
                 .build());
-        userRepository.save(User.builder()
+        userService.save(User.builder()
                 .username("guardian2")
-                .password(DBpasswordEncoder.encode("guardian456"))
-                .authority(guardianAuthority)
+                .password(passwordEncoder.encode("guardian456"))
+                .role(guardianRole)
                 .build());
-        log.debug("Accounts added: " + userRepository.count());
+        log.debug("Accounts added: " + userService.findAll().size());
+
+        userService.findByUsername("admin").getAuthorities().forEach(authority ->
+                System.out.println("Admin permission: " + authority.getPermission()));
     }
 }

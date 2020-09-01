@@ -16,16 +16,16 @@ Both the in-memory h2 (based on a HashMap) and JPA enabled MySQL databases (via 
 
 Web-login is intended to be incorporated into other Spring based projects, and edited as desired. Initial security options (credentials, authorisation,
  session cookies and duration) are set in [/config/SecurityConfiguration](./src/main/java/com/springsecurity/weblogin/config/SecurityConfiguration.java).
-  The model user is defined in [/dbUsers](src/main/java/com/springsecurity/weblogin/model). 
+  The model user is defined in [/dbUsers](src/main/java/com/springsecurity/weblogin/model/security). 
 
-The service methods are declared in [/services/BaseService](./src/main/java/com/springsecurity/weblogin/services/BaseService.java) 
-interface, and then defined in [/services/map](./src/main/java/com/springsecurity/weblogin/services/map) and 
-[/services/springDataJPA](./src/main/java/com/springsecurity/weblogin/services/springDataJPA) for the h2 HashMap and 
+The service methods are declared in [/services/BaseService](./src/main/java/com/springsecurity/weblogin/services/securityServices/BaseService.java) 
+interface, and then defined in [/services/map](./src/main/java/com/springsecurity/weblogin/services/map/security) and 
+[/services/springDataJPA](./src/main/java/com/springsecurity/weblogin/services/springDataJPA/security) for the h2 HashMap and 
 MySQL JPA services, respectively. Additional custom methods, respectively, can be declared in [/services/dbUserServices](src/main/java/com/springsecurity/weblogin/services/securityServices)
- and/or [/repositories](./src/main/java/com/springsecurity/weblogin/repositories).
+ and/or [/repositories](./src/main/java/com/springsecurity/weblogin/repositories/security).
  
 MySQL connection settings are enabled by declaring the 'dev' profile (in addition to 'SDjpa') in [application.properties](./src/main/resources/application.properties).
  MySQL database port, table, and other credentials are located in [application-dev.yml](./src/main/resources/application-dev.yml). 
  In this YAML file, one will also find the script needed to produce a SQL script based on the Users model and can be commented
- out when not required. A first draft copy, appended with commas, is provided in [the scripts directory](./src/main/resources/scripts)
+ out when not required. A first draft copy, appended with commas, is provided in the [scripts directory](./src/main/resources/scripts)
 

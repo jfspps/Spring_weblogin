@@ -1,0 +1,5 @@
+/home/james/Dev/Spring_weblogin/src/test/java/com/springsecurity/weblogin/services/map/security/UserMapServiceTest.java
+/home/james/Dev/Spring_weblogin/src/test/java/com/springsecurity/weblogin/controllers/userControllerTest.java
+/home/james/Dev/Spring_weblogin/src/test/java/com/springsecurity/weblogin/services/map/security/AuthorityMapServiceTest.java
+/home/james/Dev/Spring_weblogin/src/test/java/com/springsecurity/weblogin/services/springDataJPA/security/UserSDjpaServiceTest.java
+/home/james/Dev/Spring_weblogin/src/test/java/com/springsecurity/weblogin/WebLoginApplicationTests.java

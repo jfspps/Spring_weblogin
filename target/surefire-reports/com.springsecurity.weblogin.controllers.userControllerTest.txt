@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.springsecurity.weblogin.controllers.userControllerTest
--------------------------------------------------------------------------------
-Tests run: 34, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.858 s - in com.springsecurity.weblogin.controllers.userControllerTest

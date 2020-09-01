@@ -9,6 +9,7 @@
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/config/SecurityConfiguration.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/model/security/Authority.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/repositories/security/RoleRepository.java
+/home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/web/permissionAnnot/AdminRead.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/services/map/security/RoleMapService.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/services/map/security/UserMapService.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/services/springDataJPA/security/RoleSDjpaService.java
@@ -16,7 +17,8 @@
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/model/security/User.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/SpringSecurityInitializer.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/exceptions/NotFoundException.java
-/home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/controllers/userController.java
+/home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/web/permissionAnnot/TeacherRead.java
+/home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/web/controllers/userController.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/services/securityServices/RoleService.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/exceptions/CustomAuthenticationFailureHandler.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/WebLoginApplication.java
@@ -25,3 +27,4 @@
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/services/securityServices/BaseService.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/repositories/security/UserRepository.java
 /home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/services/springDataJPA/security/UserSDjpaService.java
+/home/james/Dev/Spring_weblogin/src/main/java/com/springsecurity/weblogin/web/permissionAnnot/UserRead.java

@@ -74,38 +74,17 @@ class userControllerTest {
                 .andExpect(view().name("welcome"));
     }
 
-    //this passes with any username
-    @WithMockUser("admin")
-    @Test
-    void loginPage_admin() throws Exception {
-        mockMvc.perform(get("/authenticated"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("authenticated"));
-    }
-
-    //this passes with any username
+    //this fails with Spring Security with any username ('random' is effectively replaced with anyString())
     @WithMockUser("random")
     @Test
     void loginPage_random() throws Exception {
         mockMvc.perform(get("/authenticated"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("authenticated"));
+                .andExpect(status().is4xxClientError());
     }
 
-    //default is Spring's "user" (coincidental that my 'user' has the same name as Spring's)
-    @WithMockUser()
-    @Test
-    void loginPage_user() throws Exception {
-        mockMvc.perform(get("/authenticated"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("authenticated"))
-                .andExpect(model().attributeExists("user"));
-    }
-
-    @WithAnonymousUser
     @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
     @ParameterizedTest
-    void redirectToLoginWhenRequestingAuthenticated_User(String username, String pwd) throws Exception {
+    void redirectToLoginWhenRequestingAuthenticated_AllUsers(String username, String pwd) throws Exception {
         //see https://www.baeldung.com/spring-security-redirect-login
 
         MockHttpServletRequestBuilder securedResourceAccess = get("/authenticated");
@@ -140,10 +119,54 @@ class userControllerTest {
 
     @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
     @ParameterizedTest
-    void loginAuthHttpBasicUserPASS(String username, String pwd) throws Exception {
+    void redirectToLoginWhenRequestingUserPage_AllUsers(String username, String pwd) throws Exception {
+        //see https://www.baeldung.com/spring-security-redirect-login
+
+        MockHttpServletRequestBuilder securedResourceAccess = get("/userPage");
+
+        //gather what happens when accessing /authenticated as an anonymous user
+        MvcResult unauthenticatedResult = mockMvc
+                .perform(securedResourceAccess)
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        //retrieve any session data
+        MockHttpSession session = (MockHttpSession) unauthenticatedResult
+                .getRequest()
+                .getSession();
+
+        //post login data under same session
+        mockMvc
+                .perform(post("/login")
+                        .param("username", username)
+                        .param("password", pwd)
+                        .session(session)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/userPage"))
+                .andReturn();
+
+        //verify that the user session enables future access without re-logging in
+        mockMvc
+                .perform(securedResourceAccess.session(session))
+                .andExpect(status().isOk());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @ParameterizedTest
+    void loginAuthHttpBasic_AllUsers_Authenticated(String username, String pwd) throws Exception {
         mockMvc.perform(get("/authenticated").with(httpBasic(username, pwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("authenticated"))
+                .andExpect(model().attributeExists("user"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @ParameterizedTest
+    void loginAuthHttpBasic_AllUsers_UserPage(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/userPage").with(httpBasic(username, pwd)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("userPage"))
                 .andExpect(model().attributeExists("user"));
     }
 

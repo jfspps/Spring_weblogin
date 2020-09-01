@@ -60,11 +60,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 //set pages which do not require authentication
                 .antMatchers("/h2-console/**").permitAll()
-//                .antMatchers("/", "/welcome", "/login").permitAll()
-//                //set pages which require authentication
-//                .antMatchers("/authenticated/**").hasAnyRole("admin", "user", "teacher", "guardian")
-//                .antMatchers("/userPage").hasAnyRole("admin", "user", "teacher", "guardian")
-//                .antMatchers("/adminPage").hasRole("admin")
+                .antMatchers("/", "/welcome", "/login").permitAll()
+                //set pages which require authentication
+                .antMatchers("/authenticated/**").hasAuthority("guardian.read")
+                .antMatchers("/userPage").hasAuthority("guardian.read")
+                .antMatchers("/adminPage").hasAuthority("admin.read")
                 //override the default login page (see controller)
                 .and().formLogin()
                     // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead

@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,22 +18,26 @@ import java.util.Set;
 
 @Component
 @Slf4j
-@Profile("map")
 @RequiredArgsConstructor
+@Profile("map")
 public class DataLoader_h2 implements CommandLineRunner {
 
     private final UserService userService;
     private final AuthorityService authorityService;
     private final RoleService roleService;
-    private final PasswordEncoder DBpasswordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
-        if (authorityService.findAll().isEmpty()){
+        log.debug("Users on file: " + userService.findAll().size());
+        log.debug("Authorities on file: " + authorityService.findAll().size());
+        log.debug("Roles on file: " + roleService.findAll().size());
+
+        if (userService.findAll().size() == 0){
             populateH2();
-            log.debug("Authority database finished populating");
+            log.debug("Users database finished populating");
         } else
-            log.debug("Authority database already contains data; no changes made");
+            log.debug("Users database already contains data; no changes made");
     }
 
     private void populateH2(){
@@ -62,10 +65,10 @@ public class DataLoader_h2 implements CommandLineRunner {
         Authority readGuardian = authorityService.save(Authority.builder().permission("guardian.read").build());
         Authority deleteGuardian = authorityService.save(Authority.builder().permission("guardian.delete").build());
 
-        Role adminRole = roleService.save(Role.builder().name("ADMIN").build());
-        Role userRole = roleService.save(Role.builder().name("USER").build());
-        Role teacherRole = roleService.save(Role.builder().name("TEACHER").build());
-        Role guardianRole = roleService.save(Role.builder().name("GUARDIAN").build());
+        Role adminRole = roleService.save(Role.builder().roleName("ADMIN").build());
+        Role userRole = roleService.save(Role.builder().roleName("USER").build());
+        Role teacherRole = roleService.save(Role.builder().roleName("TEACHER").build());
+        Role guardianRole = roleService.save(Role.builder().roleName("GUARDIAN").build());
 
         //Set.Of returns an immutable set, so new HashSet instantiates a mutable Set
         adminRole.setAuthorities(new HashSet<>(Set.of(createAdmin, updateAdmin, readAdmin, deleteAdmin,
@@ -98,32 +101,32 @@ public class DataLoader_h2 implements CommandLineRunner {
 
         userService.save(User.builder()
                 .username("admin")
-                .password(DBpasswordEncoder.encode("admin123"))
+                .password(passwordEncoder.encode("admin123"))
                 .role(adminRole)
                 .build());
         userService.save(User.builder()
                 .username("user")
-                .password(DBpasswordEncoder.encode("user123"))
+                .password(passwordEncoder.encode("user123"))
                 .role(userRole)
                 .build());
         userService.save(User.builder()
                 .username("teacher")
-                .password(DBpasswordEncoder.encode("teacher123"))
+                .password(passwordEncoder.encode("teacher123"))
                 .role(teacherRole)
                 .build());
         userService.save(User.builder()
                 .username("guardian1")
-                .password(DBpasswordEncoder.encode("guardian123"))
+                .password(passwordEncoder.encode("guardian123"))
                 .role(guardianRole)
                 .build());
         userService.save(User.builder()
                 .username("guardian2")
-                .password(DBpasswordEncoder.encode("guardian456"))
+                .password(passwordEncoder.encode("guardian456"))
                 .role(guardianRole)
                 .build());
-        log.debug("Users added: " + userService.findAll().size());
+        log.debug("Accounts added: " + userService.findAll().size());
 
-//        userService.findByUsername("admin").getAuthorities().forEach(authority ->
-//            System.out.println(authority.getPermission()));
+        userService.findByUsername("admin").getAuthorities().forEach(authority ->
+            System.out.println("Admin permission: " + authority.getPermission()));
     }
 }

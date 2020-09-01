@@ -35,7 +35,7 @@ class UserSDjpaServiceTest {
     final String username = "someone";
     final String password = "weakPassword";
     Authority authority = Authority.builder().permission("allGame").build();
-    Role role = Role.builder().name("admin").authority(authority).build();
+    Role role = Role.builder().roleName("ADMIN").authority(authority).build();
     User testUser;
     Set<User> userSet = new HashSet<>();
     Set<Role> roleSet = new HashSet<>();

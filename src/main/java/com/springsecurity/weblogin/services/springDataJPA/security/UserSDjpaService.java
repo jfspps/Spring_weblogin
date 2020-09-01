@@ -23,10 +23,7 @@ public class UserSDjpaService implements UserService {
 
     @Override
     public User save(User object) {
-        if (userRepository.findByUsername(object.getUsername()) == null){
-            return userRepository.save(object);
-        }
-        return null;
+        return userRepository.save(object);
     }
 
     @Override

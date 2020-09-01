@@ -88,4 +88,9 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
     public boolean isEnabled() {
         return this.enabled;
     }
+
+    // account groups which are defined by a User: AdminUser
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private AdminUser adminUser;
 }

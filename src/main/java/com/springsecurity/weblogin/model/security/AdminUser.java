@@ -4,9 +4,7 @@ package com.springsecurity.weblogin.model.security;
 //in which the credentials and account status are stored)
 
 import com.springsecurity.weblogin.model.BaseEntity;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -14,6 +12,8 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.util.Set;
 
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter

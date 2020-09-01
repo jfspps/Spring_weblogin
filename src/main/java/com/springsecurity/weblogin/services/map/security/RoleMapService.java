@@ -41,6 +41,15 @@ public class RoleMapService extends AbstractMapService<Role, Long> implements Ro
     }
 
     @Override
+    public Role findByRoleName(String roleName) {
+        return this.findAll()
+                .stream()
+                .filter(user -> user.getRoleName().equals(roleName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public void delete(Role objectT) {
         super.delete(objectT);
     }

@@ -39,6 +39,11 @@ public class RoleSDjpaService implements RoleService {
     }
 
     @Override
+    public Role findByRoleName(String roleName) {
+        return roleRepository.findByRoleName(roleName);
+    }
+
+    @Override
     public void delete(Role objectT) {
         roleRepository.delete(objectT);
     }

@@ -1,8 +1,10 @@
 package com.springsecurity.weblogin.bootstrap.security;
 
+import com.springsecurity.weblogin.model.security.AdminUser;
 import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.services.securityServices.AdminUserService;
 import com.springsecurity.weblogin.services.securityServices.AuthorityService;
 import com.springsecurity.weblogin.services.securityServices.RoleService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
@@ -25,6 +27,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     private final UserService userService;
     private final AuthorityService authorityService;
     private final RoleService roleService;
+    private final AdminUserService adminUserService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -34,14 +37,15 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         log.debug("Roles on file: " + roleService.findAll().size());
 
         if (userService.findAll().size() == 0){
-            populateH2();
+            loadSecurityData();
             log.debug("Users database finished populating");
+            loadAdminUsers();
+            log.debug("AdminUsers database finished populating");
         } else
             log.debug("Users database already contains data; no changes made");
     }
 
-    private void populateH2(){
-
+    private void loadSecurityData(){
         // Privileges Admin > User > Teacher > Guardian
         //admin authorities
         Authority createAdmin = authorityService.save(Authority.builder().permission("admin.create").build());
@@ -120,8 +124,26 @@ public class DataLoader_SDjpa implements CommandLineRunner {
                 .role(guardianRole)
                 .build());
         log.debug("Accounts added: " + userService.findAll().size());
+    }
 
-        userService.findByUsername("admin").getAuthorities().forEach(authority ->
-                System.out.println("Admin permissions available: " + authority.getAuthority()));
+    public void loadAdminUsers(){
+        Role adminRole = roleService.findByRoleName("ADMIN");
+
+        // Instantiating the admin users (this must be done after Users)
+        AdminUser johnSmith = adminUserService.save(AdminUser.builder().adminUserName("John Smith").build());
+        AdminUser amySmith = adminUserService.save(AdminUser.builder().adminUserName("Amy Smith").build());
+
+        //passwords are not displayed on the schema...?
+        User johnSmithUser = userService.save(User.builder().username("johnsmith")
+                .password(passwordEncoder.encode("johnsmith123"))
+                .adminUser(johnSmith)
+                .role(adminRole).build());
+
+        User amySmithUser = userService.save(User.builder().username("amysmith")
+                .password(passwordEncoder.encode("amysmith123"))
+                .adminUser(amySmith)
+                .role(adminRole).build());
+
+        log.debug("AdminUsers added: " + johnSmithUser.getUsername() + " " + amySmithUser.getUsername());
     }
 }

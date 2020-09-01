@@ -39,6 +39,8 @@ class userControllerTest {
     protected MockMvc mockMvc;
 
     private final static String ADMINPWD = "admin123";
+    private final static String JOHNSMITH_ADMINPWD = "johnsmith123";
+    private final static String AMYSMITH_ADMINPWD = "amysmith123";
     private final static String USERPWD = "user123";
     private final static String TEACHERPWD = "teacher123";
     private final static String GUARDIAN1PWD = "guardian123";
@@ -50,7 +52,9 @@ class userControllerTest {
                 Arguments.of("user", USERPWD),
                 Arguments.of("teacher", TEACHERPWD),
                 Arguments.of("guardian1", GUARDIAN1PWD),
-                Arguments.of("guardian2", GUARDIAN2PWD));
+                Arguments.of("guardian2", GUARDIAN2PWD),
+                Arguments.of("johnsmith", JOHNSMITH_ADMINPWD),
+                Arguments.of("amysmith", AMYSMITH_ADMINPWD));
     }
 
     // provides non-Admin users to perform a given test

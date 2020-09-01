@@ -1,0 +1,68 @@
+-------------------------------------------------------------------------------
+Test set: com.springsecurity.weblogin.controllers.userControllerTest
+-------------------------------------------------------------------------------
+Tests run: 26, Failures: 16, Errors: 0, Skipped: 0, Time elapsed: 3.057 s <<< FAILURE! - in com.springsecurity.weblogin.controllers.userControllerTest
+userPage_withAllUsers{String, String}[1]  Time elapsed: 0.257 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.userPage_withAllUsers(userControllerTest.java:166)
+
+userPage_withAllUsers{String, String}[2]  Time elapsed: 0.014 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.userPage_withAllUsers(userControllerTest.java:166)
+
+userPage_withAllUsers{String, String}[3]  Time elapsed: 0.125 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.userPage_withAllUsers(userControllerTest.java:166)
+
+userPage_withAllUsers{String, String}[4]  Time elapsed: 0.155 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.userPage_withAllUsers(userControllerTest.java:166)
+
+userPage_withAllUsers{String, String}[5]  Time elapsed: 0.139 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.userPage_withAllUsers(userControllerTest.java:166)
+
+loginAuthHttpBasicUserPASS{String, String}[1]  Time elapsed: 0.129 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.loginAuthHttpBasicUserPASS(userControllerTest.java:147)
+
+loginAuthHttpBasicUserPASS{String, String}[2]  Time elapsed: 0.017 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.loginAuthHttpBasicUserPASS(userControllerTest.java:147)
+
+loginAuthHttpBasicUserPASS{String, String}[3]  Time elapsed: 0.112 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.loginAuthHttpBasicUserPASS(userControllerTest.java:147)
+
+loginAuthHttpBasicUserPASS{String, String}[4]  Time elapsed: 0.116 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.loginAuthHttpBasicUserPASS(userControllerTest.java:147)
+
+loginAuthHttpBasicUserPASS{String, String}[5]  Time elapsed: 0.113 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.loginAuthHttpBasicUserPASS(userControllerTest.java:147)
+
+adminPagePASS_withAdmin  Time elapsed: 0.109 s  <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at com.springsecurity.weblogin.controllers.userControllerTest.adminPagePASS_withAdmin(userControllerTest.java:173)
+
+redirectToLoginWhenRequestingAuthenticated_User{String, String}[1]  Time elapsed: 0.122 s  <<< FAILURE!
+java.lang.AssertionError: Redirected URL '/login-error' does not match the expected URL pattern '**/authenticated'
+	at com.springsecurity.weblogin.controllers.userControllerTest.redirectToLoginWhenRequestingAuthenticated_User(userControllerTest.java:134)
+
+redirectToLoginWhenRequestingAuthenticated_User{String, String}[2]  Time elapsed: 0.013 s  <<< FAILURE!
+java.lang.AssertionError: Redirected URL '/login-error' does not match the expected URL pattern '**/authenticated'
+	at com.springsecurity.weblogin.controllers.userControllerTest.redirectToLoginWhenRequestingAuthenticated_User(userControllerTest.java:134)
+
+redirectToLoginWhenRequestingAuthenticated_User{String, String}[3]  Time elapsed: 0.129 s  <<< FAILURE!
+java.lang.AssertionError: Redirected URL '/login-error' does not match the expected URL pattern '**/authenticated'
+	at com.springsecurity.weblogin.controllers.userControllerTest.redirectToLoginWhenRequestingAuthenticated_User(userControllerTest.java:134)
+
+redirectToLoginWhenRequestingAuthenticated_User{String, String}[4]  Time elapsed: 0.122 s  <<< FAILURE!
+java.lang.AssertionError: Redirected URL '/login-error' does not match the expected URL pattern '**/authenticated'
+	at com.springsecurity.weblogin.controllers.userControllerTest.redirectToLoginWhenRequestingAuthenticated_User(userControllerTest.java:134)
+
+redirectToLoginWhenRequestingAuthenticated_User{String, String}[5]  Time elapsed: 0.11 s  <<< FAILURE!
+java.lang.AssertionError: Redirected URL '/login-error' does not match the expected URL pattern '**/authenticated'
+	at com.springsecurity.weblogin.controllers.userControllerTest.redirectToLoginWhenRequestingAuthenticated_User(userControllerTest.java:134)
+

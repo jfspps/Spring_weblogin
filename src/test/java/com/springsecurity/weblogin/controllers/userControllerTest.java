@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +26,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+//USER <--> ROLE <--> AUTHORITY
+
 @Slf4j
 @SpringBootTest
 //substitute @WebMvcTest for @SpringBootTest to guarantee tests capture all Spring Boot dependencies which were loaded at the time
@@ -37,7 +38,6 @@ class userControllerTest {
 
     protected MockMvc mockMvc;
 
-    BCryptPasswordEncoder bCryptPasswordEncoder;
     private final static String ADMINPWD = "admin123";
     private final static String USERPWD = "user123";
     private final static String TEACHERPWD = "teacher123";

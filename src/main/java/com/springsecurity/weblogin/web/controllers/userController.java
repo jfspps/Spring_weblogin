@@ -1,8 +1,7 @@
-package com.springsecurity.weblogin.controllers;
+package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.securityServices.UserService;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -80,7 +79,6 @@ public class userController {
     }
 
     //need to prefix with ROLE_ here
-    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
     @GetMapping("/CRUD")
     public String listUsers(Model model){
         Set<User> userSet = new HashSet<>();

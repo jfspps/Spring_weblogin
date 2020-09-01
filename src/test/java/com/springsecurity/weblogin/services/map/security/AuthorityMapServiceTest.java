@@ -2,7 +2,7 @@ package com.springsecurity.weblogin.services.map.security;
 
 import com.springsecurity.weblogin.exceptions.NotFoundException;
 import com.springsecurity.weblogin.model.security.Authority;
-import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.model.security.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,24 +12,28 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+//Role is intermediate of Users and Authorities: USER <--> ROLE <--> AUTHORITY
+
 class AuthorityMapServiceTest {
 
     AuthorityMapService authorityMapService;
-    final String role = "KINGandQUEEN";
-    User user = User.builder().build();
-    Set<User> userSet = new HashSet<>();
+    RoleMapService roleMapService;
+    final String permission = "fairGame";
+    Role role = Role.builder().build();
+    Set<Role> roleSet = new HashSet<>();
     Authority testAuthority;
 
     @BeforeEach
     void setUp() {
-        userSet.add(user);
+        roleSet.add(role);
         authorityMapService = new AuthorityMapService();
-        testAuthority = authorityMapService.save(Authority.builder().role(role).users(userSet).build());
+        roleMapService = new RoleMapService();
+        testAuthority = authorityMapService.save(Authority.builder().roles(roleSet).permission(permission).build());
     }
 
     @Test
     void save() {
-        assertEquals(role, testAuthority.getRole());
+        assertEquals(roleSet, testAuthority.getRoles());
         System.out.println("testAuthority ID: " + testAuthority.getId());
     }
 

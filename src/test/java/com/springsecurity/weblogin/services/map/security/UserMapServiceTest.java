@@ -1,25 +1,29 @@
 package com.springsecurity.weblogin.services.map.security;
 
 import com.springsecurity.weblogin.exceptions.NotFoundException;
-import com.springsecurity.weblogin.model.security.Authority;
+import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//Role is intermediate of Users and Authorities: USER <--> ROLE <--> AUTHORITY
+
 class UserMapServiceTest {
 
     UserMapService userMapService;
+    RoleMapService roleMapService;
     final String username = "someone";
     final String password = "weakPassword";
-    Authority authority = Authority.builder().role("people").build();
+    Role testRole = Role.builder().build();
     User testUser;
 
     @BeforeEach
     void setUp() {
         userMapService = new UserMapService();
-        testUser = userMapService.save(User.builder().username(username).password(password).authority(authority).build());
+        roleMapService = new RoleMapService();
+        testUser = userMapService.save(User.builder().username(username).password(password).role(testRole).build());
     }
 
     @Test

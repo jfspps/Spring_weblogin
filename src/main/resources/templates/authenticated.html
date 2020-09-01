@@ -14,12 +14,13 @@
     <p sec:authorize="hasAuthority('user.read')">
         You are in the USER group
     </p>
-
-<!--    Authenticated username:-->
-<!--    <div sec:authentication="name"></div>-->
-<!--    Authenticated user roles:-->
-<!--    <div sec:authentication="principal.authorities"></div>-->
-
+    <p>
+        <b>Username:</b> <span sec:authentication="name"></span>
+    </p>
+    <p>
+        <b>Authorities:</b> <span sec:authentication="principal.authorities"></span>
+    </p>
+    <br />
     <a href="/adminPage">Admin page</a>
     <a href="/userPage">User page</a>
     <a href="/logout">Sign out</a>

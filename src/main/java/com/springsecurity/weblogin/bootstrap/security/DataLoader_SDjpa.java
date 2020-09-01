@@ -86,11 +86,6 @@ public class DataLoader_SDjpa implements CommandLineRunner {
 
         guardianRole.setAuthorities(new HashSet<>(Set.of(createGuardian, readGuardian, updateGuardian, deleteGuardian)));
 
-//        //use ROLE_ prefix with JPAUserDetailsService; w/o ROLE_ prefix for in-memory
-//        Authority userAuthority = authorityRepository.save(Authority.builder().role("ROLE_USER").build());
-//        Authority teacherAuthority = authorityRepository.save(Authority.builder().role("ROLE_TEACHER").build());
-//        Authority guardianAuthority = authorityRepository.save(Authority.builder().role("ROLE_GUARDIAN").build());
-
         roleService.save(adminRole);
         roleService.save(userRole);
         roleService.save(teacherRole);
@@ -127,6 +122,6 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         log.debug("Accounts added: " + userService.findAll().size());
 
         userService.findByUsername("admin").getAuthorities().forEach(authority ->
-                System.out.println("Admin permission: " + authority.getPermission()));
+                System.out.println("Admin permissions available: " + authority.getAuthority()));
     }
 }

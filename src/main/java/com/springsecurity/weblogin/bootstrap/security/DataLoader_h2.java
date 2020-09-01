@@ -84,13 +84,6 @@ public class DataLoader_h2 implements CommandLineRunner {
 
         guardianRole.setAuthorities(new HashSet<>(Set.of(createGuardian, readGuardian, updateGuardian, deleteGuardian)));
 
-//        //example, as per Student Record Management (SRM) account
-//        //ROLE_ prefix applies to JPAUserDetailsService, hence not applicable to H2 profile
-//        Authority adminAuthority = authorityService.save(Authority.builder().role("ADMIN").build());
-//        Authority userAuthority = authorityService.save(Authority.builder().role("USER").build());
-//        Authority teacherAuthority = authorityService.save(Authority.builder().role("TEACHER").build());
-//        Authority guardianAuthority = authorityService.save(Authority.builder().role("GUARDIAN").build());
-
         roleService.save(adminRole);
         roleService.save(userRole);
         roleService.save(teacherRole);
@@ -127,6 +120,6 @@ public class DataLoader_h2 implements CommandLineRunner {
         log.debug("Accounts added: " + userService.findAll().size());
 
         userService.findByUsername("admin").getAuthorities().forEach(authority ->
-            System.out.println("Admin permission: " + authority.getPermission()));
+            System.out.println("Admin permission: " + authority.getAuthority()));
     }
 }

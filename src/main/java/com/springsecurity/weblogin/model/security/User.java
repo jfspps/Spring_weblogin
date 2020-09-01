@@ -2,10 +2,14 @@ package com.springsecurity.weblogin.model.security;
 
 import com.springsecurity.weblogin.model.BaseEntity;
 import lombok.*;
+import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,17 +21,13 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @Entity
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails, CredentialsContainer {
 
     @Size(min = 1, max = 255)
     private String username;
 
     @Size(min = 8, max = 255)
     private String password;
-
-    //Transient are non-persistent (no relation to Authorities db table)
-    @Transient
-    private Set<Authority> authorities = new HashSet<>();
 
     //Singular (Lombok) builds a singular Set with one Authority in authorities, called "authority"
     @Singular
@@ -38,11 +38,14 @@ public class User extends BaseEntity {
             inverseJoinColumns = {@JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")})
     private Set<Role> roles;
 
-    //recall from the DB as needed (struggles to work with SDjpa)
-    public Set<Authority> getAuthorities() {
+    //recall from the DB as needed (when User is injected into the context, converting Authorities from Roles is handled here
+    //instead of through JPAUserDetails (ensure roles is loaded eagerly, not lazily, above)
+    @Transactional
+    public Set<GrantedAuthority> getAuthorities() {
         return this.roles.stream()
                 .map(Role::getAuthorities)
                 .flatMap(Set::stream)
+                .map(authority -> new SimpleGrantedAuthority(authority.getPermission()))
                 .collect(Collectors.toSet());
     }
 
@@ -59,4 +62,30 @@ public class User extends BaseEntity {
 
     @Builder.Default
     private Boolean credentialsNonExpired = true;
+
+    //preparing for multi-tenancy (multiple User models with access to one account)
+    @Override
+    public void eraseCredentials() {
+        this.password = null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.accountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.credentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 }

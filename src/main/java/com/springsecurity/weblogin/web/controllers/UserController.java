@@ -21,11 +21,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Controller
-public class userController {
+public class UserController {
 
     private final UserService userService;
 
-    public userController(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 

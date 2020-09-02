@@ -1,4 +1,4 @@
-package com.springsecurity.weblogin.controllers;
+package com.springsecurity.weblogin.web.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,44 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringBootTest
 //substitute @WebMvcTest for @SpringBootTest to guarantee tests capture all Spring Boot dependencies which were loaded at the time
-class userControllerTest {
-
-    @Autowired
-    WebApplicationContext context;
-
-    protected MockMvc mockMvc;
-
-    private final static String ADMINPWD = "admin123";
-    private final static String JOHNSMITH_ADMINPWD = "johnsmith123";
-    private final static String AMYSMITH_ADMINPWD = "amysmith123";
-    private final static String USERPWD = "user123";
-    private final static String TEACHERPWD = "teacher123";
-    private final static String GUARDIAN1PWD = "guardian123";
-    private final static String GUARDIAN2PWD = "guardian456";
-
-    // provides all users to perform a given test (the order of the username and pwd parameters is important)
-    public static Stream<Arguments> streamAllUsers(){
-        return Stream.of(Arguments.of("admin", ADMINPWD),
-                Arguments.of("user", USERPWD),
-                Arguments.of("teacher", TEACHERPWD),
-                Arguments.of("guardian1", GUARDIAN1PWD),
-                Arguments.of("guardian2", GUARDIAN2PWD),
-                Arguments.of("johnsmith", JOHNSMITH_ADMINPWD),
-                Arguments.of("amysmith", AMYSMITH_ADMINPWD));
-    }
-
-    // provides non-Admin users to perform a given test
-    public static Stream<Arguments> streamAllNonAdminUsers(){
-        return Stream.of(Arguments.of("user", USERPWD),
-                Arguments.of("teacher", TEACHERPWD),
-                Arguments.of("guardian1", GUARDIAN1PWD),
-                Arguments.of("guardian2", GUARDIAN2PWD));
-    }
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    }
+class UserControllerTest extends SecurityCredentialsTest {
 
     @WithAnonymousUser
     @Test
@@ -87,7 +50,7 @@ class userControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
     void redirectToLoginWhenRequestingAuthenticated_AllUsers(String username, String pwd) throws Exception {
         //see https://www.baeldung.com/spring-security-redirect-login
@@ -122,7 +85,7 @@ class userControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
     void redirectToLoginWhenRequestingUserPage_AllUsers(String username, String pwd) throws Exception {
         //see https://www.baeldung.com/spring-security-redirect-login
@@ -157,7 +120,7 @@ class userControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
     void loginAuthHttpBasic_AllUsers_Authenticated(String username, String pwd) throws Exception {
         mockMvc.perform(get("/authenticated").with(httpBasic(username, pwd)))
@@ -166,7 +129,7 @@ class userControllerTest {
                 .andExpect(model().attributeExists("user"));
     }
 
-    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
     void loginAuthHttpBasic_AllUsers_UserPage(String username, String pwd) throws Exception {
         mockMvc.perform(get("/userPage").with(httpBasic(username, pwd)))
@@ -185,7 +148,7 @@ class userControllerTest {
         System.out.println("loginAuthHttpBasicFAIL(), redirected URL: " + unauthenticatedResult.getResponse().getContentAsString());
     }
 
-    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
     void userPage_withAllUsers(String username, String pwd) throws Exception {
         mockMvc.perform(get("/userPage").with(httpBasic(username, pwd)))
@@ -193,9 +156,10 @@ class userControllerTest {
                 .andExpect(view().name("userPage"));
     }
 
+    @WithUserDetails("admin")
     @Test
     void adminPagePASS_withAdmin() throws Exception {
-        mockMvc.perform(get("/adminPage").with(httpBasic("admin", ADMINPWD)))
+        mockMvc.perform(get("/adminPage"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("adminPage"));
     }
@@ -209,7 +173,7 @@ class userControllerTest {
                 .andExpect(view().name("adminPage"));
     }
 
-    @MethodSource("com.springsecurity.weblogin.controllers.userControllerTest#streamAllNonAdminUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
     @ParameterizedTest
     void adminPageFAIL_withNonAdmin(String username, String pwd) throws Exception {
         mockMvc.perform(get("/adminPage").with(httpBasic(username, pwd)))

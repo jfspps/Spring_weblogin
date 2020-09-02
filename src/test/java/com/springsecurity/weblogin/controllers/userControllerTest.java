@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -195,6 +196,15 @@ class userControllerTest {
     @Test
     void adminPagePASS_withAdmin() throws Exception {
         mockMvc.perform(get("/adminPage").with(httpBasic("admin", ADMINPWD)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("adminPage"));
+    }
+
+    //same test as above with new annotation (username and pwd are pulled from JPAUserDetails)
+    @Test
+    @WithUserDetails("admin")
+    void adminPagePASS_withAdmin_withoutHttpBasic() throws Exception {
+        mockMvc.perform(get("/adminPage"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("adminPage"));
     }

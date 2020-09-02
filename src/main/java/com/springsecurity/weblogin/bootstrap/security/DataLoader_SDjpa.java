@@ -1,9 +1,11 @@
 package com.springsecurity.weblogin.bootstrap.security;
 
+import com.springsecurity.weblogin.model.TestRecord;
 import com.springsecurity.weblogin.model.security.AdminUser;
 import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.services.TestRecordService;
 import com.springsecurity.weblogin.services.securityServices.AdminUserService;
 import com.springsecurity.weblogin.services.securityServices.AuthorityService;
 import com.springsecurity.weblogin.services.securityServices.RoleService;
@@ -28,6 +30,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     private final AuthorityService authorityService;
     private final RoleService roleService;
     private final AdminUserService adminUserService;
+    private final TestRecordService testRecordService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -43,6 +46,16 @@ public class DataLoader_SDjpa implements CommandLineRunner {
             log.debug("AdminUsers database finished populating");
         } else
             log.debug("Users database already contains data; no changes made");
+
+        loadTestRecord();
+        log.debug("TestRecords loaded");
+    }
+
+    private void loadTestRecord() {
+        TestRecord record1 = new TestRecord("Test record 1");
+        TestRecord record2 = new TestRecord("Test record 2");
+        testRecordService.save(record1);
+        testRecordService.save(record2);
     }
 
     private void loadSecurityData(){

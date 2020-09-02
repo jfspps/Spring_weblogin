@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>TestRecord CRUD ops</title>
@@ -11,6 +12,23 @@
 <p>
     <b>Username:</b> <span sec:authentication="name"></span>
 </p>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Record name</th>
+        </tr>
+    </thead>
+    <tbody>
+    <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
+    <tr th:each="testRecord: ${testRecords}">
+        <td th:text="${testRecord.id}"/>
+        <td th:text="${testRecord.recordName}"/>
+    </tr>
+    </tbody>
+</table>
+
 
 <a href="/authenticated">Authentication page</a>
 <a href="/adminPage">Admin page</a>

@@ -39,11 +39,22 @@ public abstract class SecurityCredentialsTest {
                 Arguments.of("amysmith", AMYSMITH_ADMINPWD));
     }
 
+    public static Stream<Arguments> streamSchoolStaff(){
+        return Stream.of(Arguments.of("admin", ADMINPWD),
+                Arguments.of("user", USERPWD),
+                Arguments.of("teacher", TEACHERPWD));
+    }
+
     // provides non-Admin users to perform a given test
     public static Stream<Arguments> streamAllNonAdminUsers(){
         return Stream.of(Arguments.of("user", USERPWD),
                 Arguments.of("teacher", TEACHERPWD),
                 Arguments.of("guardian1", GUARDIAN1PWD),
+                Arguments.of("guardian2", GUARDIAN2PWD));
+    }
+
+    public static Stream<Arguments> streamAllGuardians(){
+        return Stream.of(Arguments.of("guardian1", GUARDIAN1PWD),
                 Arguments.of("guardian2", GUARDIAN2PWD));
     }
 

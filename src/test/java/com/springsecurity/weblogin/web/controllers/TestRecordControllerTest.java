@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,12 +39,12 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     }
 
     @Test
-    void getCRUDpageDENIED() throws Exception {
+    void getCRUDpageAnonDENIED() throws Exception {
         mockMvc.perform(get("/testRecord"))
                 .andExpect(status().isUnauthorized());
     }
 
-    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void getCreatePage(String username, String pwd) throws Exception {
         mockMvc.perform(get("/createTestRecord").with(httpBasic(username, pwd)))
@@ -52,18 +53,32 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(model().attributeExists("newTestRecord"));
     }
 
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
+    @ParameterizedTest
+    void getCreatePageGuardiansFORBIDDEN(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createTestRecord").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
+    }
+
     @Test
     void getCreatePageDENIED() throws Exception {
         mockMvc.perform(get("/createTestRecord"))
                 .andExpect(status().isUnauthorized());
     }
 
-    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postCreateTestRecord(String username, String pwd) throws Exception {
         mockMvc.perform(post("/createTestRecord").with(httpBasic(username, pwd)))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
+    @ParameterizedTest
+    void postCreateTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createTestRecord").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -72,12 +87,19 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void getUpdateTestRecord(String username, String pwd) throws Exception {
         mockMvc.perform(post("/createTestRecord").with(httpBasic(username, pwd)))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
+    @ParameterizedTest
+    void getUpdateTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createTestRecord").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -88,7 +110,7 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
 
     //this fails when the entire test class is run but passes when run independently
 
-//    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+//    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
 //    @ParameterizedTest
 //    void postUpdateTestRecord(String username, String pwd) throws Exception {
 //        TestRecord testRecord = new TestRecord();
@@ -101,13 +123,20 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
 //                .andExpect(view().name("redirect:/testRecord"));
 //    }
 
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
+    @ParameterizedTest
+    void postUpdateTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateTestRecord/1").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
+    }
+
     @Test
     void postUpdateTestRecordDENIED() throws Exception {
         mockMvc.perform(post("/updateTestRecord/1"))
                 .andExpect(status().is4xxClientError());
     }
 
-    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postDeleteTestRecord(String username, String pwd) throws Exception {
         TestRecord testRecord = new TestRecord();
@@ -116,6 +145,13 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
         mockMvc.perform(post("/deleteTestRecord/1").with(httpBasic(username, pwd)))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
+    @ParameterizedTest
+    void postDeleteTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/deleteTestRecord/1").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
     }
 
     @Test

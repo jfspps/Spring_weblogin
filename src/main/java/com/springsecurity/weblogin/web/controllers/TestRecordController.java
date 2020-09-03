@@ -2,7 +2,7 @@ package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.TestRecord;
 import com.springsecurity.weblogin.services.TestRecordService;
-import com.springsecurity.weblogin.web.permissionAnnot.GuardianRead;
+import com.springsecurity.weblogin.web.permissionAnnot.*;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Test;
 import org.springframework.stereotype.Controller;
@@ -42,14 +42,14 @@ public class TestRecordController {
         return "testRecord";
     }
 
-    @GuardianRead
+    @TeacherCreate
     @GetMapping("/createTestRecord")
     public String createTestRecord(Model model){
         model.addAttribute("newTestRecord", new TestRecord());
         return "testRecordCreate";
     }
 
-    @GuardianRead
+    @TeacherCreate
     @PostMapping("/createTestRecord")
     public String createTestRecordPOST(@Valid @ModelAttribute("newTestRecord") TestRecord testRecord){
         TestRecord saved = testRecordService.save(testRecord);
@@ -57,7 +57,7 @@ public class TestRecordController {
         return "redirect:/testRecord";
     }
 
-    @GuardianRead
+    @TeacherRead
     @GetMapping("/testRecord/{id}")
     public String getTestRecordById(@PathVariable String id, Model model){
         TestRecord found = testRecordService.findById(Long.valueOf(id));
@@ -65,7 +65,7 @@ public class TestRecordController {
         return "testRecordUpdate";
     }
 
-    @GuardianRead
+    @TeacherUpdate
     @PostMapping("/updateTestRecord/{id}")
     public String updateTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
                                    @PathVariable String id){
@@ -82,7 +82,7 @@ public class TestRecordController {
         return "redirect:/testRecord";
     }
 
-    @GuardianRead
+    @TeacherDelete
     @PostMapping("/deleteTestRecord/{id}")
     public String deleteTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
                                    @PathVariable String id){

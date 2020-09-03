@@ -1,18 +1,21 @@
 package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.TestRecord;
+import com.springsecurity.weblogin.model.security.Authority;
+import com.springsecurity.weblogin.model.security.Role;
+import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.TestRecordService;
+import com.springsecurity.weblogin.services.securityServices.AuthorityService;
+import com.springsecurity.weblogin.services.securityServices.RoleService;
+import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.web.permissionAnnot.*;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Test;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -20,9 +23,14 @@ import java.util.Set;
 public class TestRecordController {
 
     private final TestRecordService testRecordService;
+    private final UserService userService;
+    private final AuthorityService authorityService;
 
-    public TestRecordController(TestRecordService testRecordService) {
+
+    public TestRecordController(TestRecordService testRecordService, UserService userService, AuthorityService authorityService) {
         this.testRecordService = testRecordService;
+        this.userService = userService;
+        this.authorityService = authorityService;
     }
 
     //prevent the HTTP form POST from editing listed properties
@@ -31,14 +39,16 @@ public class TestRecordController {
         dataBinder.setDisallowedFields("id");
     }
 
-    @ModelAttribute("testRecords")
+    @ModelAttribute("testRecordSet")
     public Set<TestRecord> populateTestRecords() {
         return testRecordService.findAll();
     }
 
-    @GuardianRead
-    @GetMapping("/testRecord")
-    public String getCRUDpage(){
+    @GuardianReadWithID
+    @GetMapping("/{userId}/testRecord")
+    public String getCRUDpage(@PathVariable String userId, Model model){
+        User user = userService.findById(Long.valueOf(userId));
+        model.addAttribute("testRecords", testRecordService.findAllTestRecordsByUsername(user.getUsername()));
         return "testRecord";
     }
 

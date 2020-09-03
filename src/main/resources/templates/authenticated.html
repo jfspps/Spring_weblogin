@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Authenticated user</title>
@@ -15,13 +16,13 @@
         You are in the USER group
     </p>
     <p>
-        <b>Username:</b> <span sec:authentication="name"></span>
+        <b>ID:</b> <span th:text="${userID}"></span>, <b>Username:</b> <span sec:authentication="name"></span>
     </p>
     <p>
         <b>Authorities:</b> <span sec:authentication="principal.authorities"></span>
     </p>
-    <br />
-    <a href="/testRecord">TestRecord CRUD page</a>
+    <br/>
+    <a th:href="@{/{userId}/testRecord(userId=${userID})}">TestRecord CRUD page</a>
     <a href="/adminPage">Admin page</a>
     <a href="/userPage">User page</a>
     <a href="/logout">Sign out</a>

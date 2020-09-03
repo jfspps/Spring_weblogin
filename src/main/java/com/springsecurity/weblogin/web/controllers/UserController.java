@@ -56,6 +56,8 @@ public class UserController {
     @GuardianRead
     @GetMapping("/authenticated")
     public String userLogin(Model model) {
+        User user = userService.findByUsername(getUsername());
+        model.addAttribute("userID", user.getId());
         model.addAttribute("user", getUsername());
         return "authenticated";
     }

@@ -1,6 +1,7 @@
 package com.springsecurity.weblogin.model.security;
 
 import com.springsecurity.weblogin.model.BaseEntity;
+import com.springsecurity.weblogin.model.TestRecord;
 import lombok.*;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
@@ -93,4 +94,8 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 
     @ManyToOne(fetch = FetchType.EAGER)
     private AdminUser adminUser;
+
+    //testRecord mappings, one user to many testRecords
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<TestRecord> testRecords;
 }

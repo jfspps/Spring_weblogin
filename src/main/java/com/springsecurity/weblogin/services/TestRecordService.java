@@ -11,6 +11,8 @@ public interface TestRecordService {
 
         TestRecord findById(Long id);
 
+        Set<TestRecord> findAllTestRecordsByUsername(String username);
+
         Set<TestRecord> findAll();
 
         void delete(TestRecord objectT);

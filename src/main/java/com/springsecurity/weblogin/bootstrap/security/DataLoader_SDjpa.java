@@ -48,14 +48,24 @@ public class DataLoader_SDjpa implements CommandLineRunner {
             log.debug("Users database already contains data; no changes made");
 
         loadTestRecord();
-        log.debug("TestRecords loaded");
+        log.debug("TestRecords loaded: " + testRecordService.findAll().size());
     }
 
     private void loadTestRecord() {
-        TestRecord record1 = new TestRecord("Test record 1");
-        TestRecord record2 = new TestRecord("Test record 2");
-        testRecordService.save(record1);
-        testRecordService.save(record2);
+        User guardianOne = userService.findByUsername("guardian1");
+        User guardianTwo = userService.findByUsername("guardian2");
+
+        saveTestRecord(guardianOne, "Test record 1");
+        saveTestRecord(guardianTwo, "Test record 1");
+        saveTestRecord(guardianTwo, "Test record 2");
+
+        userService.save(guardianOne);
+        userService.save(guardianTwo);
+        //changes to user are cascaded to testRecords, so no need to save testRecords
+    }
+
+    private TestRecord saveTestRecord(User user, String recordName){
+        return testRecordService.save(TestRecord.builder().recordName(recordName).user(user).build());
     }
 
     private void loadSecurityData(){

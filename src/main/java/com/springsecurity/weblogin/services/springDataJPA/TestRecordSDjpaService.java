@@ -32,6 +32,11 @@ public class TestRecordSDjpaService implements TestRecordService {
     }
 
     @Override
+    public Set<TestRecord> findAllTestRecordsByUsername(String username) {
+        return testRecordRepository.findAllByUser_Username(username);
+    }
+
+    @Override
     public Set<TestRecord> findAll() {
         Set<TestRecord> testRecords = new HashSet<>();
         testRecordRepository.findAll().forEach(testRecords::add);

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>TestRecord CRUD ops</title>
+</head>
+<body>
+
+<h1>TestRecord CRUD operations</h1>
+
+<p>
+    <b>Username:</b> <span sec:authentication="name"></span>
+</p>
+<!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
+<form th:object="${testRecord}" th:action="@{/updateTestRecord/{id}(id=${testRecord.id})}" method="post">
+    <table>
+        <tr>
+            <td th:text="${testRecord.id}"/>
+            <td>
+                <input size="50" th:field="*{recordName}"/>
+            </td>
+        </tr>
+    </table>
+    <input style="width: 200px" th:type="submit" value="Update" />
+</form>
+
+<!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
+<form th:object="${testRecord}" th:action="@{/deleteTestRecord/{id}(id=${testRecord.id})}" method="post">
+    <input style="width: 200px" th:type="submit" value="Delete" />
+</form>
+
+
+<br />
+<a href="/authenticated">Authentication page</a>
+<a href="/adminPage">Admin page</a>
+<a href="/userPage">User page</a>
+<a href="/logout">Sign out</a>
+
+</body>
+</html>

@@ -39,6 +39,11 @@ public class TestRecordSDjpaService implements TestRecordService {
     }
 
     @Override
+    public TestRecord findByName(String recordName) {
+        return testRecordRepository.findByRecordName(recordName);
+    }
+
+    @Override
     public void delete(TestRecord objectT) {
         testRecordRepository.delete(objectT);
     }

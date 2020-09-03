@@ -7,6 +7,8 @@ import java.util.Set;
 public interface TestRecordService {
         TestRecord save(TestRecord object);
 
+        TestRecord findByName(String recordName);
+
         TestRecord findById(Long id);
 
         Set<TestRecord> findAll();

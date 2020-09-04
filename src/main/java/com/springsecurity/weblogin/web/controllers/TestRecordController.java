@@ -10,6 +10,7 @@ import com.springsecurity.weblogin.services.securityServices.RoleService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.web.permissionAnnot.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -44,10 +45,11 @@ public class TestRecordController {
         return testRecordService.findAll();
     }
 
-    @GuardianReadWithID
-    @GetMapping("/{userId}/testRecord")
-    public String getCRUDpage(@PathVariable String userId, Model model){
-        User user = userService.findById(Long.valueOf(userId));
+    //pass the authenticated user from the context with @AuthenticationPrincipal
+    @GuardianRead
+    @GetMapping("/testRecord")
+    public String getCRUDpage(@AuthenticationPrincipal User user, Model model){
+        //add logic to check for adminUser or teacherUser
         model.addAttribute("testRecords", testRecordService.findAllTestRecordsByUsername(user.getUsername()));
         return "testRecord";
     }

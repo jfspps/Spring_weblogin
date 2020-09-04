@@ -95,6 +95,12 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
     @ManyToOne(fetch = FetchType.EAGER)
     private AdminUser adminUser;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private TeacherUser teacherUser;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private GuardianUser guardianUser;
+
     //testRecord mappings, one user to many testRecords
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<TestRecord> testRecords;

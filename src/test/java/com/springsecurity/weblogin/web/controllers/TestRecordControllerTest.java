@@ -30,22 +30,20 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     @Mock
     TestRecordService testRecordServiceTEST;
 
-    //missing userId in model and URL
-//    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
-//    @ParameterizedTest
-//    void getCRUDpage(String username, String pwd) throws Exception {
-//        mockMvc.perform(get("/testRecord").with(httpBasic(username, pwd)))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name("testRecord"))
-//                .andExpect(model().attributeExists("testRecords"));   //matches the no. of TestRecords on bootloader
-//    }
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+    @ParameterizedTest
+    void getCRUDpage(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/testRecord").with(httpBasic(username, pwd)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("testRecord"))
+                .andExpect(model().attributeExists("testRecords"));
+    }
 
-    //missing userId in model and URL
-//    @Test
-//    void getCRUDpageAnonDENIED() throws Exception {
-//        mockMvc.perform(get("/testRecord"))
-//                .andExpect(status().isUnauthorized());
-//    }
+    @Test
+    void getCRUDpageAnonDENIED() throws Exception {
+        mockMvc.perform(get("/testRecord"))
+                .andExpect(status().isUnauthorized());
+    }
 
     @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")

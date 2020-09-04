@@ -1,9 +1,7 @@
 package com.springsecurity.weblogin.web.controllers;
 
-import com.springsecurity.weblogin.services.TestRecordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -20,42 +18,41 @@ public abstract class SecurityCredentialsTest {
 
     protected MockMvc mockMvc;
 
-    private final static String ADMINPWD = "admin123";
     private final static String JOHNSMITH_ADMINPWD = "johnsmith123";
     private final static String AMYSMITH_ADMINPWD = "amysmith123";
-    private final static String USERPWD = "user123";
-    private final static String TEACHERPWD = "teacher123";
-    private final static String GUARDIAN1PWD = "guardian123";
-    private final static String GUARDIAN2PWD = "guardian456";
+    private final static String PAULSMITH_GUARDIANPWD = "paulsmith123";
+    private final static String ALEXSMITH_GUARDIANPWD = "alexsmith123";
+    private final static String KEITHJONES_TEACHERPWD = "keithjones123";
+    private final static String MARYMANNING_TEACHERPWD = "marymanning123";
 
     // provides all users to perform a given test (the order of the username and pwd parameters is important)
     public static Stream<Arguments> streamAllUsers(){
-        return Stream.of(Arguments.of("admin", ADMINPWD),
-                Arguments.of("user", USERPWD),
-                Arguments.of("teacher", TEACHERPWD),
-                Arguments.of("guardian1", GUARDIAN1PWD),
-                Arguments.of("guardian2", GUARDIAN2PWD),
+        return Stream.of(Arguments.of("paulsmith", PAULSMITH_GUARDIANPWD),
+                Arguments.of("alexsmith", ALEXSMITH_GUARDIANPWD),
+                Arguments.of("keithjones", KEITHJONES_TEACHERPWD),
+                Arguments.of("marymanning", MARYMANNING_TEACHERPWD),
                 Arguments.of("johnsmith", JOHNSMITH_ADMINPWD),
                 Arguments.of("amysmith", AMYSMITH_ADMINPWD));
     }
 
     public static Stream<Arguments> streamSchoolStaff(){
-        return Stream.of(Arguments.of("admin", ADMINPWD),
-                Arguments.of("user", USERPWD),
-                Arguments.of("teacher", TEACHERPWD));
+        return Stream.of(Arguments.of("keithjones", KEITHJONES_TEACHERPWD),
+                Arguments.of("marymanning", MARYMANNING_TEACHERPWD),
+                Arguments.of("johnsmith", JOHNSMITH_ADMINPWD),
+                Arguments.of("amysmith", AMYSMITH_ADMINPWD));
     }
 
     // provides non-Admin users to perform a given test
     public static Stream<Arguments> streamAllNonAdminUsers(){
-        return Stream.of(Arguments.of("user", USERPWD),
-                Arguments.of("teacher", TEACHERPWD),
-                Arguments.of("guardian1", GUARDIAN1PWD),
-                Arguments.of("guardian2", GUARDIAN2PWD));
+        return Stream.of(Arguments.of("paulsmith", PAULSMITH_GUARDIANPWD),
+                Arguments.of("alexsmith", ALEXSMITH_GUARDIANPWD),
+                Arguments.of("keithjones", KEITHJONES_TEACHERPWD),
+                Arguments.of("marymanning", MARYMANNING_TEACHERPWD));
     }
 
     public static Stream<Arguments> streamAllGuardians(){
-        return Stream.of(Arguments.of("guardian1", GUARDIAN1PWD),
-                Arguments.of("guardian2", GUARDIAN2PWD));
+        return Stream.of(Arguments.of("paulsmith", PAULSMITH_GUARDIANPWD),
+                Arguments.of("alexsmith", ALEXSMITH_GUARDIANPWD));
     }
 
     @BeforeEach

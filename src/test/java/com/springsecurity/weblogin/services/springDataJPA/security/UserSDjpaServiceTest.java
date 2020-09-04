@@ -29,9 +29,6 @@ class UserSDjpaServiceTest {
     @Mock
     UserRepository userRepository;
 
-    @Mock
-    RoleRepository roleRepository;
-
     final String username = "someone";
     final String password = "weakPassword";
     Authority authority = Authority.builder().permission("allGame").build();

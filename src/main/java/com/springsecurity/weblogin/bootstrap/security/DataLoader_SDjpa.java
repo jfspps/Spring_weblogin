@@ -1,15 +1,9 @@
 package com.springsecurity.weblogin.bootstrap.security;
 
 import com.springsecurity.weblogin.model.TestRecord;
-import com.springsecurity.weblogin.model.security.AdminUser;
-import com.springsecurity.weblogin.model.security.Authority;
-import com.springsecurity.weblogin.model.security.Role;
-import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.model.security.*;
 import com.springsecurity.weblogin.services.TestRecordService;
-import com.springsecurity.weblogin.services.securityServices.AdminUserService;
-import com.springsecurity.weblogin.services.securityServices.AuthorityService;
-import com.springsecurity.weblogin.services.securityServices.RoleService;
-import com.springsecurity.weblogin.services.securityServices.UserService;
+import com.springsecurity.weblogin.services.securityServices.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -30,6 +24,8 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     private final AuthorityService authorityService;
     private final RoleService roleService;
     private final AdminUserService adminUserService;
+    private final GuardianUserService guardianUserService;
+    private final TeacherUserService teacherUserService;
     private final TestRecordService testRecordService;
     private final PasswordEncoder passwordEncoder;
 
@@ -43,7 +39,8 @@ public class DataLoader_SDjpa implements CommandLineRunner {
             loadSecurityData();
             log.debug("Users database finished populating");
             loadAdminUsers();
-            log.debug("AdminUsers database finished populating");
+            loadGuardianUsers();
+            loadTeacherUsers();
         } else
             log.debug("Users database already contains data; no changes made");
 
@@ -52,12 +49,12 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     }
 
     private void loadTestRecord() {
-        User guardianOne = userService.findByUsername("guardian1");
-        User guardianTwo = userService.findByUsername("guardian2");
+        User guardianOne = userService.findByUsername("paulsmith");
+        User guardianTwo = userService.findByUsername("alexsmith");
 
         saveTestRecord(guardianOne, "Test record 1");
-        saveTestRecord(guardianTwo, "Test record 1");
         saveTestRecord(guardianTwo, "Test record 2");
+        saveTestRecord(guardianTwo, "Test record 3");
 
         userService.save(guardianOne);
         userService.save(guardianTwo);
@@ -141,16 +138,11 @@ public class DataLoader_SDjpa implements CommandLineRunner {
                 .role(teacherRole)
                 .build());
         userService.save(User.builder()
-                .username("guardian1")
+                .username("guardian")
                 .password(passwordEncoder.encode("guardian123"))
                 .role(guardianRole)
                 .build());
-        userService.save(User.builder()
-                .username("guardian2")
-                .password(passwordEncoder.encode("guardian456"))
-                .role(guardianRole)
-                .build());
-        log.debug("Accounts added: " + userService.findAll().size());
+        log.debug("User accounts added: " + userService.findAll().size());
     }
 
     public void loadAdminUsers(){
@@ -172,5 +164,47 @@ public class DataLoader_SDjpa implements CommandLineRunner {
                 .role(adminRole).build());
 
         log.debug("AdminUsers added: " + johnSmithUser.getUsername() + " " + amySmithUser.getUsername());
+    }
+
+    public void loadGuardianUsers(){
+        Role guardianRole = roleService.findByRoleName("GUARDIAN");
+
+        // Instantiating the admin users (this must be done after Users)
+        GuardianUser paulSmith = guardianUserService.save(GuardianUser.builder().guardianUserName("Paul Smith").build());
+        GuardianUser alexSmith = guardianUserService.save(GuardianUser.builder().guardianUserName("Alex Smith").build());
+
+        //passwords are not displayed on the schema...?
+        User paulSmithUser = userService.save(User.builder().username("paulsmith")
+                .password(passwordEncoder.encode("paulsmith123"))
+                .guardianUser(paulSmith)
+                .role(guardianRole).build());
+
+        User alexSmithUser = userService.save(User.builder().username("alexsmith")
+                .password(passwordEncoder.encode("alexsmith123"))
+                .guardianUser(alexSmith)
+                .role(guardianRole).build());
+
+        log.debug("GuardianUsers added: " + paulSmithUser.getUsername() + " " + alexSmithUser.getUsername());
+    }
+
+    public void loadTeacherUsers(){
+        Role teacherRole = roleService.findByRoleName("TEACHER");
+
+        // Instantiating the admin users (this must be done after Users)
+        TeacherUser keithJones = teacherUserService.save(TeacherUser.builder().teacherUserName("Keith Jones").build());
+        TeacherUser maryManning = teacherUserService.save(TeacherUser.builder().teacherUserName("Mary Manning").build());
+
+        //passwords are not displayed on the schema...?
+        User keithJonesUser = userService.save(User.builder().username("keithjones")
+                .password(passwordEncoder.encode("keithjones123"))
+                .teacherUser(keithJones)
+                .role(teacherRole).build());
+
+        User maryManningUser = userService.save(User.builder().username("marymanning")
+                .password(passwordEncoder.encode("marymanning123"))
+                .teacherUser(maryManning)
+                .role(teacherRole).build());
+
+        log.debug("TeacherUsers added: " + keithJonesUser.getUsername() + " " + maryManningUser.getUsername());
     }
 }

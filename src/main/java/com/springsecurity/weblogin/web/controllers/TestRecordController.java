@@ -46,11 +46,16 @@ public class TestRecordController {
     }
 
     //pass the authenticated user from the context with @AuthenticationPrincipal
-    @GuardianRead
+    @GuardianTeacherRead
     @GetMapping("/testRecord")
     public String getCRUDpage(@AuthenticationPrincipal User user, Model model){
-        //add logic to check for adminUser or teacherUser
-        model.addAttribute("testRecords", testRecordService.findAllTestRecordsByUsername(user.getUsername()));
+        log.debug("User logged in: " + user.getUsername());
+
+        if (user.getAdminUser() != null && user.getTeacherUser() != null){
+            model.addAttribute("testRecords", testRecordService.findAllTestRecordsByUsername(user.getUsername()));
+        } else {
+            model.addAttribute("testRecords", testRecordService.findAll());
+        }
         return "testRecord";
     }
 

@@ -40,6 +40,11 @@ public class GuardianUserSDjpaService implements GuardianUserService {
     }
 
     @Override
+    public GuardianUser findByGuardianUserName(String username) {
+        return guardianUserRepository.findByGuardianUserName(username).orElse(null);
+    }
+
+    @Override
     public void delete(GuardianUser objectT) {
         guardianUserRepository.delete(objectT);
     }

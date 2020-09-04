@@ -18,7 +18,15 @@
         <label>Record name</label>
     </div>
     <div>
-        <input type="text" size="50" th:field="*{recordName}"/>
+        <input type="text" size="50" placeholder="Record name" th:field="*{recordName}"/>
+    </div>
+    <div>
+        <label>Guardian username</label>
+    </div>
+    <!--/*@thymesVar id="guardianUser" type="com.springsecurity.weblogin.model.security.User"*/-->
+    <div th:object="${guardianUser}" >
+        <input type="text" size="50" placeholder="Guardian username" th:field="*{username}"/>
+    </div>
     </div>
         <input style="width: 200px" type="submit" value="Submit"/>
     </div>

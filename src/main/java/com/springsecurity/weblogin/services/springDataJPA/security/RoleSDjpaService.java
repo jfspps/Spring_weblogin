@@ -40,7 +40,7 @@ public class RoleSDjpaService implements RoleService {
 
     @Override
     public Role findByRoleName(String roleName) {
-        return roleRepository.findByRoleName(roleName);
+        return roleRepository.findByRoleName(roleName).orElse(null);
     }
 
     @Override

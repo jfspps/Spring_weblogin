@@ -2,6 +2,7 @@ package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.TestRecord;
 import com.springsecurity.weblogin.model.security.Authority;
+import com.springsecurity.weblogin.model.security.GuardianUser;
 import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.TestRecordService;
@@ -25,13 +26,10 @@ public class TestRecordController {
 
     private final TestRecordService testRecordService;
     private final UserService userService;
-    private final AuthorityService authorityService;
 
-
-    public TestRecordController(TestRecordService testRecordService, UserService userService, AuthorityService authorityService) {
+    public TestRecordController(TestRecordService testRecordService, UserService userService) {
         this.testRecordService = testRecordService;
         this.userService = userService;
-        this.authorityService = authorityService;
     }
 
     //prevent the HTTP form POST from editing listed properties
@@ -46,14 +44,17 @@ public class TestRecordController {
     }
 
     //pass the authenticated user from the context with @AuthenticationPrincipal
-    @GuardianTeacherRead
+    @GuardianRead
     @GetMapping("/testRecord")
     public String getCRUDpage(@AuthenticationPrincipal User user, Model model){
         log.debug("User logged in: " + user.getUsername());
 
-        if (user.getAdminUser() != null && user.getTeacherUser() != null){
+        // the authenticated user is injected into the current session. If the authenticated user belongs to a
+        // teacher or admin User (user.getTeacherUser and user.getAdminUser) then all records are presented
+        if (user.getGuardianUser() != null){
             model.addAttribute("testRecords", testRecordService.findAllTestRecordsByUsername(user.getUsername()));
         } else {
+            //if the user falls under AdminUser, UserUser or TeacherUser...
             model.addAttribute("testRecords", testRecordService.findAll());
         }
         return "testRecord";
@@ -63,14 +64,20 @@ public class TestRecordController {
     @GetMapping("/createTestRecord")
     public String createTestRecord(Model model){
         model.addAttribute("newTestRecord", new TestRecord());
+        model.addAttribute("guardianUser", new User());
         return "testRecordCreate";
     }
 
     @TeacherCreate
     @PostMapping("/createTestRecord")
-    public String createTestRecordPOST(@Valid @ModelAttribute("newTestRecord") TestRecord testRecord){
-        TestRecord saved = testRecordService.save(testRecord);
-        log.debug("Received testRecord with id: " + saved.getId() + " and name: " + saved.getRecordName());
+    public String createTestRecordPOST(@Valid @ModelAttribute("newTestRecord") TestRecord testRecord,
+                                       @Valid @ModelAttribute("guardianUser") User guardianUser){
+        testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
+        User found = userService.findByUsername(guardianUser.getUsername());
+        if (found != null){
+            log.debug("Received guardianUser with id: " + found.getId() + " and username: " + found.getUsername());
+        } else
+            log.debug("TestRecord not saved to DB");
         return "redirect:/testRecord";
     }
 

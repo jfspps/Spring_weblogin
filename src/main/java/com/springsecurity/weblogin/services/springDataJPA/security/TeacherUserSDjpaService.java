@@ -42,6 +42,11 @@ public class TeacherUserSDjpaService implements TeacherUserService {
     }
 
     @Override
+    public TeacherUser findByTeacherUserName(String username) {
+        return teacherUserRepository.findByTeacherUserName(username).orElse(null);
+    }
+
+    @Override
     public void delete(TeacherUser objectT) {
         teacherUserRepository.delete(objectT);
     }

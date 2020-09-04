@@ -60,7 +60,7 @@ class UserSDjpaServiceTest {
 
     @Test
     void findById() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(testUser));
 
         User found = userSDjpaService.findById(12L);
 
@@ -71,7 +71,7 @@ class UserSDjpaServiceTest {
 
     @Test
     void findByUsername() {
-        when(userRepository.findByUsername(anyString())).thenReturn(testUser);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.ofNullable(testUser));
 
         User found = userSDjpaService.findByUsername("Jimmy");
         assertEquals(username, found.getUsername());

@@ -49,20 +49,9 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     }
 
     private void loadTestRecord() {
-        User guardianOne = userService.findByUsername("paulsmith");
-        User guardianTwo = userService.findByUsername("alexsmith");
-
-        saveTestRecord(guardianOne, "Test record 1");
-        saveTestRecord(guardianTwo, "Test record 2");
-        saveTestRecord(guardianTwo, "Test record 3");
-
-        userService.save(guardianOne);
-        userService.save(guardianTwo);
-        //changes to user are cascaded to testRecords, so no need to save testRecords
-    }
-
-    private TestRecord saveTestRecord(User user, String recordName){
-        return testRecordService.save(TestRecord.builder().recordName(recordName).user(user).build());
+        testRecordService.createTestRecord("Test record 1", "paulsmith");
+        testRecordService.createTestRecord("Test record 2", "alexsmith");
+        testRecordService.createTestRecord("Test record 3", "alexsmith");
     }
 
     private void loadSecurityData(){
@@ -122,6 +111,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         log.debug("Roles added: " + roleService.findAll().size());
         log.debug("Authorities added: " + authorityService.findAll().size());
 
+        //each is initialised with the admin, teacher and guardian users below
         userService.save(User.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("admin123"))
@@ -149,6 +139,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         Role adminRole = roleService.findByRoleName("ADMIN");
 
         // Instantiating the admin users (this must be done after Users)
+        // AdminUsers can store non-Security related fields (department, academic year etc.)
         AdminUser johnSmith = adminUserService.save(AdminUser.builder().adminUserName("John Smith").build());
         AdminUser amySmith = adminUserService.save(AdminUser.builder().adminUserName("Amy Smith").build());
 
@@ -178,6 +169,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
                 .password(passwordEncoder.encode("paulsmith123"))
                 .guardianUser(paulSmith)
                 .role(guardianRole).build());
+        //other GuardianUsers can be assigned to paulsmith, with the same roles
 
         User alexSmithUser = userService.save(User.builder().username("alexsmith")
                 .password(passwordEncoder.encode("alexsmith123"))

@@ -3,6 +3,8 @@ package com.springsecurity.weblogin.repositories.security;
 import com.springsecurity.weblogin.model.security.AdminUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface AdminUserRepository extends JpaRepository<AdminUser, Long> {
-    //add more custom JPA methods here
+    Optional<AdminUser> findByAdminUserName(String username);
 }

@@ -117,8 +117,9 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     void postUpdateTestRecord(String username, String pwd) throws Exception {
         TestRecord testRecord = new TestRecord();
         when(testRecordServiceTEST.save(any())).thenReturn(testRecord);
-        when(testRecordServiceTEST.findByName(anyString())).thenReturn(testRecord);
+        when(testRecordServiceTEST.findByRecordName(anyString())).thenReturn(testRecord);
         when(testRecordServiceTEST.findById(anyLong())).thenReturn(testRecord);
+        when(testRecordServiceTEST.updateTestRecord(anyLong(), anyLong(), anyString())).thenReturn(testRecord);
 
         mockMvc.perform(post("/updateTestRecord/1").with(httpBasic(username, pwd)))
                 .andExpect(status().is3xxRedirection())

@@ -1,6 +1,7 @@
 package com.springsecurity.weblogin.services;
 
 import com.springsecurity.weblogin.model.TestRecord;
+import com.springsecurity.weblogin.model.security.User;
 
 import java.util.Set;
 
@@ -9,7 +10,9 @@ public interface TestRecordService {
 
         TestRecord createTestRecord(String recordName, String username);
 
-        TestRecord findByName(String recordName);
+        TestRecord updateTestRecord(Long testRecordID, Long userID, String recordName);
+
+        TestRecord findByRecordName(String recordName);
 
         TestRecord findById(Long id);
 
@@ -20,4 +23,6 @@ public interface TestRecordService {
         void delete(TestRecord objectT);
 
         void deleteById(Long id);
+
+        void deleteTestRecordAndUpdateUser(Long testRecordID, User associatedUser);
 }

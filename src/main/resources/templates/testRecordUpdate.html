@@ -13,12 +13,13 @@
     <b>Username:</b> <span sec:authentication="name"></span>
 </p>
 <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
-<form th:object="${testRecord}" th:action="@{/updateTestRecord/{id}(id=${testRecord.id})}" method="post">
+<form th:object="${testRecord}" th:action="@{/updateTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post">
     <table>
         <tr>
-            <td th:text="${testRecord.id}"/>
+            <td th:text="${'ID: ' + testRecord.id}"></td>
+            <td th:text="${'Username: ' + testRecord.getUser().username}"></td>
             <td>
-                <input size="50" th:field="*{recordName}"/>
+                <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
             </td>
         </tr>
     </table>
@@ -26,7 +27,7 @@
 </form>
 
 <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
-<form th:object="${testRecord}" th:action="@{/deleteTestRecord/{id}(id=${testRecord.id})}" method="post">
+<form th:object="${testRecord}" th:action="@{/deleteTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post">
     <input style="width: 200px" th:type="submit" value="Delete" />
 </form>
 

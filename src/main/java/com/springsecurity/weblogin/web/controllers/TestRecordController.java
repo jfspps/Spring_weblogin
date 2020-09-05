@@ -72,10 +72,10 @@ public class TestRecordController {
     @PostMapping("/createTestRecord")
     public String createTestRecordPOST(@Valid @ModelAttribute("newTestRecord") TestRecord testRecord,
                                        @Valid @ModelAttribute("guardianUser") User guardianUser){
-        testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
-        User found = userService.findByUsername(guardianUser.getUsername());
-        if (found != null){
-            log.debug("Received guardianUser with id: " + found.getId() + " and username: " + found.getUsername());
+        if (testRecord.getRecordName() != null && guardianUser.getUsername() != null){
+            TestRecord saved = testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
+            log.debug("Received guardianUser with id: " + saved.getUser().getId()
+                    + " and username: " + saved.getUser().getUsername());
         } else
             log.debug("TestRecord not saved to DB");
         return "redirect:/testRecord";
@@ -90,31 +90,28 @@ public class TestRecordController {
     }
 
     @TeacherUpdate
-    @PostMapping("/updateTestRecord/{id}")
+    @PostMapping("/updateTestRecord/{testRecordID}")
     public String updateTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
-                                   @PathVariable String id){
-        TestRecord saved;
-        if (testRecordService.findByName(testRecord.getRecordName()) == null){
-            TestRecord temp = testRecordService.findById(Long.valueOf(id));
-            temp.setRecordName(testRecord.getRecordName());
-            saved = testRecordService.save(temp);
+                                   @PathVariable String testRecordID){
+        if (testRecord.getRecordName() == null){
+            log.debug("Record name required");
+            return "redirect:/testRecord";
         } else {
-            log.info("Record with the name " + testRecord.getRecordName() + " already exists");
-            saved = testRecordService.findByName(testRecord.getRecordName());
+            TestRecord found = testRecordService.findById(Long.valueOf(testRecordID));
+            testRecordService.updateTestRecord(Long.valueOf(testRecordID), found.getUser().getId(), testRecord.getRecordName());
         }
-        log.info("Record with id " + saved.getId() + " and record name: " + saved.getRecordName());
         return "redirect:/testRecord";
     }
 
     @TeacherDelete
-    @PostMapping("/deleteTestRecord/{id}")
+    @PostMapping("/deleteTestRecord/{testRecordID}")
     public String deleteTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
-                                   @PathVariable String id){
-        if (testRecordService.findById(Long.valueOf(id)) == null){
-            log.info("No record on file with id: " + id + ", nothing deleted");
+                                   @PathVariable String testRecordID){
+        if (testRecordService.findById(Long.valueOf(testRecordID)) == null){
+            log.info("No record on file with id: " + testRecordID + ", nothing deleted");
         } else {
-            testRecordService.deleteById(Long.valueOf(id));
-            log.info("TestRecord with id: " + id + " deleted");
+            User associatedUser = testRecordService.findById(Long.valueOf(testRecordID)).getUser();
+            testRecordService.deleteTestRecordAndUpdateUser(Long.valueOf(testRecordID), associatedUser);
         }
         return "redirect:/testRecord";
     }

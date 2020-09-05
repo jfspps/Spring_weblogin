@@ -3,7 +3,6 @@ package com.springsecurity.weblogin.services.springDataJPA.security;
 import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
-import com.springsecurity.weblogin.repositories.security.RoleRepository;
 import com.springsecurity.weblogin.repositories.security.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 class UserSDjpaServiceTest {
 
     @Mock
-    UserRepository userRepository;
+    UserRepository userRepositoryTEST;
 
     final String username = "someone";
     final String password = "weakPassword";
@@ -49,33 +48,33 @@ class UserSDjpaServiceTest {
 
     @Test
     void save() {
-        when(userRepository.save(any())).thenReturn(testUser);
+        when(userRepositoryTEST.save(any())).thenReturn(testUser);
 
         User saved = userSDjpaService.save(User.builder().build());
 
         assertNotNull(saved);
 
-        verify(userRepository, times(1)).save(any());
+        verify(userRepositoryTEST, times(1)).save(any());
     }
 
     @Test
     void findById() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(testUser));
+        when(userRepositoryTEST.findById(anyLong())).thenReturn(Optional.ofNullable(testUser));
 
         User found = userSDjpaService.findById(12L);
 
         assertNotNull(found);
 
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepositoryTEST, times(1)).findById(anyLong());
     }
 
     @Test
     void findByUsername() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.ofNullable(testUser));
+        when(userRepositoryTEST.findByUsername(anyString())).thenReturn(Optional.ofNullable(testUser));
 
         User found = userSDjpaService.findByUsername("Jimmy");
         assertEquals(username, found.getUsername());
 
-        verify(userRepository, times(1)).findByUsername(anyString());
+        verify(userRepositoryTEST, times(1)).findByUsername(anyString());
     }
 }

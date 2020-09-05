@@ -25,13 +25,16 @@ import static org.mockito.Mockito.*;
 class TestRecordSDjpaServiceTest {
 
     @Mock
-    TestRecordRepository testRecordRepository;
+    TestRecordRepository testRecordRepositoryTEST;
 
     @Mock
     UserRepository userRepository;
 
     TestRecord testRecord;
+    User testUser;
     Set<TestRecord> testRecords;
+    private final String recordName = "some record";
+    private final String username = "someone";
 
     @InjectMocks
     TestRecordSDjpaService testRecordSDjpaService;
@@ -40,25 +43,27 @@ class TestRecordSDjpaServiceTest {
     void setUp() {
         testRecords = new HashSet<>();
         testRecord = new TestRecord();
+        testUser = User.builder().username(username).build();
 
-        String recordName = "example Record";
         testRecord.setRecordName(recordName);
         testRecords.add(testRecord);
+        testRecordRepositoryTEST.saveAndFlush(testRecord);
+        testUser.setTestRecords(new HashSet<>(Set.of(testRecord)));
     }
 
     @Test
     void save() {
-        when(testRecordRepository.save(any())).thenReturn(testRecord);
+        when(testRecordRepositoryTEST.save(any())).thenReturn(testRecord);
 
         TestRecord saved = testRecordSDjpaService.save(testRecord);
         assertNotNull(saved);
 
-        verify(testRecordRepository, times(1)).save(any());
+        verify(testRecordRepositoryTEST, times(1)).save(any());
     }
 
     @Test
-    void createTestRecord(){
-        when(testRecordRepository.save(any())).thenReturn(TestRecord.builder().build());
+    void createTestRecord() {
+        when(testRecordRepositoryTEST.save(any())).thenReturn(TestRecord.builder().build());
         when(userRepository.saveAndFlush(any())).thenReturn(User.builder().build());
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(new User()));
 
@@ -67,29 +72,41 @@ class TestRecordSDjpaServiceTest {
     }
 
     @Test
+    void updateTestRecord() {
+        when(testRecordRepositoryTEST.findById(anyLong())).thenReturn(Optional.of(testRecord));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(userRepository.saveAndFlush(any())).thenReturn(testUser);
+
+        TestRecord updated = testRecordSDjpaService.updateTestRecord(2L, 3L, "new name");
+        assertNotNull(updated);
+    }
+
+    @Test
     void findById() {
-        when(testRecordRepository.findById(anyLong())).thenReturn(Optional.of(testRecord));
+        when(testRecordRepositoryTEST.findById(anyLong())).thenReturn(Optional.of(testRecord));
 
         TestRecord found = testRecordSDjpaService.findById(76L);
         assertNotNull(found);
 
-        verify(testRecordRepository, times(1)).findById(anyLong());
+        verify(testRecordRepositoryTEST, times(1)).findById(anyLong());
     }
 
     @Test
     void findAll() {
-            when(testRecordRepository.findAll()).thenReturn(new ArrayList<>(testRecords));
+        when(testRecordRepositoryTEST.findAll()).thenReturn(new ArrayList<>(testRecords));
 
-            Set<TestRecord> recordsFound = testRecordSDjpaService.findAll();
-            assertEquals(1, recordsFound.size());
+        Set<TestRecord> recordsFound = testRecordSDjpaService.findAll();
+        assertEquals(1, recordsFound.size());
 
-            verify(testRecordRepository, times(1)).findAll();
+        verify(testRecordRepositoryTEST, times(1)).findAll();
     }
 
     @Test
-    void deleteById() {
-            Long id = testRecord.getId();
-            testRecordSDjpaService.deleteById(id);
-            assertEquals(0, testRecordRepository.count());
+    void deleteTestRecordAndUpdateUser(){
+        when(testRecordRepositoryTEST.findById(anyLong())).thenReturn(Optional.ofNullable(testRecord));
+
+        testRecordSDjpaService.deleteTestRecordAndUpdateUser(10L, testUser);
+
+        verify(testRecordRepositoryTEST, times(1)).deleteById(anyLong());
     }
 }

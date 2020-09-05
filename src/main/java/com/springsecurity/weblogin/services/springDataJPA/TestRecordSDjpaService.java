@@ -41,11 +41,30 @@ public class TestRecordSDjpaService implements TestRecordService {
 
             //changes to user are cascaded to testRecords, so no need to save testRecords
             User savedUser = userRepository.saveAndFlush(optionalUser.get());
-            log.debug("New testRecord with id: " + saved.getId() + " and name: " + saved.getRecordName() +
-                    " associated with " + savedUser);
+            log.debug("New testRecord with id: " + saved.getId() + " and record name \"" + saved.getRecordName() +
+                    "\" associated with " + savedUser.getUsername());
             return saved;
         }
+        log.debug("Username: " + username + " not found");
         return null;
+    }
+
+    @Override
+    @Transactional
+    public TestRecord updateTestRecord(Long testRecordID, Long userID, String recordName) {
+        if (testRecordRepository.findById(testRecordID).isEmpty() || userRepository.findById(userID).isEmpty()){
+            log.debug("Required DB entries not found");
+            return null;
+        } else {
+            TestRecord foundTestRecord = testRecordRepository.findById(testRecordID).get();
+            foundTestRecord.setRecordName(recordName);
+            User foundUser = userRepository.findById(userID).get();
+            foundTestRecord.setUser(foundUser);
+            userRepository.saveAndFlush(foundUser);
+            log.debug("TestRecord with id: " + foundTestRecord.getId() + " associated to " + foundUser.getUsername() +
+                    " updated to \"" + foundTestRecord.getRecordName() + "\"");
+            return foundTestRecord;
+        }
     }
 
     @Override
@@ -66,17 +85,34 @@ public class TestRecordSDjpaService implements TestRecordService {
     }
 
     @Override
-    public TestRecord findByName(String recordName) {
+    public TestRecord findByRecordName(String recordName) {
         return testRecordRepository.findByRecordName(recordName).orElse(null);
     }
 
     @Override
     public void delete(TestRecord objectT) {
         testRecordRepository.delete(objectT);
+        log.debug("TestRecord with id: " + objectT.getId() + " deleted");
     }
 
     @Override
     public void deleteById(Long id) {
         testRecordRepository.deleteById(id);
+        log.debug("TestRecord with id: " + id + " deleted");
+    }
+
+    @Transactional
+    @Override
+    public void deleteTestRecordAndUpdateUser(Long testRecordID, User associatedUser) {
+        if (testRecordRepository.findById(testRecordID).isPresent()){
+            TestRecord temp = testRecordRepository.findById(testRecordID).get();
+            log.debug("TestRecord with ID: " + temp.getId() + " and associated user ID: " + associatedUser.getId() + " found");
+            if(associatedUser.getTestRecords().removeIf(aTestRecord -> aTestRecord.equals(temp))){
+                log.debug("TestRecord removed from user account: " + associatedUser.getUsername());
+                testRecordRepository.deleteById(testRecordID);
+                log.debug("TestRecord \"" + temp.getRecordName() + "\" deleted from DB");
+            }
+        } else
+            log.debug("No testRecord with ID: " + testRecordID + " found. No changes made.");
     }
 }

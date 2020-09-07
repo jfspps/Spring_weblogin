@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Authenticated user</title>
@@ -8,16 +8,16 @@
 <body>
 
 <div>
-    <h1>Welcome on board</h1>
-    <p><b>ID:</b> <span th:text="${userID}"></span> <b>Username:</b> <span sec:authentication="name"></span></p>
+    <h1>Welcome to Web-login Demo</h1>
+    <p>Logged in with <b>ID:</b> <span th:text="${userID}"></span> and <b>Username:</b> <span sec:authentication="name"></span></p>
 
     <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
     <hr>
 
     <h3>Navigation</h3>
-    <p><a href="/userPage">View DB user records</a></p>
-    <p><a href="/adminPage">Edit DB user records</a></p>
-    <p><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+    <p sec:authorize="hasAuthority('admin.read')" ><a href="/userPage">View DB user records</a></p>
+    <p sec:authorize="hasAuthority('admin.create')"><a href="/adminPage">Edit DB user records</a></p>
+    <p sec:authorize="hasAuthority('guardian.read')" ><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
     <form action="/logout" method="post">
         <input type="submit" value="Log out" style="width: 200px">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

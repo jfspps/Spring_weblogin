@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Welcome page</title>
@@ -7,9 +8,15 @@
 <body>
 
 
-<h1>Spring Security Demo</h1>
+<h1>Spring Security Web-login Demo</h1>
 
-<a href="/authenticated">Proceed</a>
+<div sec:authorize="isAuthenticated()">
+    <p>You are already logged in. Click <a th:href="@{/authenticated}">here</a> to continue.</p>
+</div>
+
+<div sec:authorize="!isAuthenticated()">
+    <p><a href="/authenticated">Proceed</a> to the login page</p>
+</div>
 
 </body>
 </html>

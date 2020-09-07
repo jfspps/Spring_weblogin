@@ -6,12 +6,14 @@
 </head>
 <body>
 <h1>Login page</h1>
+
+<!--this uses many of the Spring Security defaults-->
 <p th:if="${loginError}" class="error" style="color: red">Wrong user or password</p>
 <form th:action="@{/login}" method="post">
     <table>
         <tr>
             <td><label for="username">Username</label>:
-                <input type="text" id="username" name="username" autofocus="autofocus" /></td>
+                <input type="text" id="username" name="username" autofocus="autofocus" autocomplete="off"/></td>
         </tr>
         <tr>
             <td><label for="password">Password</label>:
@@ -25,7 +27,6 @@
             <td><input type="submit" value="Log in" /></td>
         </tr>
     </table>
-
 </form>
 </body>
 </html>

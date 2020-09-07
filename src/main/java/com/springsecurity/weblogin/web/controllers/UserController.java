@@ -5,7 +5,6 @@ import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.web.permissionAnnot.AdminRead;
 import com.springsecurity.weblogin.web.permissionAnnot.GuardianRead;
 import com.springsecurity.weblogin.web.permissionAnnot.TeacherRead;
-import com.springsecurity.weblogin.web.permissionAnnot.UserRead;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -73,7 +72,6 @@ public class UserController {
     }
 
     @AdminRead
-    @UserRead
     @GetMapping("/adminPage")
     public String adminPage(Model model) {
         Set<User> users = new HashSet<>(userService.findAll());

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
-<head>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><head>
     <meta charset="UTF-8">
     <title>Admin page</title>
 </head>
@@ -14,30 +14,30 @@
     <hr>
 
     <h3>Users on file</h3>
-    <p>Click an ID to edit or delete a user</p>
+    <p sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
     <table>
         <tr>
             <th>ID</th>
             <th>Username</th>
-            <th>No. of authorities</th>
+            <th>No. of authorities/permissions</th>
         </tr>
         <!--/*@thymesVar id="found" type="com.springsecurity.weblogin.model.security.User"*/-->
         <tr th:each="found: ${usersFound}">
-            <td><a th:href="@{/user/{userId}(userId=${found.id})}" th:text="${found.id}"></a></td>
+            <td><a sec:authorize="hasAuthority('teacher.update')" th:href="@{/user/{userId}(userId=${found.id})}" th:text="${found.id}"></a></td>
             <td th:text="${found.username}"></td>
             <td th:text="${found.getAuthorities().size()}"></td>
         </tr>
     </table>
     <br />
-    <form action="/createUser">
+    <form sec:authorize="hasAuthority('admin.create')" action="/createUser">
         <input type="submit" value="New user" style="width: 200px">
     </form>
 
     <hr>
     <br/>
     <p><a href="/authenticated">Authentication page</a></p>
-    <p><a href="/userPage">View DB user records</a></p>
-    <p><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+    <p sec:authorize="hasAuthority('admin.read')" ><a href="/userPage">View DB user records</a></p>
+    <p sec:authorize="hasAuthority('guardian.read')" ><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
     <form action="/logout" method="post">
         <input type="submit" value="Log out" style="width: 200px">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

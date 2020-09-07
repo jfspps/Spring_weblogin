@@ -34,7 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // POST requests, with csrf enabled, will be denied (HTTP 403) in the browser but likely pass in Spring MVC tests
 // (tests bypass Spring security); if POST fails in the browser, add:
 // <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-// immediately after any <input> tags which represent POST requests (the above fragment adds the requisite info to Model)
+// in the given form where other <input> tags are declared (the above token is added with the requisite info to the server)
+
+// more info here: https://portswigger.net/web-security/csrf/tokens
 
 @Slf4j
 @SpringBootTest

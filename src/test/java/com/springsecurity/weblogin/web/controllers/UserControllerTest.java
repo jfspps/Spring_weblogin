@@ -197,7 +197,7 @@ class UserControllerTest extends SecurityCredentialsTest {
 
     @Test
     void logoutPage() throws Exception {
-        mockMvc.perform(get("/logout"))
+        mockMvc.perform(post("/logout").with(csrf()))
                 .andExpect(status().is2xxSuccessful());
     }
 }

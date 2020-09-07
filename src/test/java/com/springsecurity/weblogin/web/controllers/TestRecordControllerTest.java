@@ -21,6 +21,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -88,7 +89,7 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
         when(testRecordServiceTEST.save(any())).thenReturn(TestRecord.builder().build());
         when(testRecordServiceTEST.createTestRecord(anyString(), anyString())).thenReturn(TestRecord.builder().build());
 
-        mockMvc.perform(post("/createTestRecord")
+        mockMvc.perform(post("/createTestRecord").with(csrf())
                     .with(httpBasic(username, pwd))
                     .flashAttr("newTestRecord", TestRecord.builder().build())
                     .flashAttr("guardianUser", User.builder().build()))
@@ -107,7 +108,7 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     @Transactional
     @Test
     void postCreateTestRecordDENIED() throws Exception {
-        mockMvc.perform(post("/createTestRecord"))
+        mockMvc.perform(post("/createTestRecord").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -121,7 +122,7 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
         when(testRecordServiceTEST.findById(anyLong())).thenReturn(testRecord);
         when(testRecordServiceTEST.updateTestRecord(anyLong(), anyLong(), anyString())).thenReturn(testRecord);
 
-        mockMvc.perform(post("/updateTestRecord/1").with(httpBasic(username, pwd)))
+        mockMvc.perform(post("/updateTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
     }
@@ -147,7 +148,7 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     void postDeleteTestRecord(String username, String pwd) throws Exception {
         when(testRecordServiceTEST.findById(anyLong())).thenReturn(TestRecord.builder().build());
 
-        mockMvc.perform(post("/deleteTestRecord/1").with(httpBasic(username, pwd)))
+        mockMvc.perform(post("/deleteTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
     }

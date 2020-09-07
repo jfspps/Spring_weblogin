@@ -11,5 +11,14 @@
 
 <!--/*@thymesVar id="exception" type="java.lang.Exception"*/-->
 <p th:text="${exception.getMessage()}">The requested record does was not found on the database</p>
+
+<h3>Navigation</h3>
+<p><a href="/userPage">View DB user records</a></p>
+<p><a href="/adminPage">Edit DB user records</a></p>
+<p><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+<form action="/logout" method="post">
+    <input type="submit" value="Log out" style="width: 200px">
+</form>
+
 </body>
 </html>

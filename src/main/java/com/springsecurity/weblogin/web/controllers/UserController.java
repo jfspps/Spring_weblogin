@@ -5,6 +5,7 @@ import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.web.permissionAnnot.AdminRead;
 import com.springsecurity.weblogin.web.permissionAnnot.GuardianRead;
 import com.springsecurity.weblogin.web.permissionAnnot.TeacherRead;
+import com.springsecurity.weblogin.web.permissionAnnot.UserRead;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,8 +18,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class UserController {
@@ -70,8 +70,11 @@ public class UserController {
     }
 
     @AdminRead
+    @UserRead
     @GetMapping("/adminPage")
     public String adminPage(Model model) {
+        Set<User> users = new HashSet<>(userService.findAll());
+        model.addAttribute("usersFound", users);
         model.addAttribute("user", getUsername());
         return "adminPage";
     }

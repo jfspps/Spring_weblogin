@@ -161,7 +161,8 @@ class UserControllerTest extends SecurityCredentialsTest {
     void adminPagePASS_withAdmin() throws Exception {
         mockMvc.perform(get("/adminPage"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("adminPage"));
+                .andExpect(view().name("adminPage"))
+                .andExpect(model().attributeExists("usersFound"));
     }
 
     //same test as above with new annotation (username and pwd are pulled from JPAUserDetails)

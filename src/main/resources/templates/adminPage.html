@@ -8,12 +8,32 @@
 
 <div>
     <h1>Admin page</h1>
+    <p>Username: <span sec:authentication="name"></span></p>
 
-    Authenticated username:
-    <div sec:authentication="name"></div>
-    Authenticated user roles:
-    <div sec:authentication="principal.authorities"></div>
+    <p>User roles: <span sec:authentication="principal.authorities"></span></p>
 
+    <hr>
+    <h3>Users on file</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Authorities</th>
+        </tr>
+        <!--/*@thymesVar id="found" type="com.springsecurity.weblogin.model.security.User"*/-->
+        <tr th:each="found: ${usersFound}">
+            <td><a th:href="@{/user/{userId}(userId=${found.id})}" th:text="${found.id}"></a></td>
+            <td th:text="${found.username}"></td>
+            <td th:text="${found.getAuthorities()}"></td>
+        </tr>
+    </table>
+    <br />
+    <form action="/createUser">
+        <input type="submit" value="New user" style="width: 200px">
+    </form>
+
+    <hr>
+    <br/>
     <a href="/testRecord">TestRecord CRUD page</a>
     <a href="/adminPage">Admin page</a>
     <a href="/userPage">User page</a>

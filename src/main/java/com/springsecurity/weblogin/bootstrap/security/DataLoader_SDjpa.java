@@ -55,22 +55,22 @@ public class DataLoader_SDjpa implements CommandLineRunner {
     }
 
     private void loadSecurityData(){
-        // Privileges Admin > User > Teacher > Guardian
+        // Privileges Root > Admin > Teacher > Guardian
         // all permissions below are in relation to TestRecord CRUD ops
-        // a separate set of permissions for each object type (in schools, assignment, report, exam score etc.) would be
-        // needed in future (e.g. admin to view exam results would be 'admin.examScore.read' for example
+        // a separate set of permissions for each object type (in schools, assignment, report, exam score etc.) could be
+        // implemented in future (e.g. admin to view exam results would be 'admin.examScore.read' for example
+
+        //root authorities
+        Authority createRoot = authorityService.save(Authority.builder().permission("root.create").build());
+        Authority updateRoot = authorityService.save(Authority.builder().permission("root.update").build());
+        Authority readRoot = authorityService.save(Authority.builder().permission("root.read").build());
+        Authority deleteRoot = authorityService.save(Authority.builder().permission("root.delete").build());
 
         //admin authorities
         Authority createAdmin = authorityService.save(Authority.builder().permission("admin.create").build());
         Authority updateAdmin = authorityService.save(Authority.builder().permission("admin.update").build());
         Authority readAdmin = authorityService.save(Authority.builder().permission("admin.read").build());
         Authority deleteAdmin = authorityService.save(Authority.builder().permission("admin.delete").build());
-
-        //user authorities
-        Authority createUser = authorityService.save(Authority.builder().permission("user.create").build());
-        Authority updateUser = authorityService.save(Authority.builder().permission("user.update").build());
-        Authority readUser = authorityService.save(Authority.builder().permission("user.read").build());
-        Authority deleteUser = authorityService.save(Authority.builder().permission("user.delete").build());
 
         //teacher authorities
         Authority createTeacher = authorityService.save(Authority.builder().permission("teacher.create").build());
@@ -84,17 +84,18 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         Authority readGuardian = authorityService.save(Authority.builder().permission("guardian.read").build());
         Authority deleteGuardian = authorityService.save(Authority.builder().permission("guardian.delete").build());
 
+        Role rootRole = roleService.save(Role.builder().roleName("ROOT").build());
         Role adminRole = roleService.save(Role.builder().roleName("ADMIN").build());
-        Role userRole = roleService.save(Role.builder().roleName("USER").build());
         Role teacherRole = roleService.save(Role.builder().roleName("TEACHER").build());
         Role guardianRole = roleService.save(Role.builder().roleName("GUARDIAN").build());
 
         //Set.Of returns an immutable set, so new HashSet instantiates a mutable Set
-        adminRole.setAuthorities(new HashSet<>(Set.of(createAdmin, updateAdmin, readAdmin, deleteAdmin,
-                createUser, readUser, updateUser, deleteUser, createTeacher, readTeacher, updateTeacher, deleteTeacher,
+        rootRole.setAuthorities(new HashSet<>(Set.of(createRoot, readRoot, updateRoot, deleteRoot,
+                createAdmin, updateAdmin, readAdmin, deleteAdmin,
+                createTeacher, readTeacher, updateTeacher, deleteTeacher,
                 createGuardian, readGuardian, updateGuardian, deleteGuardian)));
 
-        userRole.setAuthorities(new HashSet<>(Set.of(createUser, readUser, updateUser, deleteUser,
+        adminRole.setAuthorities(new HashSet<>(Set.of(createAdmin, updateAdmin, readAdmin, deleteAdmin,
                 createTeacher, readTeacher, updateTeacher, deleteTeacher,
                 createGuardian, readGuardian, updateGuardian, deleteGuardian)));
 
@@ -103,8 +104,8 @@ public class DataLoader_SDjpa implements CommandLineRunner {
 
         guardianRole.setAuthorities(new HashSet<>(Set.of(createGuardian, readGuardian, updateGuardian, deleteGuardian)));
 
+        roleService.save(rootRole);
         roleService.save(adminRole);
-        roleService.save(userRole);
         roleService.save(teacherRole);
         roleService.save(guardianRole);
 
@@ -113,14 +114,14 @@ public class DataLoader_SDjpa implements CommandLineRunner {
 
         //each is initialised with the admin, teacher and guardian users below
         userService.save(User.builder()
+                .username("root")
+                .password(passwordEncoder.encode("root123"))
+                .role(rootRole)
+                .build());
+        userService.save(User.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("admin123"))
                 .role(adminRole)
-                .build());
-        userService.save(User.builder()
-                .username("user")
-                .password(passwordEncoder.encode("user123"))
-                .role(userRole)
                 .build());
         userService.save(User.builder()
                 .username("teacher")

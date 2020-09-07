@@ -90,14 +90,21 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
         return this.enabled;
     }
 
-    // account groups which are defined by a User: AdminUser
+    // Privileges Root > Admin > Teacher > Guardian
 
+    //RootUser is granted all DB credentials
+    @ManyToOne(fetch = FetchType.EAGER)
+    private RootUser rootUser;
+
+    //AdminUser = rootUser - DB-table CRUD ops
     @ManyToOne(fetch = FetchType.EAGER)
     private AdminUser adminUser;
 
+    //TeacherUser = adminUser - user-access CRUD ops
     @ManyToOne(fetch = FetchType.EAGER)
     private TeacherUser teacherUser;
 
+    //GuardianUser is granted read-only access via selected requests and queries
     @ManyToOne(fetch = FetchType.EAGER)
     private GuardianUser guardianUser;
 

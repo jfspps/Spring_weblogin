@@ -1,8 +1,6 @@
 package com.springsecurity.weblogin.services.springDataJPA.security;
 
-import com.springsecurity.weblogin.model.security.Authority;
-import com.springsecurity.weblogin.model.security.Role;
-import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.model.security.*;
 import com.springsecurity.weblogin.repositories.security.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +13,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -70,11 +67,46 @@ class UserSDjpaServiceTest {
 
     @Test
     void findByUsername() {
-        when(userRepositoryTEST.findByUsername(anyString())).thenReturn(Optional.ofNullable(testUser));
+        when(userRepositoryTEST.findByUsername(anyString())).thenReturn(Optional.of(testUser));
 
         User found = userSDjpaService.findByUsername("Jimmy");
         assertEquals(username, found.getUsername());
 
         verify(userRepositoryTEST, times(1)).findByUsername(anyString());
+    }
+
+    @Test
+    void getRootUser(){
+        testUser.setRootUser(RootUser.builder().build());
+        when(userRepositoryTEST.findById(anyLong())).thenReturn(Optional.of(testUser));
+
+        assertNotNull(userRepositoryTEST.findById(12L).get().getRootUser());
+    }
+
+    @Test
+    void getAdminUser(){
+        testUser.setAdminUser(AdminUser.builder().build());
+        when(userRepositoryTEST.findById(anyLong())).thenReturn(Optional.of(testUser));
+
+        assertNotNull(userRepositoryTEST.findById(12L).get().getAdminUser());
+        assertNull(userRepositoryTEST.findById(12L).get().getRootUser());
+    }
+
+    @Test
+    void getTeacherUser(){
+        testUser.setTeacherUser(TeacherUser.builder().build());
+        when(userRepositoryTEST.findById(anyLong())).thenReturn(Optional.of(testUser));
+
+        assertNotNull(userRepositoryTEST.findById(12L).get().getTeacherUser());
+        assertNull(userRepositoryTEST.findById(12L).get().getRootUser());
+    }
+
+    @Test
+    void getGuardianUser(){
+        testUser.setGuardianUser(GuardianUser.builder().build());
+        when(userRepositoryTEST.findById(anyLong())).thenReturn(Optional.of(testUser));
+
+        assertNotNull(userRepositoryTEST.findById(12L).get().getGuardianUser());
+        assertNull(userRepositoryTEST.findById(12L).get().getRootUser());
     }
 }

@@ -86,7 +86,7 @@ public class UserController {
 
     //this overrides the default GET logout page
     @GuardianRead
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public String logoutPage(HttpServletRequest request, HttpServletResponse response){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null){

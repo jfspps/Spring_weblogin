@@ -29,6 +29,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 //USER <--> ROLE <--> AUTHORITY
 
+// Cross-site request forgery, also known as session riding (sometimes pronounced sea-surf) or XSRF, is a type of
+// malicious exploit of a website where unauthorized commands are submitted from a user that the web application trusts.
+// POST requests, with csrf enabled, will be denied (HTTP 403) in the browser but likely pass in Spring MVC tests
+// (tests bypass Spring security); if POST fails in the browser, add:
+// <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+// immediately after any <input> tags which represent POST requests (the above fragment adds the requisite info to Model)
+
 @Slf4j
 @SpringBootTest
 //substitute @WebMvcTest for @SpringBootTest to guarantee tests capture all Spring Boot dependencies which were loaded at the time

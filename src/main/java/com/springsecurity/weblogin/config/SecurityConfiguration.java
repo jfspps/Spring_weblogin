@@ -69,7 +69,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().logout().logoutSuccessUrl("/welcome").permitAll()
                 //enable CSRF protection for all except h2-console (should also be ignored for RESTful APIs, if applicable)
                 //see POST Spring MVC mock tests for use of with(csrf())
-                .and().csrf().ignoringAntMatchers("/h2-console/**", "/logout")
+                .and().csrf().ignoringAntMatchers("/h2-console/**")
                 .and()
                 .rememberMe().key("remember-me").rememberMeParameter("remember_me")
                 .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)

@@ -39,6 +39,7 @@
 <p><a href="/adminPage">Edit DB user records</a></p>
 <form action="/logout" method="post">
     <input type="submit" value="Log out" style="width: 200px">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 </form>
 
 </body>

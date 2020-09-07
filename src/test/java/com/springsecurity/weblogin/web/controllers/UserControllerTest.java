@@ -50,6 +50,16 @@ class UserControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().is4xxClientError());
     }
 
+    @Test
+    void loginAuthHttpBasicFAIL() throws Exception {
+        MvcResult unauthenticatedResult = mockMvc.perform(get("/authenticated").with(httpBasic("randomPerson", "xyz")))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+        //not printing anything it seems...
+        System.out.println("loginAuthHttpBasicFAIL(), redirected URL: " + unauthenticatedResult.getResponse().getContentAsString());
+    }
+
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
     void redirectToLoginWhenRequestingAuthenticated_AllUsers(String username, String pwd) throws Exception {
@@ -82,7 +92,8 @@ class UserControllerTest extends SecurityCredentialsTest {
         //verify that the user session enables future access without re-logging in
         mockMvc
                 .perform(securedResourceAccess.session(session))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("user"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
@@ -117,7 +128,8 @@ class UserControllerTest extends SecurityCredentialsTest {
         //verify that the user session enables future access without re-logging in
         mockMvc
                 .perform(securedResourceAccess.session(session))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("user"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
@@ -138,22 +150,21 @@ class UserControllerTest extends SecurityCredentialsTest {
                 .andExpect(model().attributeExists("user"));
     }
 
-    @Test
-    void loginAuthHttpBasicFAIL() throws Exception {
-        MvcResult unauthenticatedResult = mockMvc.perform(get("/authenticated").with(httpBasic("randomPerson", "xyz")))
-                .andExpect(status().isUnauthorized())
-                .andReturn();
-
-        //not printing anything it seems...
-        System.out.println("loginAuthHttpBasicFAIL(), redirected URL: " + unauthenticatedResult.getResponse().getContentAsString());
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
+    @ParameterizedTest
+    void listUser_SchoolStaff_PASS(String username, String pwd) throws Exception{
+        mockMvc.perform(get("/listUsers").with(httpBasic(username, pwd)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("userPage"))
+                .andExpect(model().attributeExists("usersFound"))
+                .andExpect(model().attributeExists("userID"));
     }
 
-    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
     @ParameterizedTest
-    void userPage_withAllUsers(String username, String pwd) throws Exception {
-        mockMvc.perform(get("/userPage").with(httpBasic(username, pwd)))
-                .andExpect(status().isOk())
-                .andExpect(view().name("userPage"));
+    void listUser_Guardians_FAIL(String username, String pwd) throws Exception{
+        mockMvc.perform(get("/listUsers").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
     }
 
     @WithUserDetails("admin")
@@ -162,6 +173,7 @@ class UserControllerTest extends SecurityCredentialsTest {
         mockMvc.perform(get("/adminPage"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("adminPage"))
+                .andExpect(model().attributeExists("user"))
                 .andExpect(model().attributeExists("usersFound"));
     }
 
@@ -171,7 +183,9 @@ class UserControllerTest extends SecurityCredentialsTest {
     void adminPagePASS_withAdmin_withoutHttpBasic() throws Exception {
         mockMvc.perform(get("/adminPage"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("adminPage"));
+                .andExpect(view().name("adminPage"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("usersFound"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")

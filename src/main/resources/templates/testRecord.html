@@ -6,11 +6,13 @@
     <title>TestRecord CRUD ops</title>
 </head>
 <body>
-    <h1>TestRecord CRUD operations</h1>
+    <h1>TestRecord records</h1>
 
     <p><b>Username:</b> <span sec:authentication="name"></span></p>
+    <hr>
 
-    <p>TestRecords on file (click the ID to update or delete a record):</p>
+    <h3>TestRecords on file</h3>
+    <p>Click the ID to update or delete a record:</p>
 
     <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
     <div th:each="testRecord: ${testRecords}">
@@ -24,9 +26,9 @@
 
     <hr>
     <br/>
-    <a href="/authenticated">Authentication page</a>
-    <a href="/adminPage">Admin page</a>
-    <a href="/userPage">User page</a>
-    <a href="/logout">Sign out</a>
+    <p><a href="/authenticated">Authentication page</a></p>
+    <p><a href="/adminPage">Edit DB user records</a></p>
+    <p><a href="/userPage">View DB user records</a></p>
+    <p><a href="/logout">Sign out</a></p>
 </body>
 </html>

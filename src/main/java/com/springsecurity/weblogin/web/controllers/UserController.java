@@ -65,6 +65,8 @@ public class UserController {
     @GuardianRead
     @GetMapping("/userPage")
     public String userPage(Model model) {
+        User user = userService.findByUsername(getUsername());
+        model.addAttribute("userID", user.getId());
         model.addAttribute("user", getUsername());
         return "userPage";
     }
@@ -75,6 +77,8 @@ public class UserController {
     public String adminPage(Model model) {
         Set<User> users = new HashSet<>(userService.findAll());
         model.addAttribute("usersFound", users);
+        User user = userService.findByUsername(getUsername());
+        model.addAttribute("userID", user.getId());
         model.addAttribute("user", getUsername());
         return "adminPage";
     }
@@ -90,14 +94,17 @@ public class UserController {
         return "welcome";
     }
 
+    //lists all users on userPage
     @TeacherRead
-    @GetMapping("/CRUD")
+    @GetMapping("/listUsers")
     public String listUsers(Model model){
         Set<User> userSet = new HashSet<>();
         //userSet is never null if user has one of the above roles
         userSet.addAll(userService.findAll());
         model.addAttribute("usersFound", userSet);
-        return "/userPage";
+        User currentUser = userService.findByUsername(getUsername());
+        model.addAttribute("userID", currentUser.getId());
+        return "userPage";
     }
 
     private String getUsername(){

@@ -57,6 +57,7 @@ public class TestRecordController {
             //if the user falls under AdminUser, UserUser or TeacherUser...
             model.addAttribute("testRecords", testRecordService.findAll());
         }
+        model.addAttribute("userID", user.getId());
         return "testRecord";
     }
 

@@ -9,23 +9,16 @@
 
 <div>
     <h1>Welcome on board</h1>
-    <p sec:authorize="hasAuthority('admin.read')">
-        You are in the ADMIN group
-    </p>
-    <p sec:authorize="hasAuthority('user.read')">
-        You are in the USER group
-    </p>
-    <p>
-        <b>ID:</b> <span th:text="${userID}"></span>, <b>Username:</b> <span sec:authentication="name"></span>
-    </p>
-    <p>
-        <b>Authorities:</b> <span sec:authentication="principal.authorities"></span>
-    </p>
-    <br/>
-    <a th:href="@{/testRecord}">TestRecord CRUD page</a>
-    <a href="/adminPage">Admin page</a>
-    <a href="/userPage">User page</a>
-    <a href="/logout">Sign out</a>
+    <p><b>ID:</b> <span th:text="${userID}"></span> <b>Username:</b> <span sec:authentication="name"></span></p>
+
+    <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
+    <hr>
+
+    <h3>Navigation</h3>
+    <p><a href="/userPage">View DB user records</a></p>
+    <p><a href="/adminPage">Edit DB user records</a></p>
+    <p><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+    <p><a href="/logout">Sign out</a></p>
 </div>
 
 </body>

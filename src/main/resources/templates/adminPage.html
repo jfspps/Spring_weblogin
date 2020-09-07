@@ -8,23 +8,24 @@
 
 <div>
     <h1>Admin page</h1>
-    <p>Username: <span sec:authentication="name"></span></p>
+    <p><b>ID:</b> <span th:text="${userID}"></span> <b>Username:</b> <span sec:authentication="name"></span></p>
 
-    <p>User roles: <span sec:authentication="principal.authorities"></span></p>
-
+    <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
     <hr>
+
     <h3>Users on file</h3>
+    <p>Click an ID to edit or delete a user</p>
     <table>
         <tr>
             <th>ID</th>
             <th>Username</th>
-            <th>Authorities</th>
+            <th>No. of authorities</th>
         </tr>
         <!--/*@thymesVar id="found" type="com.springsecurity.weblogin.model.security.User"*/-->
         <tr th:each="found: ${usersFound}">
             <td><a th:href="@{/user/{userId}(userId=${found.id})}" th:text="${found.id}"></a></td>
             <td th:text="${found.username}"></td>
-            <td th:text="${found.getAuthorities()}"></td>
+            <td th:text="${found.getAuthorities().size()}"></td>
         </tr>
     </table>
     <br />
@@ -34,10 +35,10 @@
 
     <hr>
     <br/>
-    <a href="/testRecord">TestRecord CRUD page</a>
-    <a href="/adminPage">Admin page</a>
-    <a href="/userPage">User page</a>
-    <a href="/logout">Sign out</a>
+    <p><a href="/authenticated">Authentication page</a></p>
+    <p><a href="/userPage">View DB user records</a></p>
+    <p><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+    <p><a href="/logout">Sign out</a></p>
 </div>
 
 </body>

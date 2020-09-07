@@ -7,22 +7,14 @@
 <body>
 
 <div>
-    <h1>User page</h1>
-    <p sec:authorize="hasRole('ADMIN')">
-        You are in the ADMIN group
-    </p>
-    <p sec:authorize="hasRole('USER')">
-        You are in the USER group
-    </p>
-    <br />
+    <h1>View DB user records</h1>
+    <p><b>ID:</b> <span th:text="${userID}"></span> <b>Username:</b> <span sec:authentication="name"></span></p>
 
-    Authenticated username:
-    <div sec:authentication="name"></div>
-    Authenticated user roles:
-    <div sec:authentication="principal.authorities"></div>
+    <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
+    <hr>
 
-    <br />
-    <form th:action="@{/CRUD}" method="get" class="form-horizontal" id="search-student-form">
+    <h3>Test user authorisation</h3>
+    <form th:action="@{/listUsers}" method="get" class="form-horizontal" id="search-student-form">
         <button type="submit" class="btn btn-info">List all users</button>
     </form>
 
@@ -33,14 +25,10 @@
         </tr>
     </table>
 
-    <table>
-        <tr>
-            <td><a href="/testRecord">TestRecord CRUD page</a></td>
-            <td><a href="/adminPage">Admin page</a></td>
-            <td><a href="/userPage">User page</a></td>
-            <td><a href="/logout">Sign out</a></td>
-        </tr>
-    </table>
+    <p><a href="/authenticated">Authentication page</a></p>
+    <p><a href="/adminPage">Edit DB user records</a></p>
+    <p><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+    <p><a href="/logout">Sign out</a></p>
 </div>
 
 </body>

@@ -1,6 +1,8 @@
 package com.springsecurity.weblogin.config;
 
 import com.springsecurity.weblogin.exceptions.CustomAuthenticationFailureHandler;
+import com.springsecurity.weblogin.services.springDataJPA.security.UserSDjpaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -8,10 +10,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
+@RequiredArgsConstructor
 @Configuration
 //use @Secured annotation to enable authorisation
 //@EnableGlobalMethodSecurity(securedEnabled = true)
@@ -33,6 +37,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //    }
 
     // ===================================================================================================================
+
+    //must inject UserDetailsService (Spring Core interface) to enable remember-me (use @ReRequiredArgsConstructor)
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -73,7 +80,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().csrf().ignoringAntMatchers("/h2-console/**")
                 .and()
                 .rememberMe()
-                    .key("remember-me").rememberMeParameter("remember_me")
+                    .key("web-login").rememberMeParameter("remember_me")
+                    .userDetailsService(userDetailsService)
                     .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)
                 //maximum of one session per user
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1);

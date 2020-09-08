@@ -1,3 +1,5 @@
+# (this is not launched automatically)
+
 create table admin_user (id bigint not null auto_increment, admin_user_name varchar(255), primary key (id)) engine=InnoDB;
 create table authority (id bigint not null auto_increment, permission varchar(255), primary key (id)) engine=InnoDB;
 create table guardian_user (id bigint not null auto_increment, guardian_user_name varchar(255), primary key (id)) engine=InnoDB;

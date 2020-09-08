@@ -1,3 +1,5 @@
+# This table is specifically for access to the MySQL workbench database (this is not launched automatically)
+
 CREATE DATABASE web_login;
 
 CREATE USER 'SRM_dev_user'@'localhost' IDENTIFIED BY 'admin';

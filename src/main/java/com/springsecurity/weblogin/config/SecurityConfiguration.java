@@ -14,11 +14,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
-@RequiredArgsConstructor
-@Configuration
+import javax.sql.DataSource;
+
+
 //use @Secured annotation to enable authorisation
 //@EnableGlobalMethodSecurity(securedEnabled = true)
+@RequiredArgsConstructor
+@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -38,8 +43,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     // ===================================================================================================================
 
-    //must inject UserDetailsService (Spring Core interface) to enable remember-me (use @ReRequiredArgsConstructor)
+    //must inject UserDetailsService (Spring Core interface) to enable remember-me (H2 in-memory or persistent DB)
     private final UserDetailsService userDetailsService;
+
+    //inject when using persistent DB
+    private final PersistentTokenRepository persistentTokenRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -80,9 +88,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().csrf().ignoringAntMatchers("/h2-console/**")
                 .and()
                 .rememberMe()
-                    .key("web-login").rememberMeParameter("remember_me")
+
+                //database-persistent remember-me
+                    .tokenRepository(persistentTokenRepository)
                     .userDetailsService(userDetailsService)
-                    .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)
+
+                //cookie-based (local) rememeber-me
+//                    .key("web-login").rememberMeParameter("remember_me")
+//                    .userDetailsService(userDetailsService)
+//                    .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)
+
                 //maximum of one session per user
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1);
 

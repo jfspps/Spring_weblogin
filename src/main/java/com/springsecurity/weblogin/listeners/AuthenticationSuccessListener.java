@@ -43,6 +43,6 @@ public class AuthenticationSuccessListener {
         }
 
         LoginSuccess saved = loginSuccessRepository.save(loginSuccessBuilder.build());
-        log.debug("Login success record saved, ID: " + saved.getId());
+        log.debug("Login success record saved, login record ID: " + saved.getId());
     }
 }

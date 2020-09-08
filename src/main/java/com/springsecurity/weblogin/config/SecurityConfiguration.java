@@ -96,7 +96,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 //cookie-based (local) rememeber-me
 //                    .key("web-login").rememberMeParameter("remember_me")
 //                    .userDetailsService(userDetailsService)
-//                    .rememberMeCookieName("WebDemoLoginRememberMe").tokenValiditySeconds(3600)
+//                    .rememberMeCookieName("WebDemoLoginRememberMe")
+                    .tokenValiditySeconds(3600)
 
                 //maximum of one session per user
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1);

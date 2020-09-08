@@ -30,7 +30,8 @@ public class JPAUserDetailsService implements UserDetailsService {
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-            log.debug("Found user: " + username + " with JPAUserDetailsService");
+
+//            log.debug("Found user: " + username + " with JPAUserDetailsService"); //see /listeners
             return userRepository.findByUsername(username).orElseThrow(() ->
                     new UsernameNotFoundException("User name: " + username + " not found"));
     }

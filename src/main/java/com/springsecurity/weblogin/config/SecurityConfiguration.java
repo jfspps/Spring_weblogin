@@ -79,7 +79,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 //override the default login page (see controller)
                 .and().formLogin()
                     // swap failureUrl with .failureHandler(new CustomAuthenticationFailureHandler()) to trigger 500 error response instead
-                    .loginProcessingUrl("/login").loginPage("/login").permitAll().failureUrl("/login-error")
+                    .loginPage("/login").permitAll().failureUrl("/login-error")
                 .and().httpBasic()
                 .and().logout()
                     .logoutSuccessUrl("/welcome").permitAll()

@@ -12,6 +12,10 @@ import org.springframework.security.authentication.event.AuthenticationFailureBa
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @RequiredArgsConstructor
 @Slf4j
 @Component
@@ -20,6 +24,9 @@ public class AuthenticationFailureListener {
     private final LoginFailureRepository loginFailureRepository;
 
     private final UserRepository userRepository;
+
+    private final Integer LOCKOUTHOURS = 24;
+    private final Integer LOGINATTEMPTS = 3;
 
     @EventListener
     public void listen(AuthenticationFailureBadCredentialsEvent badCredentialsEvent){
@@ -51,5 +58,22 @@ public class AuthenticationFailureListener {
 
         LoginFailure saved = loginFailureRepository.save(failureBuilder.build());
         log.debug("Login failure record saved, login record ID: " + saved.getId());
+
+        //manage automatic lockout
+        if (saved.getUser() != null){
+            lockAccount(saved.getUser());
+        }
+    }
+
+    //note that failures persists even if the user logs in successfully before being locked out
+    private void lockAccount(User user) {
+        List<LoginFailure> failures = loginFailureRepository.findAllByUserAndCreatedDateIsAfter(user,
+                Timestamp.valueOf(LocalDateTime.now().minusHours(LOCKOUTHOURS)));
+
+        if(failures.size() > LOGINATTEMPTS){
+            log.debug(LOGINATTEMPTS + " login attempts in the last " + LOCKOUTHOURS + " hours. Locking account.");
+            user.setAccountNonLocked(false);
+            userRepository.save(user);
+        }
     }
 }

@@ -8,7 +8,12 @@
 <h1>Login page</h1>
 
 <!--this uses many of the Spring Security defaults-->
-<p th:if="${loginError}" class="error" style="color: red">Wrong user or password</p>
+<!--<p th:if="${loginError}" class="error" style="color: red">Wrong user or password</p>-->
+
+<div th:if="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message} == 'Bad credentials'">Invalid Username or Password</div>
+
+<div th:if="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message} == 'User account is locked'">User Account is Locked.</div>
+
 <form th:action="@{/login}" method="post">
     <table>
         <tr>

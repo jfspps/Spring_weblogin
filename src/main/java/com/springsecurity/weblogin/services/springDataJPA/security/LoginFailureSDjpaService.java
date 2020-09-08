@@ -2,13 +2,16 @@ package com.springsecurity.weblogin.services.springDataJPA.security;
 
 import com.springsecurity.weblogin.model.security.LoginFailure;
 import com.springsecurity.weblogin.model.security.LoginSuccess;
+import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.repositories.security.LoginFailureRepository;
 import com.springsecurity.weblogin.services.securityServices.LoginFailureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -37,6 +40,11 @@ public class LoginFailureSDjpaService implements LoginFailureService {
         Set<LoginFailure> loginFailures = new HashSet<>();
         loginFailures.addAll(loginFailureRepository.findAll());
         return loginFailures;
+    }
+
+    @Override
+    public List<LoginFailure> findAllByUserAndCreatedDateIsAfter(User user, Timestamp timestamp) {
+        return loginFailureRepository.findAllByUserAndCreatedDateIsAfter(user, timestamp);
     }
 
     @Override

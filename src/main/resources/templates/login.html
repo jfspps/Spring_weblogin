@@ -1,38 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="fragments/header :: baseHead(~{::title})">
     <title>Login page</title>
 </head>
 <body>
-<h1>Login page</h1>
 
-<!--this uses many of the Spring Security defaults-->
-<!--<p th:if="${loginError}" class="error" style="color: red">Wrong user or password</p>-->
+<div class="container">
+    <div class="row">
+        <div class="row-md-12">
+            <h1>Login page</h1>
 
-<div th:if="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message} == 'Bad credentials'">Invalid Username or Password</div>
+            <!--this uses many of the Spring Security defaults-->
+            <!--<p th:if="${loginError}" class="error" style="color: red">Wrong user or password</p>-->
 
-<div th:if="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message} == 'User account is locked'">User Account is Locked.</div>
+            <div th:if="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message} == 'Bad credentials'">Invalid Username or Password</div>
+            <div th:if="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message} == 'User account is locked'">User Account is Locked.</div>
 
-<form th:action="@{/login}" method="post">
-    <table>
-        <tr>
-            <td><label for="username">Username</label>:
-                <input type="text" id="username" name="username" autofocus="autofocus" autocomplete="off"/></td>
-        </tr>
-        <tr>
-            <td><label for="password">Password</label>:
-                <input type="password" id="password" name="password" /></td>
-        </tr>
-        <tr>
-            <td><label for="remember-me">Remember me</label>:
-<!--                Be careful here: it is remember-me NOT remember_me -->
-            <input type="checkbox" id="remember-me" name="remember-me"></td>
-        </tr>
-        <tr>
-            <td><input type="submit" value="Log in" /></td>
-        </tr>
-    </table>
-</form>
+            <form th:action="@{/login}" method="post">
+                <table>
+                    <tr>
+                        <td><label for="username">Username</label>:
+                            <input type="text" id="username" name="username" autofocus="autofocus" autocomplete="off"/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="password">Password</label>:
+                            <input type="password" id="password" name="password" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="remember-me">Remember me</label>:
+                        <input type="checkbox" id="remember-me" name="remember-me"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" value="Log in" /></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+
 </body>
 </html>

@@ -1,47 +1,53 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>TestRecord CRUD ops</title>
+
+<head th:replace="fragments/header :: baseHead(~{::title})">
+    <title>Update/delete test record</title>
 </head>
-    <body>
+<body>
 
-    <h1>Update/delete a testRecord</h1>
+<div class="container">
+    <div class="row">
+        <div class="row-md-12">
+            <h1>Update/delete a testRecord</h1>
+            <p><b>Username:</b> <span sec:authentication="name"></span></p>
+            <hr>
 
-    <p>
-        <b>Username:</b> <span sec:authentication="name"></span>
-    </p>
+            <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
+            <form th:object="${testRecord}"
+                  th:action="@{/updateTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post"
+                  sec:authorize="hasAuthority('teacher.update')">
+                <table>
+                    <tr>
+                        <td th:text="${'ID: ' + testRecord.id}"></td>
+                        <td th:text="${'Username: ' + testRecord.getUser().username}"></td>
+                        <td>
+                            <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
+                        </td>
+                    </tr>
+                </table>
+                <input style="width: 200px" th:type="submit" value="Update"/>
+            </form>
 
-    <hr>
-    <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
-    <form th:object="${testRecord}" th:action="@{/updateTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post" sec:authorize="hasAuthority('teacher.update')">
-        <table>
-            <tr>
-                <td th:text="${'ID: ' + testRecord.id}"></td>
-                <td th:text="${'Username: ' + testRecord.getUser().username}"></td>
-                <td>
-                    <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
-                </td>
-            </tr>
-        </table>
-        <input style="width: 200px" th:type="submit" value="Update" />
-    </form>
+            <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
+            <form th:object="${testRecord}"
+                  th:action="@{/deleteTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post"
+                  sec:authorize="hasAuthority('teacher.delete')">
+                <input style="width: 200px" th:type="submit" value="Delete"/>
+            </form>
 
-    <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
-    <form th:object="${testRecord}" th:action="@{/deleteTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post" sec:authorize="hasAuthority('teacher.delete')">
-        <input style="width: 200px" th:type="submit" value="Delete" />
-    </form>
-
-
-    <hr>
-    <p><a href="/authenticated">Authentication page</a></p>
-    <p sec:authorize="hasAuthority('admin.read')" ><a href="/userPage">View DB user records</a></p>
-    <p sec:authorize="hasAuthority('admin.create')"><a href="/adminPage">Edit DB user records</a></p>
-    <form action="/logout" method="post">
-        <input type="submit" value="Log out" style="width: 200px">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    </form>
+            <hr>
+            <p><a href="/authenticated">Index page</a></p>
+            <p sec:authorize="hasAuthority('admin.read')"><a href="/userPage">View DB user records</a></p>
+            <p sec:authorize="hasAuthority('admin.create')"><a href="/adminPage">Edit DB user records</a></p>
+            <form action="/logout" method="post">
+                <input type="submit" value="Log out" style="width: 200px">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            </form>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

@@ -1,17 +1,37 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org">
+      xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-    <meta charset="UTF-8">
-    <title>HTTP 403 Forbidden</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <title>HTTP 404 Not Found</title>
 </head>
+
 <body>
 
-<h1>Not found</h1>
-<p>Could not find the requested resource</p>
+<div class="container">
+    <div class="row">
+        <div class="row-md-12">
 
-<!--/*@thymesVar id="exception" type="java.lang.Exception"*/-->
-<!--<p th:text="${exception.getMessage()}">The requested record does was not found on the database</p>-->
+            <h1>Not found</h1>
+            <p>Could not find the requested resource</p>
+
+            <!--/*@thymesVar id="exception" type="java.lang.Exception"*/-->
+            <!--<p th:text="${exception.getMessage()}">The requested record does was not found on the database</p>-->
+        </div>
+    </div>
+</div>
+
+<footer>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/webjars/popper.js/2.0.2/umd/popper.min.js"></script>
+    <script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</footer>
 
 </body>
 </html>

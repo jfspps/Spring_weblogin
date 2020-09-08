@@ -1,28 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Authenticated user</title>
+
+<head th:replace="fragments/header :: baseHead(~{::title})">
+    <title>Web-login index</title>
 </head>
 <body>
 
-<div>
-    <h1>Welcome to Web-login Demo</h1>
-    <p>Logged in with <b>ID:</b> <span th:text="${userID}"></span> and <b>Username:</b> <span sec:authentication="name"></span></p>
+<div class="container">
+    <div class="row">
+        <div class="row-md-12">
+            <h1>Welcome to the Web-login Demo</h1>
 
-    <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
-    <hr>
+            <p>Logged in with <b>ID:</b> <span th:text="${userID}"></span> and <b>Username:</b> <span
+                    sec:authentication="name"></span></p>
+            <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
+            <hr>
+        </div>
+    </div>
 
-    <h3>Navigation</h3>
-    <p sec:authorize="hasAuthority('admin.read')" ><a href="/userPage">View DB user records</a></p>
-    <p sec:authorize="hasAuthority('admin.create')"><a href="/adminPage">Edit DB user records</a></p>
-    <p sec:authorize="hasAuthority('guardian.read')" ><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
-    <form action="/logout" method="post">
-        <input type="submit" value="Log out" style="width: 200px">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    </form>
+    <div class="row">
+        <div class="row-md-12">
+            <h3>Navigation</h3>
+
+            <p sec:authorize="hasAuthority('admin.read')"><a href="/userPage">View DB user records</a></p>
+            <p sec:authorize="hasAuthority('admin.create')"><a href="/adminPage">Edit DB user records</a></p>
+            <p sec:authorize="hasAuthority('guardian.read')"><a th:href="@{/testRecord}">TestRecord CRUD page</a></p>
+            <form action="/logout" method="post">
+                <input type="submit" value="Log out" style="width: 200px">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            </form>
+        </div>
+    </div>
 </div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
 
 </body>
 </html>

@@ -3,6 +3,8 @@ package com.springsecurity.weblogin.model.security;
 import com.springsecurity.weblogin.model.BaseEntity;
 import com.springsecurity.weblogin.model.TestRecord;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.transaction.Transactional;
 import javax.validation.constraints.Size;
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,4 +114,12 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
     //testRecord mappings, one user to many testRecords
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<TestRecord> testRecords;
+
+    //these are standard JPA annotations and can be applied to any entity which requires creation and modification dates
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Timestamp createdDate;
+
+    @UpdateTimestamp
+    private Timestamp lastModifiedDate;
 }

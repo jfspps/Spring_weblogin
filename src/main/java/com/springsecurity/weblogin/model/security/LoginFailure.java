@@ -23,6 +23,7 @@ public class LoginFailure extends BaseEntity {
 
     private String usernameEntered;
 
+    //these are standard JPA annotations and can be applied to any entity which requires creation and modification dates
     @CreationTimestamp
     @Column(updatable = false)
     private Timestamp createdDate;

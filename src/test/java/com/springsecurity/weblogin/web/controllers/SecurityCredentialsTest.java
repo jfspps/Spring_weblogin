@@ -50,6 +50,11 @@ public abstract class SecurityCredentialsTest {
                 Arguments.of("marymanning", MARYMANNING_TEACHERPWD));
     }
 
+    public static Stream<Arguments> streamSchoolAdminUsers(){
+        return Stream.of(Arguments.of("johnsmith", JOHNSMITH_ADMINPWD),
+                Arguments.of("amysmith", AMYSMITH_ADMINPWD));
+    }
+
     public static Stream<Arguments> streamAllGuardians(){
         return Stream.of(Arguments.of("paulsmith", PAULSMITH_GUARDIANPWD),
                 Arguments.of("alexsmith", ALEXSMITH_GUARDIANPWD));

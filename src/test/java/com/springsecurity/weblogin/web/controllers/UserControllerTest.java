@@ -102,7 +102,8 @@ class UserControllerTest extends SecurityCredentialsTest {
         mockMvc
                 .perform(securedResourceAccess.session(session))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("user"));
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("userID"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
@@ -138,7 +139,8 @@ class UserControllerTest extends SecurityCredentialsTest {
         mockMvc
                 .perform(securedResourceAccess.session(session))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("user"));
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("userID"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
@@ -147,7 +149,8 @@ class UserControllerTest extends SecurityCredentialsTest {
         mockMvc.perform(get("/authenticated").with(httpBasic(username, pwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("authenticated"))
-                .andExpect(model().attributeExists("user"));
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("userID"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
@@ -156,7 +159,8 @@ class UserControllerTest extends SecurityCredentialsTest {
         mockMvc.perform(get("/userPage").with(httpBasic(username, pwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("userPage"))
-                .andExpect(model().attributeExists("user"));
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("userID"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
@@ -176,24 +180,26 @@ class UserControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isForbidden());
     }
 
-    @WithUserDetails("admin")
-    @Test
-    void adminPagePASS_withAdmin() throws Exception {
-        mockMvc.perform(get("/adminPage"))
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void adminPagePASS_withAdmin(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/adminPage").with(httpBasic(username, pwd)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("adminPage"))
                 .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("userID"))
                 .andExpect(model().attributeExists("usersFound"));
     }
 
     //same test as above with new annotation (username and pwd are pulled from JPAUserDetails)
     @Test
-    @WithUserDetails("admin")
+    @WithUserDetails("johnsmith")
     void adminPagePASS_withAdmin_withoutHttpBasic() throws Exception {
         mockMvc.perform(get("/adminPage"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("adminPage"))
                 .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("userID"))
                 .andExpect(model().attributeExists("usersFound"));
     }
 

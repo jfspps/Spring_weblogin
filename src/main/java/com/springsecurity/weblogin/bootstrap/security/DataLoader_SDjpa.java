@@ -112,28 +112,28 @@ public class DataLoader_SDjpa implements CommandLineRunner {
         log.debug("Roles added: " + roleService.findAll().size());
         log.debug("Authorities added: " + authorityService.findAll().size());
 
-        //each is initialised with the admin, teacher and guardian users below
-        userService.save(User.builder()
-                .username("root")
-                .password(passwordEncoder.encode("root123"))
-                .role(rootRole)
-                .build());
-        userService.save(User.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("admin123"))
-                .role(adminRole)
-                .build());
-        userService.save(User.builder()
-                .username("teacher")
-                .password(passwordEncoder.encode("teacher123"))
-                .role(teacherRole)
-                .build());
-        userService.save(User.builder()
-                .username("guardian")
-                .password(passwordEncoder.encode("guardian123"))
-                .role(guardianRole)
-                .build());
-        log.debug("User accounts added: " + userService.findAll().size());
+        //very general user accounts without reference to RootUser, AdminUser, TeacherUser or GuardianUser
+//        userService.save(User.builder()
+//                .username("root")
+//                .password(passwordEncoder.encode("root123"))
+//                .role(rootRole)
+//                .build());
+//        userService.save(User.builder()
+//                .username("admin")
+//                .password(passwordEncoder.encode("admin123"))
+//                .role(adminRole)
+//                .build());
+//        userService.save(User.builder()
+//                .username("teacher")
+//                .password(passwordEncoder.encode("teacher123"))
+//                .role(teacherRole)
+//                .build());
+//        userService.save(User.builder()
+//                .username("guardian")
+//                .password(passwordEncoder.encode("guardian123"))
+//                .role(guardianRole)
+//                .build());
+//        log.debug("User accounts added: " + userService.findAll().size());
     }
 
     public void loadAdminUsers(){
@@ -141,6 +141,7 @@ public class DataLoader_SDjpa implements CommandLineRunner {
 
         // Instantiating the admin users (this must be done after Users)
         // AdminUsers can store non-Security related fields (department, academic year etc.)
+        // Note, UserName is not Username
         AdminUser johnSmith = adminUserService.save(AdminUser.builder().adminUserName("John Smith").build());
         AdminUser amySmith = adminUserService.save(AdminUser.builder().adminUserName("Amy Smith").build());
 

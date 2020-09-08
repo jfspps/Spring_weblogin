@@ -33,8 +33,14 @@
                 </tr>
             </table>
             <br/>
-            <form sec:authorize="hasAuthority('admin.create')" action="/createUser">
-                <input type="submit" value="New user" style="width: 200px">
+            <form sec:authorize="hasAuthority('admin.create')" action="/createAdmin">
+                <input type="submit" value="New admin" style="width: 200px">
+            </form>
+            <form sec:authorize="hasAuthority('admin.create')" action="/createTeacher">
+                <input type="submit" value="New teacher" style="width: 200px">
+            </form>
+            <form sec:authorize="hasAuthority('admin.create')" action="/createGuardian">
+                <input type="submit" value="New guardian" style="width: 200px">
             </form>
 
             <hr>

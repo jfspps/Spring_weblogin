@@ -1,27 +1,27 @@
 package com.springsecurity.weblogin.web.controllers;
 
+import com.springsecurity.weblogin.model.security.AdminUser;
+import com.springsecurity.weblogin.model.security.GuardianUser;
+import com.springsecurity.weblogin.model.security.TeacherUser;
 import com.springsecurity.weblogin.model.security.User;
+import com.springsecurity.weblogin.services.securityServices.AdminUserService;
+import com.springsecurity.weblogin.services.securityServices.GuardianUserService;
+import com.springsecurity.weblogin.services.securityServices.TeacherUserService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.util.stream.Stream;
+import javax.transaction.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,12 +46,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // more info here: https://portswigger.net/web-security/csrf/tokens
 
 @Slf4j
+@Transactional
 @SpringBootTest
 //substitute @WebMvcTest for @SpringBootTest to guarantee tests capture all Spring Boot dependencies which were loaded at the time
 class UserControllerTest extends SecurityCredentialsTest {
 
     @Mock
     UserService userServiceTEST;
+
+    @Mock
+    AdminUserService adminUserServiceTEST;
+
+    @Mock
+    TeacherUserService teacherUserServiceTEST;
+
+    @Mock
+    GuardianUserService guardianUserServiceTEST;
 
     @WithAnonymousUser
     @Test
@@ -77,6 +87,12 @@ class UserControllerTest extends SecurityCredentialsTest {
 
         //not printing anything it seems...
         System.out.println("loginAuthHttpBasicFAIL(), redirected URL: " + unauthenticatedResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    void logoutPage() throws Exception {
+        mockMvc.perform(post("/logout").with(csrf()))
+                .andExpect(status().is2xxSuccessful());
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
@@ -220,9 +236,107 @@ class UserControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    void logoutPage() throws Exception {
-        mockMvc.perform(post("/logout").with(csrf()))
-                .andExpect(status().is2xxSuccessful());
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void getCreateAdmin(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createAdmin").with(httpBasic(username, pwd)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("adminCreate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("newUser"))
+                .andExpect(model().attributeExists("newAdmin"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void getCreateAdmin_FAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createAdmin").with(httpBasic(username, pwd)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postCreateAdmin(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createAdmin").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/adminPage"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postCreateAdmin_FAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createAdmin").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void getCreateTeacher(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createTeacher").with(httpBasic(username, pwd)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacherCreate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("newUser"))
+                .andExpect(model().attributeExists("newTeacher"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void getCreateTeacher_FAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createTeacher").with(httpBasic(username, pwd)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postCreateTeacher(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createTeacher").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/adminPage"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postCreateTeacher_FAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createTeacher").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void getCreateGuardian(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createGuardian").with(httpBasic(username, pwd)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guardianCreate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("newUser"))
+                .andExpect(model().attributeExists("newGuardian"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void getCreateGuardian_FAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(get("/createGuardian").with(httpBasic(username, pwd)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postCreateGuardian(String username, String pwd) throws Exception {
+        when(userServiceTEST.findByUsername(anyString())).thenReturn(
+                User.builder().username("the dude").password("weakpwd").build());
+        when(guardianUserServiceTEST.findByGuardianUserName(anyString())).thenReturn(
+                GuardianUser.builder().guardianUserName("guardian").build());
+
+        mockMvc.perform(post("/createGuardian").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/adminPage"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postCreateGuardian_FAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createGuardian").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is4xxClientError());
     }
 }

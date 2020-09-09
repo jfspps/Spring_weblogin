@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -113,6 +114,38 @@ public class UserController {
     }
 
     @AdminRead
+    @GetMapping("/createAdmin")
+    public String newAdmin(Model model){
+        User user = User.builder().build();
+        model.addAttribute("newUser", user);
+        model.addAttribute("user", getUsername());
+        AdminUser adminUser = AdminUser.builder().build();
+        model.addAttribute("newAdmin", adminUser);
+        return "adminCreate";
+    }
+
+    @AdminCreate
+    @PostMapping("/createAdmin")
+    public String newAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
+                           @Valid @ModelAttribute("newUser") User newUser){
+        if (newAdminUser.getAdminUserName() != null
+                || newUser.getUsername() != null || newUser.getPassword() != null){
+            if (userService.findByUsername(newUser.getUsername()) == null){
+                if (adminUserService.findByAdminUserName(newAdminUser.getAdminUserName()) == null){
+                    newAdminUser(newAdminUser, newUser);
+                } else {
+                    log.debug("AdminUser with name provided already exists");
+                }
+            } else {
+                log.debug("AdminUser with username provided already exists");
+            }
+        } else {
+            log.debug("All fields must be completed");
+        }
+        return "redirect:/adminPage";
+    }
+
+    @AdminRead
     @GetMapping("/createTeacher")
     public String newTeacher(Model model){
         User user = User.builder().build();
@@ -127,8 +160,8 @@ public class UserController {
     @PostMapping("/createTeacher")
     public String newTeacher(@Valid @ModelAttribute("newTeacher") TeacherUser newTeacherUser,
                              @Valid @ModelAttribute("newUser") User newUser){
-        if (!newTeacherUser.getTeacherUserName().isBlank()
-                || !newUser.getUsername().isBlank() || !newUser.getPassword().isBlank()){
+        if (newTeacherUser.getTeacherUserName() != null
+                || newUser.getUsername() != null || newUser.getPassword() != null){
             if (userService.findByUsername(newUser.getUsername()) == null){
                 if (teacherUserService.findByTeacherUserName(newTeacherUser.getTeacherUserName()) == null){
                     newTeacherUser(newTeacherUser, newUser);
@@ -137,38 +170,6 @@ public class UserController {
                 }
             } else {
                 log.debug("TeacherUser with username provided already exists");
-            }
-        } else {
-            log.debug("All fields must be completed");
-        }
-        return "redirect:/adminPage";
-    }
-
-    @AdminRead
-    @GetMapping("/createAdmin")
-    public String newAdmin(Model model){
-        User user = User.builder().build();
-        model.addAttribute("newUser", user);
-        model.addAttribute("user", getUsername());
-        AdminUser adminUser = AdminUser.builder().build();
-        model.addAttribute("newAdmin", adminUser);
-        return "adminCreate";
-    }
-
-    @AdminCreate
-    @PostMapping("/createAdmin")
-    public String newAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
-                             @Valid @ModelAttribute("newUser") User newUser){
-        if (!newAdminUser.getAdminUserName().isBlank()
-                || !newUser.getUsername().isBlank() || !newUser.getPassword().isBlank()){
-            if (userService.findByUsername(newUser.getUsername()) == null){
-                if (adminUserService.findByAdminUserName(newAdminUser.getAdminUserName()) == null){
-                    newAdminUser(newAdminUser, newUser);
-                } else {
-                    log.debug("AdminUser with name provided already exists");
-                }
-            } else {
-                log.debug("AdminUser with username provided already exists");
             }
         } else {
             log.debug("All fields must be completed");
@@ -191,8 +192,8 @@ public class UserController {
     @PostMapping("/createGuardian")
     public String newGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
                            @Valid @ModelAttribute("newUser") User newUser){
-        if (!newGuardianUser.getGuardianUserName().isBlank()
-                || !newUser.getUsername().isBlank() || !newUser.getPassword().isBlank()){
+        if (newGuardianUser.getGuardianUserName() != null
+                || newUser.getUsername() != null || newUser.getPassword() != null){
             if (userService.findByUsername(newUser.getUsername()) == null){
                 if (guardianUserService.findByGuardianUserName(newGuardianUser.getGuardianUserName()) == null){
                     newGuardianUser(newGuardianUser, newUser);

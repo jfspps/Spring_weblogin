@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Transactional
 @Slf4j
 @SpringBootTest
 class TestRecordControllerTest extends SecurityCredentialsTest {
@@ -55,7 +56,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void getCreatePage(String username, String pwd) throws Exception {
@@ -65,7 +65,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(model().attributeExists("newTestRecord"));
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
     @ParameterizedTest
     void getCreatePageGuardiansFORBIDDEN(String username, String pwd) throws Exception {
@@ -73,14 +72,12 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Transactional
     @Test
     void getCreatePageDENIED() throws Exception {
         mockMvc.perform(get("/createTestRecord"))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postCreateTestRecord(String username, String pwd) throws Exception {
@@ -97,7 +94,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(view().name("redirect:/testRecord"));
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
     @ParameterizedTest
     void postCreateTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
@@ -105,14 +101,12 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Transactional
     @Test
     void postCreateTestRecordDENIED() throws Exception {
         mockMvc.perform(post("/createTestRecord").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postUpdateTestRecord(String username, String pwd) throws Exception {
@@ -127,7 +121,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(view().name("redirect:/testRecord"));
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
     @ParameterizedTest
     void postUpdateTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
@@ -135,14 +128,12 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Transactional
     @Test
     void postUpdateTestRecordDENIED() throws Exception {
         mockMvc.perform(post("/updateTestRecord/1"))
                 .andExpect(status().is4xxClientError());
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postDeleteTestRecord(String username, String pwd) throws Exception {
@@ -153,7 +144,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(view().name("redirect:/testRecord"));
     }
 
-    @Transactional
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
     @ParameterizedTest
     void postDeleteTestRecordGuardiansFORBIDDEN(String username, String pwd) throws Exception {
@@ -161,7 +151,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Transactional
     @Test
     void postDeleteTestRecordDENIED() throws Exception {
         mockMvc.perform(post("/deleteTestRecord/1"))

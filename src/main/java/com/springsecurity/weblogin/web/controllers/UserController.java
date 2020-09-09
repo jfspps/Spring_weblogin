@@ -2,10 +2,7 @@ package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.security.*;
 import com.springsecurity.weblogin.services.securityServices.*;
-import com.springsecurity.weblogin.web.permissionAnnot.AdminCreate;
-import com.springsecurity.weblogin.web.permissionAnnot.AdminRead;
-import com.springsecurity.weblogin.web.permissionAnnot.GuardianRead;
-import com.springsecurity.weblogin.web.permissionAnnot.TeacherRead;
+import com.springsecurity.weblogin.web.permissionAnnot.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -23,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -81,8 +79,22 @@ public class UserController {
     @AdminRead
     @GetMapping("/adminPage")
     public String adminPage(Model model) {
-        Set<User> users = new HashSet<>(userService.findAll());
-        model.addAttribute("usersFound", users);
+        Set<User> AdminUsers = userService.findAll().stream().filter(
+                user -> user.getAdminUser() != null
+        ).collect(Collectors.toSet());
+        model.addAttribute("AdminUsersFound", AdminUsers);
+
+        Set<User> TeacherUsers = userService.findAll().stream().filter(
+                user -> user.getTeacherUser() != null
+        ).collect(Collectors.toSet());
+        model.addAttribute("TeacherUsersFound", TeacherUsers);
+
+        Set<User> GuardianUsers = userService.findAll().stream().filter(
+                user -> user.getGuardianUser() != null
+        ).collect(Collectors.toSet());
+        model.addAttribute("GuardianUsersFound", GuardianUsers);
+
+        //current authenticated user details
         User user = userService.findByUsername(getUsername());
         model.addAttribute("userID", user.getId());
         model.addAttribute("user", getUsername());
@@ -112,6 +124,8 @@ public class UserController {
         model.addAttribute("userID", currentUser.getId());
         return "userPage";
     }
+
+    // Admin CRUD ops =======================================================================================
 
     @AdminRead
     @GetMapping("/createAdmin")
@@ -145,6 +159,25 @@ public class UserController {
         return "redirect:/adminPage";
     }
 
+    @AdminUpdate
+    @GetMapping("/updateAdmin/{adminUserID}")
+    public String updateAdmin(Model model, @PathVariable Long adminUserID){
+        User user = userService.findById(adminUserID);
+        //guard against wrong adminUser by user ID
+        if (user.getAdminUser() == null){
+            log.debug("No adminUser associated with given user");
+            return "redirect:/adminPage";
+        } else {
+            AdminUser adminUser = user.getAdminUser();
+            model.addAttribute("user", getUsername());
+            model.addAttribute("currentUser", user);
+            model.addAttribute("currentAdminUser", adminUser);
+            return "adminUpdate";
+        }
+    }
+
+    // Teacher CRUD ops =======================================================================================
+
     @AdminRead
     @GetMapping("/createTeacher")
     public String newTeacher(Model model){
@@ -177,6 +210,24 @@ public class UserController {
         return "redirect:/adminPage";
     }
 
+    @AdminUpdate
+    @GetMapping("/updateTeacher/{teacherUserID}")
+    public String updateTeacher(Model model, @PathVariable Long teacherUserID){
+        User user = userService.findById(teacherUserID);
+        if (user.getTeacherUser() == null){
+            log.debug("No teacherUser associated with given user");
+            return "redirect:/adminPage";
+        } else {
+            TeacherUser teacherUser = user.getTeacherUser();
+            model.addAttribute("user", getUsername());
+            model.addAttribute("currentUser", user);
+            model.addAttribute("currentTeacherUser", teacherUser);
+            return "teacherUpdate";
+        }
+    }
+
+    // Guardian CRUD ops =======================================================================================
+
     @AdminRead
     @GetMapping("/createGuardian")
     public String newGuardian(Model model){
@@ -208,6 +259,24 @@ public class UserController {
         }
         return "redirect:/adminPage";
     }
+
+    @AdminUpdate
+    @GetMapping("/updateGuardian/{guardianUserID}")
+    public String updateGuardian(Model model, @PathVariable Long guardianUserID){
+        User user = userService.findById(guardianUserID);
+        if (user.getGuardianUser() == null){
+            log.debug("No guardianUser associated with given user");
+            return "redirect:/adminPage";
+        } else {
+            GuardianUser guardianUser = user.getGuardianUser();
+            model.addAttribute("user", getUsername());
+            model.addAttribute("currentUser", user);
+            model.addAttribute("currentGuardianUser", guardianUser);
+            return "guardianUpdate";
+        }
+    }
+
+    // end of CRUD ops ==========================================================================================
 
     private String getUsername(){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

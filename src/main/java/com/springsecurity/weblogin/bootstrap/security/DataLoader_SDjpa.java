@@ -39,8 +39,8 @@ public class DataLoader_SDjpa implements CommandLineRunner {
             loadSecurityData();
             log.debug("Users database finished populating");
             loadAdminUsers();
-            loadGuardianUsers();
             loadTeacherUsers();
+            loadGuardianUsers();
         } else
             log.debug("Users database already contains data; no changes made");
 

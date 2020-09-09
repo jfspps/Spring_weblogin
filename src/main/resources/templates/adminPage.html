@@ -16,29 +16,60 @@
             <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
             <hr>
 
-            <h3>Users on file</h3>
+            <h3>AdminUsers on file</h3>
             <p sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
             <table>
                 <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>No. of authorities/permissions</th>
+                    <th>Admin ID</th>
+                    <th>Admin username</th>
                 </tr>
-                <!--/*@thymesVar id="found" type="com.springsecurity.weblogin.model.security.User"*/-->
-                <tr th:each="found: ${usersFound}">
+                <!--/*@thymesVar id="adminUser" type="com.springsecurity.weblogin.model.security.User"*/-->
+                <tr th:each="adminUser: ${AdminUsersFound}">
                     <td><a sec:authorize="hasAuthority('teacher.update')"
-                           th:href="@{/user/{userId}(userId=${found.id})}" th:text="${found.id}"></a></td>
-                    <td th:text="${found.username}"></td>
-                    <td th:text="${found.getAuthorities().size()}"></td>
+                           th:href="@{/updateAdmin/{userId}(userId=${adminUser.id})}" th:text="${adminUser.id}"></a></td>
+                    <td th:text="${adminUser.username}"></td>
                 </tr>
             </table>
-            <br/>
             <form sec:authorize="hasAuthority('admin.create')" action="/createAdmin">
                 <input type="submit" value="New admin" style="width: 200px">
             </form>
+            <br/>
+            <hr>
+
+            <h3>TeacherUsers on file</h3>
+            <p sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
+            <table>
+                <tr>
+                    <th>Teacher ID</th>
+                    <th>Teacher username</th>
+                </tr>
+                <!--/*@thymesVar id="teacherUser" type="com.springsecurity.weblogin.model.security.User"*/-->
+                <tr th:each="teacherUser: ${TeacherUsersFound}">
+                    <td><a sec:authorize="hasAuthority('teacher.update')"
+                           th:href="@{/updateTeacher/{userId}(userId=${teacherUser.id})}" th:text="${teacherUser.id}"></a></td>
+                    <td th:text="${teacherUser.username}"></td>
+                </tr>
+            </table>
             <form sec:authorize="hasAuthority('admin.create')" action="/createTeacher">
                 <input type="submit" value="New teacher" style="width: 200px">
             </form>
+            <br/>
+            <hr>
+
+            <h3>GuardianUsers on file</h3>
+            <p sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
+            <table>
+                <tr>
+                    <th>Guardian ID</th>
+                    <th>Guardian username</th>
+                </tr>
+                <!--/*@thymesVar id="guardianUser" type="com.springsecurity.weblogin.model.security.User"*/-->
+                <tr th:each="guardianUser: ${GuardianUsersFound}">
+                    <td><a sec:authorize="hasAuthority('teacher.update')"
+                           th:href="@{/updateGuardian/{userId}(userId=${guardianUser.id})}" th:text="${guardianUser.id}"></a></td>
+                    <td th:text="${guardianUser.username}"></td>
+                </tr>
+            </table>
             <form sec:authorize="hasAuthority('admin.create')" action="/createGuardian">
                 <input type="submit" value="New guardian" style="width: 200px">
             </form>

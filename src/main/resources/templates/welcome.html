@@ -6,6 +6,7 @@
     <title>Welcome page</title>
 </head>
 <body>
+<nav th:replace="fragments/navNoSearch :: nav"></nav>
 
 <div class="container">
     <div class="row">
@@ -13,11 +14,7 @@
             <h1>Spring Security Web-login Demo</h1>
 
             <div sec:authorize="isAuthenticated()">
-                <p>You are already logged in. Click <a th:href="@{/authenticated}">here</a> to continue or click logout.</p>
-                <form action="/logout" method="post">
-                    <input type="submit" value="Log out" style="width: 200px">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                </form>
+                <p>You are already logged in as "<b><span sec:authentication="name"></span></b>".</p>
             </div>
 
             <div sec:authorize="!isAuthenticated()">

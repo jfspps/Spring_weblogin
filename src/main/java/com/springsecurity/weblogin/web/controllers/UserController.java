@@ -103,14 +103,13 @@ public class UserController {
     }
 
     //this overrides the default GET logout page
-    @GuardianRead
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
-        return "welcome";
+        return "redirect:/welcome";
     }
 
     //lists all users on userPage
@@ -136,8 +135,8 @@ public class UserController {
             log.debug("Password was reset");
             return "redirect:/" + userTypePage(currentUser) + "/" + currentUser.getId();
         }
-        log.debug("Unauthorised password reset requested");
-        return "redirect:/logout";
+        log.debug("User with ID: " + userID + " not found");
+        return "redirect:/adminPage";
     }
 
     @AdminUpdate
@@ -153,7 +152,7 @@ public class UserController {
                 return "redirect:/" + userTypePage(found) + "/" + found.getId();
             }
         }
-        log.debug("Unauthorised password reset requested");
+        log.debug("User with ID: " + userID + " not found");
         return "redirect:/adminPage";
     }
 
@@ -232,6 +231,10 @@ public class UserController {
     @AdminUpdate
     @GetMapping("/updateAdmin/{adminUserID}")
     public String getUpdateAdmin(Model model, @PathVariable String adminUserID) {
+        if (userService.findById(Long.valueOf(adminUserID)) == null){
+            log.debug("User with ID " + adminUserID + " not found");
+            throw new NotFoundException();
+        }
         User user = userService.findById(Long.valueOf(adminUserID));
         //guard against wrong adminUser by user ID
         if (user.getAdminUser() == null) {
@@ -251,11 +254,12 @@ public class UserController {
     public String postUpdateAdmin(@PathVariable String adminUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                   @Valid @ModelAttribute("currentAdminUser") AdminUser currentAdminUser) {
         User user = userService.findById(Long.valueOf(adminUserID));
-        if (currentUser.getUsername() != null){
+        if (currentUser.getUsername() != null && currentAdminUser.getAdminUserName() != null){
             user.setUsername(currentUser.getUsername());
-        }
-        if (currentAdminUser.getAdminUserName() != null){
             user.getAdminUser().setAdminUserName(currentAdminUser.getAdminUserName());
+        } else {
+            log.debug("Username and AdminUserName not recognised. No changes made");
+            return "redirect:/updateAdmin/" + adminUserID;
         }
         User saved = userService.save(user);
         log.debug("Username: " + saved.getUsername() + ", adminUser name: " + saved.getAdminUser().getAdminUserName() +
@@ -300,6 +304,10 @@ public class UserController {
     @AdminUpdate
     @GetMapping("/updateTeacher/{teacherUserID}")
     public String getUpdateTeacher(Model model, @PathVariable String teacherUserID) {
+        if (userService.findById(Long.valueOf(teacherUserID)) == null){
+            log.debug("User with ID " + teacherUserID + " not found");
+            throw new NotFoundException();
+        }
         User user = userService.findById(Long.valueOf(teacherUserID));
         if (user.getTeacherUser() == null) {
             log.debug("No teacherUser associated with given user");
@@ -318,11 +326,12 @@ public class UserController {
     public String postUpdateTeacher(@PathVariable String teacherUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                   @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser) {
         User user = userService.findById(Long.valueOf(teacherUserID));
-        if (currentUser.getUsername() != null){
+        if (currentUser.getUsername() != null && currentTeacherUser.getTeacherUserName() != null){
             user.setUsername(currentUser.getUsername());
-        }
-        if (currentTeacherUser.getTeacherUserName() != null){
             user.getTeacherUser().setTeacherUserName(currentTeacherUser.getTeacherUserName());
+        } else {
+            log.debug("Username and TeacherUserName not recognised. No changes made");
+            return "redirect:/updateTeacher/" + teacherUserID;
         }
         User saved = userService.save(user);
         log.debug("Username: " + saved.getUsername() + ", teacherUser name: " + saved.getTeacherUser().getTeacherUserName() +
@@ -367,6 +376,10 @@ public class UserController {
     @AdminUpdate
     @GetMapping("/updateGuardian/{guardianUserID}")
     public String getUpdateGuardian(Model model, @PathVariable String guardianUserID) {
+        if (userService.findById(Long.valueOf(guardianUserID)) == null){
+            log.debug("User with ID " + guardianUserID + " not found");
+            throw new NotFoundException();
+        }
         User user = userService.findById(Long.valueOf(guardianUserID));
         if (user.getGuardianUser() == null) {
             log.debug("No guardianUser associated with given user");
@@ -385,11 +398,12 @@ public class UserController {
     public String postUpdateTeacher(@PathVariable String guardianUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                     @Valid @ModelAttribute("currentGuardianUser") GuardianUser currentGuardianUser) {
         User user = userService.findById(Long.valueOf(guardianUserID));
-        if (currentUser.getUsername() != null){
+        if (currentUser.getUsername() != null && currentGuardianUser.getGuardianUserName() != null){
             user.setUsername(currentUser.getUsername());
-        }
-        if (currentGuardianUser.getGuardianUserName() != null){
             user.getGuardianUser().setGuardianUserName(currentGuardianUser.getGuardianUserName());
+        } else {
+            log.debug("Username and GuardianUserName not recognised. No changes made");
+            return "redirect:/updateGuardian/" + guardianUserID;
         }
         User saved = userService.save(user);
         log.debug("Username: " + saved.getUsername() + ", guardianUser name: " + saved.getGuardianUser().getGuardianUserName() +
@@ -398,6 +412,7 @@ public class UserController {
     }
 
     // end of CRUD ops ==========================================================================================
+    //the following methods are called by the above controller methods only if the required parameters are verified
 
     @AdminRead
     private String getUsername() {

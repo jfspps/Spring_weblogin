@@ -1,5 +1,6 @@
 package com.springsecurity.weblogin.web.controllers;
 
+import com.springsecurity.weblogin.exceptions.NotFoundException;
 import com.springsecurity.weblogin.model.TestRecord;
 import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.model.security.GuardianUser;
@@ -85,6 +86,10 @@ public class TestRecordController {
     @TeacherRead
     @GetMapping("/testRecord/{id}")
     public String getTestRecordById(@PathVariable String id, Model model){
+        if (testRecordService.findById(Long.valueOf(id)) == null){
+            log.debug("TestRecord with ID: " + id + " not found");
+            throw new NotFoundException("TestRecord with ID: " + id + " not found");
+        }
         TestRecord found = testRecordService.findById(Long.valueOf(id));
         model.addAttribute("testRecord", found);
         return "testRecordUpdate";
@@ -109,7 +114,8 @@ public class TestRecordController {
     public String deleteTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
                                    @PathVariable String testRecordID){
         if (testRecordService.findById(Long.valueOf(testRecordID)) == null){
-            log.info("No record on file with id: " + testRecordID + ", nothing deleted");
+            log.debug("No record on file with id: " + testRecordID + ", nothing deleted");
+            return "redirect:/testRecord";
         } else {
             User associatedUser = testRecordService.findById(Long.valueOf(testRecordID)).getUser();
             testRecordService.deleteTestRecordAndUpdateUser(Long.valueOf(testRecordID), associatedUser);

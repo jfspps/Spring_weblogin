@@ -179,7 +179,7 @@ public class UserController {
 
     @AdminRead
     @GetMapping("/createAdmin")
-    public String newAdmin(Model model) {
+    public String getNewAdmin(Model model) {
         User user = User.builder().build();
         model.addAttribute("newUser", user);
         model.addAttribute("user", getUsername());
@@ -190,7 +190,7 @@ public class UserController {
 
     @AdminCreate
     @PostMapping("/createAdmin")
-    public String newAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
+    public String postNewAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
                            @Valid @ModelAttribute("newUser") User newUser) {
         if (newAdminUser.getAdminUserName() != null
                 || newUser.getUsername() != null || newUser.getPassword() != null) {
@@ -211,7 +211,7 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateAdmin/{adminUserID}")
-    public String updateAdmin(Model model, @PathVariable Long adminUserID) {
+    public String getUpdateAdmin(Model model, @PathVariable Long adminUserID) {
         User user = userService.findById(adminUserID);
         //guard against wrong adminUser by user ID
         if (user.getAdminUser() == null) {
@@ -226,11 +226,28 @@ public class UserController {
         }
     }
 
+    @AdminUpdate
+    @PostMapping("/updateAdmin/{adminUserID}")
+    public String postUpdateAdmin(@PathVariable Long adminUserID, @Valid @ModelAttribute("currentUser") User currentUser,
+                                  @Valid @ModelAttribute("currentAdminUser") AdminUser currentAdminUser) {
+        User user = userService.findById(adminUserID);
+        if (currentUser.getUsername() != null){
+            user.setUsername(currentUser.getUsername());
+        }
+        if (currentAdminUser.getAdminUserName() != null){
+            user.getAdminUser().setAdminUserName(currentAdminUser.getAdminUserName());
+        }
+        User saved = userService.save(user);
+        log.debug("Username: " + saved.getUsername() + ", adminUser name: " + saved.getAdminUser().getAdminUserName() +
+                " saved");
+        return "redirect:/updateAdmin/" + saved.getId();
+    }
+
     // Teacher CRUD ops =======================================================================================
 
     @AdminRead
     @GetMapping("/createTeacher")
-    public String newTeacher(Model model) {
+    public String getNewTeacher(Model model) {
         User user = User.builder().build();
         model.addAttribute("newUser", user);
         model.addAttribute("user", getUsername());
@@ -241,7 +258,7 @@ public class UserController {
 
     @AdminCreate
     @PostMapping("/createTeacher")
-    public String newTeacher(@Valid @ModelAttribute("newTeacher") TeacherUser newTeacherUser,
+    public String postNewTeacher(@Valid @ModelAttribute("newTeacher") TeacherUser newTeacherUser,
                              @Valid @ModelAttribute("newUser") User newUser) {
         if (newTeacherUser.getTeacherUserName() != null
                 || newUser.getUsername() != null || newUser.getPassword() != null) {
@@ -262,7 +279,7 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateTeacher/{teacherUserID}")
-    public String updateTeacher(Model model, @PathVariable Long teacherUserID) {
+    public String getUpdateTeacher(Model model, @PathVariable Long teacherUserID) {
         User user = userService.findById(teacherUserID);
         if (user.getTeacherUser() == null) {
             log.debug("No teacherUser associated with given user");
@@ -276,11 +293,28 @@ public class UserController {
         }
     }
 
+    @AdminUpdate
+    @PostMapping("/updateTeacher/{teacherUserID}")
+    public String postUpdateTeacher(@PathVariable Long teacherUserID, @Valid @ModelAttribute("currentUser") User currentUser,
+                                  @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser) {
+        User user = userService.findById(teacherUserID);
+        if (currentUser.getUsername() != null){
+            user.setUsername(currentUser.getUsername());
+        }
+        if (currentTeacherUser.getTeacherUserName() != null){
+            user.getTeacherUser().setTeacherUserName(currentTeacherUser.getTeacherUserName());
+        }
+        User saved = userService.save(user);
+        log.debug("Username: " + saved.getUsername() + ", teacherUser name: " + saved.getTeacherUser().getTeacherUserName() +
+                " saved");
+        return "redirect:/updateTeacher/" + saved.getId();
+    }
+
     // Guardian CRUD ops =======================================================================================
 
     @AdminRead
     @GetMapping("/createGuardian")
-    public String newGuardian(Model model) {
+    public String getNewGuardian(Model model) {
         User user = User.builder().build();
         model.addAttribute("newUser", user);
         model.addAttribute("user", getUsername());
@@ -291,7 +325,7 @@ public class UserController {
 
     @AdminCreate
     @PostMapping("/createGuardian")
-    public String newGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
+    public String postNewGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
                               @Valid @ModelAttribute("newUser") User newUser) {
         if (newGuardianUser.getGuardianUserName() != null
                 || newUser.getUsername() != null || newUser.getPassword() != null) {
@@ -312,7 +346,7 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateGuardian/{guardianUserID}")
-    public String updateGuardian(Model model, @PathVariable Long guardianUserID) {
+    public String getUpdateGuardian(Model model, @PathVariable Long guardianUserID) {
         User user = userService.findById(guardianUserID);
         if (user.getGuardianUser() == null) {
             log.debug("No guardianUser associated with given user");
@@ -324,6 +358,23 @@ public class UserController {
             model.addAttribute("currentGuardianUser", guardianUser);
             return "guardianUpdate";
         }
+    }
+
+    @AdminUpdate
+    @PostMapping("/updateGuardian/{guardianUserID}")
+    public String postUpdateTeacher(@PathVariable Long guardianUserID, @Valid @ModelAttribute("currentUser") User currentUser,
+                                    @Valid @ModelAttribute("currentGuardianUser") GuardianUser currentGuardianUser) {
+        User user = userService.findById(guardianUserID);
+        if (currentUser.getUsername() != null){
+            user.setUsername(currentUser.getUsername());
+        }
+        if (currentGuardianUser.getGuardianUserName() != null){
+            user.getGuardianUser().setGuardianUserName(currentGuardianUser.getGuardianUserName());
+        }
+        User saved = userService.save(user);
+        log.debug("Username: " + saved.getUsername() + ", guardianUser name: " + saved.getGuardianUser().getGuardianUserName() +
+                " saved");
+        return "redirect:/updateGuardian/" + saved.getId();
     }
 
     // end of CRUD ops ==========================================================================================

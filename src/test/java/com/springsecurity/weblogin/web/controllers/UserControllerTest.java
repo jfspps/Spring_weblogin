@@ -348,6 +348,21 @@ class UserControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isForbidden());
     }
 
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateAdmin(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateAdmin/1"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postUpdateAdminFAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
     // user and TeacherUser CRUD tests ===============================================================================
     //context loads adminUsers, teacherUsers, followed by guardianUsers
     //IDs are [1,2], [3,4] and [5,6] respectively
@@ -407,6 +422,21 @@ class UserControllerTest extends SecurityCredentialsTest {
     @ParameterizedTest
     void getUpdateTeacher_FAIL(String username, String pwd) throws Exception {
         mockMvc.perform(get("/updateTeacher/3").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateTeacher(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateTeacher/3").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateTeacher/3"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postUpdateTeacherFAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateTeacher/3").with(httpBasic(username, pwd)).with(csrf()))
                 .andExpect(status().isForbidden());
     }
 
@@ -474,6 +504,21 @@ class UserControllerTest extends SecurityCredentialsTest {
     @ParameterizedTest
     void getUpdateGuardian_FAIL(String username, String pwd) throws Exception {
         mockMvc.perform(get("/updateGuardian/6").with(httpBasic(username, pwd)))
+                .andExpect(status().isForbidden());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateGuardian(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateGuardian/5").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateGuardian/5"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postUpdateGuardianFAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateGuardian/6").with(httpBasic(username, pwd)).with(csrf()))
                 .andExpect(status().isForbidden());
     }
 }

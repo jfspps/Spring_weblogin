@@ -15,7 +15,7 @@
             <p><b>Permissions:</b> <span sec:authentication="authorities"></span></p>
 
             <!--/*@thymesVar id="currentUser" type="com.springsecurity.weblogin.model.security.User"*/-->
-            <form th:object="${currentUser}" th:action="@{/updateTeacher}" method="post"
+            <form th:object="${currentUser}" th:action="@{/updateTeacher/{userID}(userID=${currentUser.id})}" method="post"
                   sec:authorize="hasAuthority('admin.update')">
 
                 <!--/*@thymesVar id="currentTeacherUser" type="com.springsecurity.weblogin.model.security.TeacherUser"*/-->

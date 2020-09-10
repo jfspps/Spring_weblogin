@@ -18,7 +18,7 @@
             <form th:object="${testRecord}"
                   th:action="@{/updateTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post"
                   sec:authorize="hasAuthority('teacher.update')">
-                <table>
+                <table class="table table-sm">
                     <tr>
                         <td th:text="${'ID: ' + testRecord.id}"></td>
                         <td th:text="${'Username: ' + testRecord.getUser().username}"></td>

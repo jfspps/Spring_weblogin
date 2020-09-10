@@ -10,6 +10,7 @@ import com.springsecurity.weblogin.services.securityServices.TeacherUserService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -34,7 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -70,21 +73,6 @@ class UserControllerTest extends SecurityCredentialsTest {
 
     @Mock
     GuardianUserService guardianUserServiceTEST;
-
-    User testUser;
-    AdminUser testAdminUser;
-    TeacherUser testTeacherUser;
-    GuardianUser testGuardianUser;
-
-    @BeforeEach
-    void setUp() {
-        testUser = User.builder().build();
-        testAdminUser = AdminUser.builder().build();
-        testTeacherUser = TeacherUser.builder().build();
-        testGuardianUser = GuardianUser.builder().build();
-
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    }
 
     @WithAnonymousUser
     @Test
@@ -261,6 +249,40 @@ class UserControllerTest extends SecurityCredentialsTest {
     void adminPageFAIL_withNonAdmin(String username, String pwd) throws Exception {
         mockMvc.perform(get("/adminPage").with(httpBasic(username, pwd)))
                 .andExpect(status().isForbidden());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postResetPassword_ADMIN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/resetPassword/1").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateAdmin/1"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postResetPassword_TEACHER(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/resetPassword/3").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateTeacher/3"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postResetPassword_GUARDIAN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/resetPassword/5").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateGuardian/5"));
+    }
+
+    //todo: test postChangePassword
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_outOfBounds(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/5000").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/adminPage"));
     }
 
     // user and AdminUser CRUD tests ===============================================================================

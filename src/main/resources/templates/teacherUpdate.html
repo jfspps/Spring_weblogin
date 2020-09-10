@@ -12,6 +12,7 @@
         <div class="row-md-12">
             <h1>Update current teacher</h1>
             <p><b>Username:</b> <span sec:authentication="name"></span></p>
+            <p><b>Permissions:</b> <span sec:authentication="authorities"></span></p>
 
             <!--/*@thymesVar id="currentUser" type="com.springsecurity.weblogin.model.security.User"*/-->
             <form th:object="${currentUser}" th:action="@{/updateTeacher}" method="post"
@@ -19,23 +20,36 @@
 
                 <!--/*@thymesVar id="currentTeacherUser" type="com.springsecurity.weblogin.model.security.TeacherUser"*/-->
                 <div th:object="${currentTeacherUser}">
-                    <label>Admin's full name: </label>
+                    <label>Teacher's full name: </label>
                     <input size="50" type="text" th:field="*{teacherUserName}"/>
                 </div>
                 <div>
                     <label>Weblogin username: </label>
                     <input size="50" type="text" th:field="*{username}"/>
                 </div>
-                <div>
-                    <label>Weblogin password: </label>
-                    <input size="50" type="password" th:field="*{password}"/>
-                </div>
+                <br/>
                 <div>
                     <input style="width: 200px" type="submit" value="Submit"/>
                 </div>
             </form>
+            <hr>
 
+            <form th:action="@{/resetPassword/{ID}(ID=${currentUser.id})}" method="post">
+                <input type="submit" value="Reset password" style="width: 200px"/>
+            </form>
+            <hr>
+
+            <form th:object="${currentUser}" th:action="@{/changePassword/{userID}(userID=${currentUser.id})}" method="post">
+                <div>
+                    <label>Enter a new password: </label>
+                    <input size="50" name="newPassword" type="password" th:field="*{password}"/>
+                </div>
+                <div>
+                    <input type="submit" value="Change password" style="width: 200px"/>
+                </div>
+            </form>
             <br/>
+
             <p><a href="/authenticated">Index page</a></p>
             <p sec:authorize="hasAuthority('admin.read')"><a href="/userPage">View DB user records</a></p>
             <p sec:authorize="hasAuthority('admin.create')"><a href="/adminPage">Edit DB user records</a></p>

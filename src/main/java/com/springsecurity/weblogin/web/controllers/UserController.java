@@ -1,5 +1,6 @@
 package com.springsecurity.weblogin.web.controllers;
 
+import com.springsecurity.weblogin.exceptions.NotFoundException;
 import com.springsecurity.weblogin.model.security.*;
 import com.springsecurity.weblogin.services.securityServices.*;
 import com.springsecurity.weblogin.web.permissionAnnot.*;
@@ -36,18 +37,18 @@ public class UserController {
 
     //prevent the HTTP form POST from editing listed properties
     @InitBinder
-    public void setAllowedFields(WebDataBinder dataBinder){
+    public void setAllowedFields(WebDataBinder dataBinder) {
         dataBinder.setDisallowedFields("id");
     }
 
     @GetMapping({"/", "/welcome"})
-    public String welcomePage(){
+    public String welcomePage() {
         return "welcome";
     }
 
     //this overrides the default Spring Security login page
     @GetMapping("/login")
-    public String loginPage(){
+    public String loginPage() {
         return "login";
     }
 
@@ -104,9 +105,9 @@ public class UserController {
     //this overrides the default GET logout page
     @GuardianRead
     @PostMapping("/logout")
-    public String logoutPage(HttpServletRequest request, HttpServletResponse response){
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null){
+        if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
         return "welcome";
@@ -115,7 +116,7 @@ public class UserController {
     //lists all users on userPage
     @TeacherRead
     @GetMapping("/listUsers")
-    public String listUsers(Model model){
+    public String listUsers(Model model) {
         Set<User> userSet = new HashSet<>();
         //userSet is never null if user has one of the above roles
         userSet.addAll(userService.findAll());
@@ -125,11 +126,60 @@ public class UserController {
         return "userPage";
     }
 
+    @AdminUpdate
+    @PostMapping("/resetPassword/{userID}")
+    public String postResetPassword(@PathVariable Long userID) {
+        if (userService.findById(userID) != null) {
+            User currentUser = userService.findById(userID);
+            currentUser.setPassword(passwordEncoder.encode(currentUser.getUsername() + "123"));
+            userService.save(currentUser);
+            log.debug("Password was reset");
+            if (currentUser.getAdminUser() != null) {
+                return "redirect:/updateAdmin/" + currentUser.getId();
+            } else if (currentUser.getTeacherUser() != null) {
+                return "redirect:/updateTeacher/" + currentUser.getId();
+            } else {
+                return "redirect:/updateGuardian/" + currentUser.getId();
+            }
+        }
+        log.debug("Unauthorised password reset requested");
+        return "redirect:/logout";
+    }
+
+    @AdminUpdate
+    @PostMapping("/changePassword/{userID}")
+    public String postChangePassword(@PathVariable Long userID, @Valid @ModelAttribute("currentUser") User passwordChangeUser) {
+        if (userService.findById(userID) != null) {
+            if (!passwordChangeUser.getPassword().isBlank()){
+                User saved = changeUserPassword(userID, passwordChangeUser);
+                if (saved.getAdminUser() != null) {
+                    return "redirect:/updateAdmin/" + saved.getId();
+                } else if (saved.getTeacherUser() != null) {
+                    return "redirect:/updateTeacher/" + saved.getId();
+                } else {
+                    return "redirect:/updateGuardian/" + saved.getId();
+                }
+            } else {
+                User found = userService.findById(userID);
+                log.debug("Blank passwords are not permitted");
+                if (found.getAdminUser() != null) {
+                    return "redirect:/updateAdmin/" + found.getId();
+                } else if (found.getTeacherUser() != null) {
+                    return "redirect:/updateTeacher/" + found.getId();
+                } else {
+                    return "redirect:/updateGuardian/" + found.getId();
+                }
+            }
+        }
+        log.debug("Unauthorised password reset requested");
+        return "redirect:/adminPage";
+    }
+
     // Admin CRUD ops =======================================================================================
 
     @AdminRead
     @GetMapping("/createAdmin")
-    public String newAdmin(Model model){
+    public String newAdmin(Model model) {
         User user = User.builder().build();
         model.addAttribute("newUser", user);
         model.addAttribute("user", getUsername());
@@ -141,11 +191,11 @@ public class UserController {
     @AdminCreate
     @PostMapping("/createAdmin")
     public String newAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
-                           @Valid @ModelAttribute("newUser") User newUser){
+                           @Valid @ModelAttribute("newUser") User newUser) {
         if (newAdminUser.getAdminUserName() != null
-                || newUser.getUsername() != null || newUser.getPassword() != null){
-            if (userService.findByUsername(newUser.getUsername()) == null){
-                if (adminUserService.findByAdminUserName(newAdminUser.getAdminUserName()) == null){
+                || newUser.getUsername() != null || newUser.getPassword() != null) {
+            if (userService.findByUsername(newUser.getUsername()) == null) {
+                if (adminUserService.findByAdminUserName(newAdminUser.getAdminUserName()) == null) {
                     newAdminUser(newAdminUser, newUser);
                 } else {
                     log.debug("AdminUser with name provided already exists");
@@ -161,10 +211,10 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateAdmin/{adminUserID}")
-    public String updateAdmin(Model model, @PathVariable Long adminUserID){
+    public String updateAdmin(Model model, @PathVariable Long adminUserID) {
         User user = userService.findById(adminUserID);
         //guard against wrong adminUser by user ID
-        if (user.getAdminUser() == null){
+        if (user.getAdminUser() == null) {
             log.debug("No adminUser associated with given user");
             return "redirect:/adminPage";
         } else {
@@ -180,7 +230,7 @@ public class UserController {
 
     @AdminRead
     @GetMapping("/createTeacher")
-    public String newTeacher(Model model){
+    public String newTeacher(Model model) {
         User user = User.builder().build();
         model.addAttribute("newUser", user);
         model.addAttribute("user", getUsername());
@@ -192,11 +242,11 @@ public class UserController {
     @AdminCreate
     @PostMapping("/createTeacher")
     public String newTeacher(@Valid @ModelAttribute("newTeacher") TeacherUser newTeacherUser,
-                             @Valid @ModelAttribute("newUser") User newUser){
+                             @Valid @ModelAttribute("newUser") User newUser) {
         if (newTeacherUser.getTeacherUserName() != null
-                || newUser.getUsername() != null || newUser.getPassword() != null){
-            if (userService.findByUsername(newUser.getUsername()) == null){
-                if (teacherUserService.findByTeacherUserName(newTeacherUser.getTeacherUserName()) == null){
+                || newUser.getUsername() != null || newUser.getPassword() != null) {
+            if (userService.findByUsername(newUser.getUsername()) == null) {
+                if (teacherUserService.findByTeacherUserName(newTeacherUser.getTeacherUserName()) == null) {
                     newTeacherUser(newTeacherUser, newUser);
                 } else {
                     log.debug("TeacherUser with name provided already exists");
@@ -212,9 +262,9 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateTeacher/{teacherUserID}")
-    public String updateTeacher(Model model, @PathVariable Long teacherUserID){
+    public String updateTeacher(Model model, @PathVariable Long teacherUserID) {
         User user = userService.findById(teacherUserID);
-        if (user.getTeacherUser() == null){
+        if (user.getTeacherUser() == null) {
             log.debug("No teacherUser associated with given user");
             return "redirect:/adminPage";
         } else {
@@ -230,7 +280,7 @@ public class UserController {
 
     @AdminRead
     @GetMapping("/createGuardian")
-    public String newGuardian(Model model){
+    public String newGuardian(Model model) {
         User user = User.builder().build();
         model.addAttribute("newUser", user);
         model.addAttribute("user", getUsername());
@@ -242,11 +292,11 @@ public class UserController {
     @AdminCreate
     @PostMapping("/createGuardian")
     public String newGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
-                           @Valid @ModelAttribute("newUser") User newUser){
+                              @Valid @ModelAttribute("newUser") User newUser) {
         if (newGuardianUser.getGuardianUserName() != null
-                || newUser.getUsername() != null || newUser.getPassword() != null){
-            if (userService.findByUsername(newUser.getUsername()) == null){
-                if (guardianUserService.findByGuardianUserName(newGuardianUser.getGuardianUserName()) == null){
+                || newUser.getUsername() != null || newUser.getPassword() != null) {
+            if (userService.findByUsername(newUser.getUsername()) == null) {
+                if (guardianUserService.findByGuardianUserName(newGuardianUser.getGuardianUserName()) == null) {
                     newGuardianUser(newGuardianUser, newUser);
                 } else {
                     log.debug("GuardianUser with name provided already exists");
@@ -262,9 +312,9 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateGuardian/{guardianUserID}")
-    public String updateGuardian(Model model, @PathVariable Long guardianUserID){
+    public String updateGuardian(Model model, @PathVariable Long guardianUserID) {
         User user = userService.findById(guardianUserID);
-        if (user.getGuardianUser() == null){
+        if (user.getGuardianUser() == null) {
             log.debug("No guardianUser associated with given user");
             return "redirect:/adminPage";
         } else {
@@ -278,16 +328,27 @@ public class UserController {
 
     // end of CRUD ops ==========================================================================================
 
-    private String getUsername(){
+    @AdminUpdate
+    private String getUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
-            return ((UserDetails)principal).getUsername();
+            return ((UserDetails) principal).getUsername();
         } else {
             return principal.toString();
         }
     }
 
+    @AdminUpdate
+    private User changeUserPassword(Long userID, User userOnFile) {
+        User found = userService.findById(userID);
+        found.setPassword(passwordEncoder.encode(userOnFile.getPassword()));
+        User saved = userService.save(found);
+        log.debug("Password change for " + saved.getUsername() + " has been saved");
+        return saved;
+    }
+
     //assume here that all parameters are not null and not already on the DB
+    @AdminUpdate
     private User newTeacherUser(TeacherUser newTeacherUser, User newUser) {
         Role teacherRole = roleService.findByRoleName("TEACHER");
         TeacherUser savedTeacherUser = teacherUserService.save(
@@ -300,6 +361,7 @@ public class UserController {
         return savedUser;
     }
 
+    @AdminUpdate
     private User newAdminUser(AdminUser newAdminUser, User newUser) {
         Role adminRole = roleService.findByRoleName("ADMIN");
         AdminUser savedAdminUser = adminUserService.save(
@@ -312,6 +374,7 @@ public class UserController {
         return savedUser;
     }
 
+    @AdminUpdate
     private User newGuardianUser(GuardianUser newGuardianUser, User newUser) {
         Role guardianRole = roleService.findByRoleName("GUARDIAN");
         GuardianUser savedGuardianUser = guardianUserService.save(

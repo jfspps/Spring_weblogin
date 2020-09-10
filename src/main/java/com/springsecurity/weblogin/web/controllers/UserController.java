@@ -134,13 +134,7 @@ public class UserController {
             currentUser.setPassword(passwordEncoder.encode(currentUser.getUsername() + "123"));
             userService.save(currentUser);
             log.debug("Password was reset");
-            if (currentUser.getAdminUser() != null) {
-                return "redirect:/updateAdmin/" + currentUser.getId();
-            } else if (currentUser.getTeacherUser() != null) {
-                return "redirect:/updateTeacher/" + currentUser.getId();
-            } else {
-                return "redirect:/updateGuardian/" + currentUser.getId();
-            }
+            return "redirect:/" + userTypePage(currentUser) + "/" + currentUser.getId();
         }
         log.debug("Unauthorised password reset requested");
         return "redirect:/logout";
@@ -152,23 +146,11 @@ public class UserController {
         if (userService.findById(Long.valueOf(userID)) != null) {
             if (!passwordChangeUser.getPassword().isBlank()){
                 User saved = changeUserPassword(Long.valueOf(userID), passwordChangeUser);
-                if (saved.getAdminUser() != null) {
-                    return "redirect:/updateAdmin/" + saved.getId();
-                } else if (saved.getTeacherUser() != null) {
-                    return "redirect:/updateTeacher/" + saved.getId();
-                } else {
-                    return "redirect:/updateGuardian/" + saved.getId();
-                }
+                return "redirect:/" + userTypePage(saved) + "/" + saved.getId();
             } else {
                 User found = userService.findById(Long.valueOf(userID));
                 log.debug("Blank passwords are not permitted");
-                if (found.getAdminUser() != null) {
-                    return "redirect:/updateAdmin/" + found.getId();
-                } else if (found.getTeacherUser() != null) {
-                    return "redirect:/updateTeacher/" + found.getId();
-                } else {
-                    return "redirect:/updateGuardian/" + found.getId();
-                }
+                return "redirect:/" + userTypePage(found) + "/" + found.getId();
             }
         }
         log.debug("Unauthorised password reset requested");
@@ -179,11 +161,12 @@ public class UserController {
     @PostMapping("/deleteUser/{userID}")
     public String postDeleteUser(@PathVariable String userID){
         if (userService.findById(Long.valueOf(userID)) != null){
+            User currentUser = userService.findById(Long.valueOf(userID));
             if (Long.valueOf(userID).equals(userService.findByUsername(getUsername()).getId())){
                 log.debug("Cannot delete yourself");
-                return "redirect:/updateAdmin/" + userID;
+                return "redirect:/" + userTypePage(currentUser) + "/" + userID;
             } else {
-                deleteAdminUser(userID);
+                userTypeDelete(currentUser);
                 if (userService.findById(Long.valueOf(userID)) != null){
                     log.debug("User with ID: "  + userID + " was not deleted");
                 }
@@ -192,6 +175,24 @@ public class UserController {
             log.debug("User with ID: " + userID + " not found");
         }
         return "redirect:/adminPage";
+    }
+
+    private String userTypePage(User user){
+        if (user.getAdminUser() != null){
+            return "updateAdmin";
+        } else if (user.getTeacherUser() != null){
+            return "updateTeacher";
+        } else
+            return "updateGuardian";
+    }
+
+    private void userTypeDelete(User user){
+        if (user.getAdminUser() != null){
+            deleteAdminUser(user.getId());
+        } else if (user.getTeacherUser() != null){
+            deleteTeacherUser(user.getId());
+        } else
+            deleteGuardianUser(user.getId());
     }
 
     // Admin CRUD ops =======================================================================================
@@ -458,9 +459,9 @@ public class UserController {
     }
 
     @AdminDelete
-    private void deleteAdminUser(String userID) {
+    private void deleteAdminUser(Long userID) {
         //AdminUser to User is ManyToOne; do not delete AdminUser unless size == 0
-        User toBeDeleted = userService.findById(Long.valueOf(userID));
+        User toBeDeleted = userService.findById(userID);
         AdminUser adminUser = toBeDeleted.getAdminUser();
 
         //settle the mappings between User and AdminUser
@@ -477,6 +478,52 @@ public class UserController {
             log.debug("AdminUser, " + adminUserName + ", has " + adminUser.getUsers().size() + " remaining Users associated");
         }
 
-        userService.deleteById(Long.valueOf(userID));
+        userService.deleteById(userID);
+    }
+
+    @AdminDelete
+    private void deleteTeacherUser(Long userID) {
+        //TeacherUser to User is ManyToOne; do not delete TeacherUser unless size == 0
+        User toBeDeleted = userService.findById(userID);
+        TeacherUser teacherUser = toBeDeleted.getTeacherUser();
+
+        //settle the mappings between User and TeacherUser
+        toBeDeleted.setTeacherUser(null);
+        teacherUser.getUsers().removeIf(user -> user.getUsername().equals(toBeDeleted.getUsername()));
+        teacherUserService.save(teacherUser);
+
+        String teacherUserName = teacherUser.getTeacherUserName();
+        Long teacherUserId = teacherUser.getId();
+        if(teacherUser.getUsers().isEmpty()){
+            teacherUserService.deleteById(teacherUserId);
+            log.debug("TeacherUser, " + teacherUserName + ", User set is now empty and has been deleted");
+        } else {
+            log.debug("TeacherUser, " + teacherUserName + ", has " + teacherUser.getUsers().size() + " remaining Users associated");
+        }
+
+        userService.deleteById(userID);
+    }
+
+    @AdminDelete
+    private void deleteGuardianUser(Long userID) {
+        //GuardianUser to User is ManyToOne; do not delete AdminUser unless size == 0
+        User toBeDeleted = userService.findById(userID);
+        GuardianUser guardianUser = toBeDeleted.getGuardianUser();
+
+        //settle the mappings between User and AdminUser
+        toBeDeleted.setGuardianUser(null);
+        guardianUser.getUsers().removeIf(user -> user.getUsername().equals(toBeDeleted.getUsername()));
+        guardianUserService.save(guardianUser);
+
+        String guardianUserName = guardianUser.getGuardianUserName();
+        Long guardianUserId = guardianUser.getId();
+        if(guardianUser.getUsers().isEmpty()){
+            guardianUserService.deleteById(guardianUserId);
+            log.debug("GuardianUser, " + guardianUserName + ", User set is now empty and has been deleted");
+        } else {
+            log.debug("GuardianUser, " + guardianUserName + ", has " + guardianUser.getUsers().size() + " remaining Users associated");
+        }
+
+        userService.deleteById(userID);
     }
 }

@@ -37,8 +37,11 @@
             <hr>
 
             <h3>TeacherUsers on file</h3>
-            <p sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
-            <table class="table table-sm">
+            <p th:if="${!TeacherUsersFound.isEmpty()}"
+               sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
+            <p th:unless="${!TeacherUsersFound.isEmpty()}"
+               sec:authorize="hasAuthority('admin.update')">There are no teacherUsers on file</p>
+            <table class="table table-sm" th:if="${!TeacherUsersFound.isEmpty()}">
                 <tr>
                     <th>Teacher ID</th>
                     <th>Teacher username</th>
@@ -57,8 +60,11 @@
             <hr>
 
             <h3>GuardianUsers on file</h3>
-            <p sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
-            <table class="table table-sm">
+            <p th:if="${!GuardianUsersFound.isEmpty()}"
+               sec:authorize="hasAuthority('admin.update')">Click an ID to edit or delete a user</p>
+            <p th:unless="${!GuardianUsersFound.isEmpty()}"
+               sec:authorize="hasAuthority('admin.update')">There are no guardianUsers on file</p>
+            <table class="table table-sm" th:if="${!GuardianUsersFound.isEmpty()}">
                 <tr>
                     <th>Guardian ID</th>
                     <th>Guardian username</th>

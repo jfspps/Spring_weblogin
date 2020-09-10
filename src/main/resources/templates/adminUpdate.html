@@ -39,7 +39,8 @@
             </form>
             <hr>
 
-            <form th:object="${currentUser}" th:action="@{/changePassword/{userID}(userID=${currentUser.id})}" method="post">
+            <form th:object="${currentUser}" th:action="@{/changePassword/{userID}(userID=${currentUser.id})}" method="post"
+                  sec:authorize="hasAuthority('admin.update')">
                 <div>
                     <label>Enter a new password: </label>
                     <input size="50" name="newPassword" type="password" th:field="*{password}"/>
@@ -49,7 +50,8 @@
                 </div>
             </form>
             <hr>
-            <form th:action="@{/deleteUser/{ID}(ID=${currentUser.id})}" method="post">
+            <form th:action="@{/deleteUser/{ID}(ID=${currentUser.id})}" method="post"
+                  sec:authorize="hasAuthority('admin.delete')">
                 <input type="submit" value="Delete user" style="width: 200px"/>
             </form>
 

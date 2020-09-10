@@ -128,9 +128,9 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/resetPassword/{userID}")
-    public String postResetPassword(@PathVariable Long userID) {
-        if (userService.findById(userID) != null) {
-            User currentUser = userService.findById(userID);
+    public String postResetPassword(@PathVariable String userID) {
+        if (userService.findById(Long.valueOf(userID)) != null) {
+            User currentUser = userService.findById(Long.valueOf(userID));
             currentUser.setPassword(passwordEncoder.encode(currentUser.getUsername() + "123"));
             userService.save(currentUser);
             log.debug("Password was reset");
@@ -148,10 +148,10 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/changePassword/{userID}")
-    public String postChangePassword(@PathVariable Long userID, @Valid @ModelAttribute("currentUser") User passwordChangeUser) {
-        if (userService.findById(userID) != null) {
+    public String postChangePassword(@PathVariable String userID, @Valid @ModelAttribute("currentUser") User passwordChangeUser) {
+        if (userService.findById(Long.valueOf(userID)) != null) {
             if (!passwordChangeUser.getPassword().isBlank()){
-                User saved = changeUserPassword(userID, passwordChangeUser);
+                User saved = changeUserPassword(Long.valueOf(userID), passwordChangeUser);
                 if (saved.getAdminUser() != null) {
                     return "redirect:/updateAdmin/" + saved.getId();
                 } else if (saved.getTeacherUser() != null) {
@@ -160,7 +160,7 @@ public class UserController {
                     return "redirect:/updateGuardian/" + saved.getId();
                 }
             } else {
-                User found = userService.findById(userID);
+                User found = userService.findById(Long.valueOf(userID));
                 log.debug("Blank passwords are not permitted");
                 if (found.getAdminUser() != null) {
                     return "redirect:/updateAdmin/" + found.getId();
@@ -172,6 +172,25 @@ public class UserController {
             }
         }
         log.debug("Unauthorised password reset requested");
+        return "redirect:/adminPage";
+    }
+
+    @AdminDelete
+    @PostMapping("/deleteUser/{userID}")
+    public String postDeleteUser(@PathVariable String userID){
+        if (userService.findById(Long.valueOf(userID)) != null){
+            if (Long.valueOf(userID).equals(userService.findByUsername(getUsername()).getId())){
+                log.debug("Cannot delete yourself");
+                return "redirect:/updateAdmin/" + userID;
+            } else {
+                deleteAdminUser(userID);
+                if (userService.findById(Long.valueOf(userID)) != null){
+                    log.debug("User with ID: "  + userID + " was not deleted");
+                }
+            }
+        } else {
+            log.debug("User with ID: " + userID + " not found");
+        }
         return "redirect:/adminPage";
     }
 
@@ -211,8 +230,8 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateAdmin/{adminUserID}")
-    public String getUpdateAdmin(Model model, @PathVariable Long adminUserID) {
-        User user = userService.findById(adminUserID);
+    public String getUpdateAdmin(Model model, @PathVariable String adminUserID) {
+        User user = userService.findById(Long.valueOf(adminUserID));
         //guard against wrong adminUser by user ID
         if (user.getAdminUser() == null) {
             log.debug("No adminUser associated with given user");
@@ -228,9 +247,9 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/updateAdmin/{adminUserID}")
-    public String postUpdateAdmin(@PathVariable Long adminUserID, @Valid @ModelAttribute("currentUser") User currentUser,
+    public String postUpdateAdmin(@PathVariable String adminUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                   @Valid @ModelAttribute("currentAdminUser") AdminUser currentAdminUser) {
-        User user = userService.findById(adminUserID);
+        User user = userService.findById(Long.valueOf(adminUserID));
         if (currentUser.getUsername() != null){
             user.setUsername(currentUser.getUsername());
         }
@@ -279,8 +298,8 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateTeacher/{teacherUserID}")
-    public String getUpdateTeacher(Model model, @PathVariable Long teacherUserID) {
-        User user = userService.findById(teacherUserID);
+    public String getUpdateTeacher(Model model, @PathVariable String teacherUserID) {
+        User user = userService.findById(Long.valueOf(teacherUserID));
         if (user.getTeacherUser() == null) {
             log.debug("No teacherUser associated with given user");
             return "redirect:/adminPage";
@@ -295,9 +314,9 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/updateTeacher/{teacherUserID}")
-    public String postUpdateTeacher(@PathVariable Long teacherUserID, @Valid @ModelAttribute("currentUser") User currentUser,
+    public String postUpdateTeacher(@PathVariable String teacherUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                   @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser) {
-        User user = userService.findById(teacherUserID);
+        User user = userService.findById(Long.valueOf(teacherUserID));
         if (currentUser.getUsername() != null){
             user.setUsername(currentUser.getUsername());
         }
@@ -346,8 +365,8 @@ public class UserController {
 
     @AdminUpdate
     @GetMapping("/updateGuardian/{guardianUserID}")
-    public String getUpdateGuardian(Model model, @PathVariable Long guardianUserID) {
-        User user = userService.findById(guardianUserID);
+    public String getUpdateGuardian(Model model, @PathVariable String guardianUserID) {
+        User user = userService.findById(Long.valueOf(guardianUserID));
         if (user.getGuardianUser() == null) {
             log.debug("No guardianUser associated with given user");
             return "redirect:/adminPage";
@@ -362,9 +381,9 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/updateGuardian/{guardianUserID}")
-    public String postUpdateTeacher(@PathVariable Long guardianUserID, @Valid @ModelAttribute("currentUser") User currentUser,
+    public String postUpdateTeacher(@PathVariable String guardianUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                     @Valid @ModelAttribute("currentGuardianUser") GuardianUser currentGuardianUser) {
-        User user = userService.findById(guardianUserID);
+        User user = userService.findById(Long.valueOf(guardianUserID));
         if (currentUser.getUsername() != null){
             user.setUsername(currentUser.getUsername());
         }
@@ -379,7 +398,7 @@ public class UserController {
 
     // end of CRUD ops ==========================================================================================
 
-    @AdminUpdate
+    @AdminRead
     private String getUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
@@ -436,5 +455,28 @@ public class UserController {
         log.debug("New Guardian name: " + savedUser.getGuardianUser().getGuardianUserName() + " with username" +
                 savedUser.getUsername() + " and ID: " + savedUser.getId() + " added");
         return savedUser;
+    }
+
+    @AdminDelete
+    private void deleteAdminUser(String userID) {
+        //AdminUser to User is ManyToOne; do not delete AdminUser unless size == 0
+        User toBeDeleted = userService.findById(Long.valueOf(userID));
+        AdminUser adminUser = toBeDeleted.getAdminUser();
+
+        //settle the mappings between User and AdminUser
+        toBeDeleted.setAdminUser(null);
+        adminUser.getUsers().removeIf(user -> user.getUsername().equals(toBeDeleted.getUsername()));
+        adminUserService.save(adminUser);
+
+        String adminUserName = adminUser.getAdminUserName();
+        Long adminUserId = adminUser.getId();
+        if(adminUser.getUsers().isEmpty()){
+            adminUserService.deleteById(adminUserId);
+            log.debug("AdminUser, " + adminUserName + ", User set is now empty and has been deleted");
+        } else {
+            log.debug("AdminUser, " + adminUserName + ", has " + adminUser.getUsers().size() + " remaining Users associated");
+        }
+
+        userService.deleteById(Long.valueOf(userID));
     }
 }

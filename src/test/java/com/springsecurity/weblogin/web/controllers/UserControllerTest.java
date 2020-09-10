@@ -285,6 +285,29 @@ class UserControllerTest extends SecurityCredentialsTest {
                 .andExpect(view().name("redirect:/adminPage"));
     }
 
+    @WithUserDetails("johnsmith")
+    @Test
+    void deleteOtherUser() throws Exception {
+        mockMvc.perform(post("/deleteUser/2").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/adminPage"));
+    }
+
+    @WithUserDetails("johnsmith")
+    @Test
+    void deleteYourself() throws Exception {
+        mockMvc.perform(post("/deleteUser/1").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateAdmin/1"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void deleteUserFAIL(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/deleteUser/2").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
     // user and AdminUser CRUD tests ===============================================================================
     //context loads adminUsers, teacherUsers, followed by guardianUsers
     //IDs are [1,2], [3,4] and [5,6] respectively

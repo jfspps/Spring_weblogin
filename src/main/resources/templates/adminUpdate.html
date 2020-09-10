@@ -48,7 +48,10 @@
                     <input type="submit" value="Change password" style="width: 200px"/>
                 </div>
             </form>
-            <br/>
+            <hr>
+            <form th:action="@{/deleteUser/{ID}(ID=${currentUser.id})}" method="post">
+                <input type="submit" value="Delete user" style="width: 200px"/>
+            </form>
 
             <p><a href="/authenticated">Index page</a></p>
             <p sec:authorize="hasAuthority('admin.read')"><a href="/userPage">View DB user records</a></p>

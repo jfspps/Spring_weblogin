@@ -13,9 +13,9 @@
         <div class="row-md-12">
             <h1>Welcome to the Web-login Demo</h1>
 
-            <p>Logged in with <b>ID:</b> <span th:text="${userID}"></span> and <b>Username:</b> <span
+            <p>You are logged in with <b>ID:</b> <span th:text="${userID}"></span> and <b>username:</b> <span
                     sec:authentication="name"></span></p>
-            <p><b>User permissions:</b> <span sec:authentication="principal.authorities"></span></p>
+            <p><b>Your permissions:</b> <span sec:authentication="principal.authorities"></span></p>
             <hr>
         </div>
     </div>

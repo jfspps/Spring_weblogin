@@ -2,14 +2,10 @@ package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.exceptions.NotFoundException;
 import com.springsecurity.weblogin.model.TestRecord;
-import com.springsecurity.weblogin.model.security.Authority;
 import com.springsecurity.weblogin.model.security.GuardianUser;
-import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.TestRecordService;
-import com.springsecurity.weblogin.services.securityServices.AuthorityService;
 import com.springsecurity.weblogin.services.securityServices.GuardianUserService;
-import com.springsecurity.weblogin.services.securityServices.RoleService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.web.permissionAnnot.*;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.*;
 import javax.validation.Valid;
 import java.util.Set;
 
@@ -73,25 +68,32 @@ public class TestRecordController {
     @PostMapping("/createTestRecord")
     public String createTestRecordPOST(@Valid @ModelAttribute("newTestRecord") TestRecord testRecord, BindingResult TRbindingResult,
                                        @Valid @ModelAttribute("guardianUser") User guardianUser, BindingResult GbindingResult) {
-        if (!testRecord.getRecordName().isEmpty() && !guardianUser.getUsername().isEmpty()) {
-            //check that the testRecord does not already exist for the given Guardian
-            TestRecord TRfound = testRecordService.findByRecordName(testRecord.getRecordName());
-            GuardianUser Gfound = guardianUserService.findByGuardianUserName(guardianUser.getUsername());
-            if (!TRfound.getUser().getGuardianUser().equals(Gfound)) {
-                TestRecord saved = testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
-                log.debug("Received guardianUser with id: " + saved.getUser().getId()
-                        + " and username: " + saved.getUser().getUsername());
+        if (!TestRecord_GuardianNameFields_AreEmpty(testRecord, guardianUser)) {
+            if (userService.findByUsername(guardianUser.getUsername()) != null)  {
+                //check if the testRecord, by the submitted form, already exists
+                if (testRecordService.findByRecordName(testRecord.getRecordName()) != null) {
+                    //another testRecord with the same record name found, see if the current guardian is its 'owner'
+                    TestRecord TRfound = testRecordService.findByRecordName(testRecord.getRecordName());
+                    User Gfound = userService.findByUsername(guardianUser.getUsername());
+                    if (!testRecordBelongsToGuardian(TRfound, Gfound)) {
+                        saveTestRecordWithGuardian(testRecord, guardianUser);
+                    } else {
+                        log.debug("TestRecord is already associated with the provided Guardian details. No changes made.");
+                        TRbindingResult.rejectValue("recordName", "exists", "Supplied testRecord already exists");
+                        return "testRecordCreate";
+                    }
+                } else {
+                    log.debug("TestRecord not found, saving new testRecord");
+                    saveTestRecordWithGuardian(testRecord, guardianUser);
+                }
             } else {
-                log.debug("TestRecord is already associated with the provided Guardian details. No changes made.");
+                log.debug("Guardian with given (User) username not found");
+                GbindingResult.rejectValue("username", "notFound", "Guardian username not found");
+                return "testRecordCreate";
             }
         } else {
-            TRbindingResult.getAllErrors().forEach(objectError -> {
-                log.debug("testRecord: " + objectError.toString());  //use to build custom messages
-            });
-            GbindingResult.getAllErrors().forEach(objectError -> {
-                log.debug("GuardianUser: " + objectError.toString());
-            });
-            log.debug("TestRecord not saved to DB");
+            log.debug("Both username and record name fields are empty");
+            printTestRecordCreateErrors(TRbindingResult, GbindingResult);
             return "testRecordCreate";
         }
         return "redirect:/testRecord";
@@ -113,10 +115,19 @@ public class TestRecordController {
 
     @TeacherUpdate
     @PostMapping("/{guardianId}/updateTestRecord/{testRecordID}")
-    public String updateTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
-                                   @PathVariable String testRecordID, @PathVariable String guardianId) {
-        if (testRecord.getRecordName() == null || userService.findById(Long.valueOf(guardianId)) == null) {
-            log.debug("Record name and valid User (guardian) ID are required");
+    public String postUpdateTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord, BindingResult TRbindingResult,
+                                   @PathVariable String testRecordID, @PathVariable String guardianId, Model model) {
+        if (testRecord.getRecordName().isEmpty()) {
+            log.debug("Record name entry is empty");
+            TestRecord found = testRecordService.findById(Long.valueOf(testRecordID));
+
+            model.addAttribute("error", "Record name required");
+            model.addAttribute("guardian", found.getUser());
+            model.addAttribute("testRecord", found);
+            return "testRecordUpdate";
+        }
+        if (userService.findById(Long.valueOf(guardianId)) == null) {
+            log.debug("Valid User (guardian) ID are required");
             return "redirect:/testRecord";
         } else {
             log.debug("Guardian ID: " + guardianId + ", testRecord string: " + testRecord.getRecordName() + " submitted");
@@ -124,20 +135,18 @@ public class TestRecordController {
             if (testRecordService.findByRecordName(testRecord.getRecordName()) != null) {
                 //check whether the testRecord as per the form is already assigned to the current Guardian
                 TestRecord testRecordByForm = testRecordService.findByRecordName(testRecord.getRecordName());
-                GuardianUser currentGuardian = guardianUserService.findById(Long.valueOf(guardianId));
+                User currentGuardian = userService.findById(Long.valueOf(guardianId));
 
-                if (!testRecordByForm.getUser().getGuardianUser().equals(currentGuardian)) {
-                    TestRecord testRecordOnFile = testRecordService.findById(Long.valueOf(testRecordID));
-                    testRecordService.updateTestRecord(Long.valueOf(testRecordID),
-                            testRecordOnFile.getUser().getId(), testRecord.getRecordName());
+                if (testRecordBelongsToGuardian(testRecordByForm, currentGuardian)) {
+                    updateTestRecord_recordName(testRecord, testRecordID);
                 } else {
                     log.debug("The current guardian is already assigned a testRecord with the given values. " +
                             "No changes made");
+                    TRbindingResult.rejectValue("recordName", "exists", "Supplied testRecord already exists");
+                    return "/testRecordUpdate";
                 }
             } else {
-                TestRecord testRecordOnFile = testRecordService.findById(Long.valueOf(testRecordID));
-                testRecordService.updateTestRecord(Long.valueOf(testRecordID),
-                        testRecordOnFile.getUser().getId(), testRecord.getRecordName());
+                updateTestRecord_recordName(testRecord, testRecordID);
             }
         }
         return "redirect:/testRecord";
@@ -145,8 +154,7 @@ public class TestRecordController {
 
     @TeacherDelete
     @PostMapping("/deleteTestRecord/{testRecordID}")
-    public String deleteTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
-                                   @PathVariable String testRecordID) {
+    public String deleteTestRecord(@PathVariable String testRecordID) {
         if (testRecordService.findById(Long.valueOf(testRecordID)) == null) {
             log.debug("No record on file with id: " + testRecordID + ", nothing deleted");
             return "redirect:/testRecord";
@@ -155,5 +163,44 @@ public class TestRecordController {
             testRecordService.deleteTestRecordAndUpdateUser(Long.valueOf(testRecordID), associatedUser);
         }
         return "redirect:/testRecord";
+    }
+
+    // 'ancillary' methods
+
+    private void printTestRecordCreateErrors(BindingResult TRbindingResult, BindingResult GbindingResult) {
+        TRbindingResult.getAllErrors().forEach(objectError -> {
+            log.debug("testRecord: " + objectError.toString());  //use to build custom messages
+        });
+        GbindingResult.getAllErrors().forEach(objectError -> {
+            log.debug("GuardianUser: " + objectError.toString());
+        });
+        log.debug("TestRecord not saved to DB");
+    }
+
+    private void printTestRecordCreateErrors(BindingResult TRbindingResult) {
+        TRbindingResult.getAllErrors().forEach(objectError -> {
+            log.debug("testRecord: " + objectError.toString());  //use to build custom messages
+        });
+        log.debug("TestRecord not saved to DB");
+    }
+
+    private void saveTestRecordWithGuardian(TestRecord testRecord, User guardianUser) {
+        TestRecord saved = testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
+        log.debug("Received guardianUser with id: " + saved.getUser().getId()
+                + " and username: " + saved.getUser().getUsername());
+    }
+
+    private boolean testRecordBelongsToGuardian(TestRecord TRfound, User gfound) {
+            return TRfound.getUser().getId().equals(gfound.getId());
+    }
+
+    private boolean TestRecord_GuardianNameFields_AreEmpty(TestRecord testRecord, User guardianUser) {
+        return testRecord.getRecordName().isEmpty() || guardianUser.getUsername().isEmpty();
+    }
+
+    private void updateTestRecord_recordName(TestRecord testRecord, String testRecordID) {
+        TestRecord testRecordOnFile = testRecordService.findById(Long.valueOf(testRecordID));
+        testRecordService.updateTestRecord(Long.valueOf(testRecordID),
+                testRecordOnFile.getUser().getId(), testRecord.getRecordName());
     }
 }

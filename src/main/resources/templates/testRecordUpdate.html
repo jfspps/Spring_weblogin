@@ -21,26 +21,33 @@
                   guardianID=${guardian.getId()}, testRecordID=${testRecord.id})}"
                   method="post"
                   sec:authorize="hasAuthority('teacher.update')">
-                <table class="table table-sm">
-                    <tr>
-                        <td th:text="${'TestRecord ID: ' + testRecord.id}"></td>
-                    </tr>
-                    <tr>
-                        <!--/*@thymesVar id="guardian" type="com.springsecurity.weblogin.model.security.User"*/-->
-                        <td th:object="${guardian}" th:text="${'Guardian ID: ' + guardian.getId()}"></td>
-                    </tr>
-                    <tr>
-                        <td th:object="${guardian}" th:text="${'Guardian Username: ' + guardian.getUsername()}"></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
-                        </td>
-                    </tr>
-                </table>
-                <input style="width: 200px" th:type="submit" value="Update"/>
-            </form>
 
+                <div>
+                    <p th:text="${'TestRecord ID: ' + testRecord.id}"></p>
+                </div>
+
+                <!--/*@thymesVar id="guardian" type="com.springsecurity.weblogin.model.security.User"*/-->
+                <div th:object="${guardian}">
+                    <p th:text="${'Guardian ID: ' + guardian.getId()}"></p>
+                </div>
+
+                <div th:object="${guardian}">
+                    <p th:text="${'Guardian Username: ' + guardian.getUsername()}"></p>
+                </div>
+
+                <div>
+                    <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="error" type="java.lang.String"*/-->
+                        <p class="alert-warning" th:text="${error}">Error</p>
+                    </span>
+                </div>
+
+                <div>
+                    <input style="width: 200px" th:type="submit" value="Update"/>
+                </div>
+            </form>
+            <hr>
             <!--/*@thymesVar id="testRecord" type="com.springsecurity.weblogin.model.TestRecord"*/-->
             <form th:object="${testRecord}"
                   th:action="@{/deleteTestRecord/{testRecordID}(testRecordID=${testRecord.id})}" method="post"

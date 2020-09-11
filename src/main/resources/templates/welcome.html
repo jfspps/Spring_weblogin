@@ -14,7 +14,7 @@
             <h1>Spring Security Web-login Demo</h1>
 
             <div sec:authorize="isAuthenticated()">
-                <p>You are already logged in as "<b><span sec:authentication="name"></span></b>".</p>
+                <p>You are already logged in as "<b><span sec:authentication="name"></span></b>". Navigation options above.</p>
             </div>
 
             <div sec:authorize="!isAuthenticated()">

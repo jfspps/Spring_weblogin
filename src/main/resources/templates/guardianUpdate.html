@@ -13,8 +13,8 @@
     <div class="row">
         <div class="row-md-12">
             <h1>Update current guardian</h1>
-            <p><b>Username:</b> <span sec:authentication="name"></span></p>
-            <p><b>Permissions:</b> <span sec:authentication="authorities"></span></p>
+            <p><b>Your username:</b> <span sec:authentication="name"></span></p>
+            <p><b>Your permissions:</b> <span sec:authentication="authorities"></span></p>
 
             <!--/*@thymesVar id="currentUser" type="com.springsecurity.weblogin.model.security.User"*/-->
             <form th:object="${currentUser}" th:action="@{/updateGuardian/{userID}(userID=${currentUser.id})}" method="post"

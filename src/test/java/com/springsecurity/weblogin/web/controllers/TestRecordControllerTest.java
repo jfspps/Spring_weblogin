@@ -1,8 +1,10 @@
 package com.springsecurity.weblogin.web.controllers;
 
 import com.springsecurity.weblogin.model.TestRecord;
+import com.springsecurity.weblogin.model.security.GuardianUser;
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.TestRecordService;
+import com.springsecurity.weblogin.services.securityServices.GuardianUserService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
@@ -40,6 +42,9 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
 
     @Mock
     UserService userServiceTEST;
+
+    @Mock
+    GuardianUserService guardianUserService;
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllUsers")
     @ParameterizedTest
@@ -80,18 +85,30 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
-    void postCreateTestRecord(String username, String pwd) throws Exception {
-        when(userServiceTEST.save(any())).thenReturn(User.builder().build());
-        when(userServiceTEST.findByUsername(anyString())).thenReturn(User.builder().build());
-        when(testRecordServiceTEST.save(any())).thenReturn(TestRecord.builder().build());
-        when(testRecordServiceTEST.createTestRecord(anyString(), anyString())).thenReturn(TestRecord.builder().build());
-
+    void postCreateTestRecord_NEW(String username, String pwd) throws Exception {
+        //assume here that the submitted record name does not exist
         mockMvc.perform(post("/createTestRecord").with(csrf())
                     .with(httpBasic(username, pwd))
+                    .param("recordName", "some new record")
+                    .param("username", "paulsmith")
                     .flashAttr("newTestRecord", TestRecord.builder().build())
                     .flashAttr("guardianUser", User.builder().build()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
+    @ParameterizedTest
+    void postCreateTestRecord_ALREADYEXISTS(String username, String pwd) throws Exception {
+        //assume here that the submitted record name does exist (somehow)
+        mockMvc.perform(post("/createTestRecord").with(csrf())
+                .with(httpBasic(username, pwd))
+                .param("recordName", "Test record 1")
+                .param("username", "paulsmith")
+                .flashAttr("newTestRecord", TestRecord.builder().build())
+                .flashAttr("guardianUser", User.builder().build()))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("testRecordCreate"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
@@ -111,13 +128,10 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postUpdateTestRecord(String username, String pwd) throws Exception {
-        TestRecord testRecord = new TestRecord();
-        when(testRecordServiceTEST.save(any())).thenReturn(testRecord);
-        when(testRecordServiceTEST.findByRecordName(anyString())).thenReturn(testRecord);
-        when(testRecordServiceTEST.findById(anyLong())).thenReturn(testRecord);
-        when(testRecordServiceTEST.updateTestRecord(anyLong(), anyLong(), anyString())).thenReturn(testRecord);
-
-        mockMvc.perform(post("/5/updateTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
+        mockMvc.perform(post("/5/updateTestRecord/1")
+                .with(httpBasic(username, pwd))
+                .with(csrf())
+                .param("recordName", "something"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
     }
@@ -125,16 +139,24 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     //test Guardian with ID 6 associated with testRecord ID 1 (assign a testRecord to parents...)
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
-    void postUpdateTestRecord_wrongPairing(String username, String pwd) throws Exception {
-        TestRecord testRecord = new TestRecord();
-        when(testRecordServiceTEST.save(any())).thenReturn(testRecord);
-        when(testRecordServiceTEST.findByRecordName(anyString())).thenReturn(testRecord);
-        when(testRecordServiceTEST.findById(anyLong())).thenReturn(testRecord);
-        when(testRecordServiceTEST.updateTestRecord(anyLong(), anyLong(), anyString())).thenReturn(testRecord);
-
-        mockMvc.perform(post("/6/updateTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
+    void postUpdateTestRecord_newPairing(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/6/updateTestRecord/1")
+                    .with(httpBasic(username, pwd))
+                    .with(csrf())
+                    .param("recordName", "something"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
+    @ParameterizedTest
+    void postUpdateTestRecord_blankRecordName(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/6/updateTestRecord/1")
+                .with(httpBasic(username, pwd))
+                .with(csrf())
+                .param("recordName", ""))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("testRecordUpdate"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")
@@ -153,8 +175,6 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postDeleteTestRecord(String username, String pwd) throws Exception {
-        when(testRecordServiceTEST.findById(anyLong())).thenReturn(TestRecord.builder().build());
-
         mockMvc.perform(post("/deleteTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));

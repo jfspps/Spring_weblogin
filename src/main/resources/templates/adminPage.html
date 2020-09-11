@@ -12,7 +12,7 @@
     <div class="row">
         <div class="row-md-12">
             <h1>Admin page</h1>
-            <p><b>ID:</b> <span th:text="${userID}"></span> <b>Your username:</b> <span sec:authentication="name"></span></p>
+            <p><b>Your ID:</b> <span th:text="${userID}"></span> <b>Your username:</b> <span sec:authentication="name"></span></p>
 
             <p><b>Your permissions:</b> <span sec:authentication="principal.authorities"></span></p>
             <hr>

@@ -13,7 +13,7 @@
     <div class="row">
         <div class="row-md-12">
             <h1>Add new admin</h1>
-            <p><b>Username:</b> <span sec:authentication="name"></span></p>
+            <p><b>Your username:</b> <span sec:authentication="name"></span></p>
 
             <!--/*@thymesVar id="newUser" type="com.springsecurity.weblogin.model.security.User"*/-->
             <form th:object="${newUser}" th:action="@{/createAdmin}" method="post"

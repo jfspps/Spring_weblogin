@@ -28,10 +28,10 @@
                 <div>
                     <input type="text" size="50" placeholder="Record name" th:field="*{recordName}"/>
                     <span class="help-block" th:if="${#fields.hasErrors('recordName')}">
-                    <ul>
-                        <li class="alert-warning" th:each="err : ${#fields.errors('recordName')}" th:text="${err}">Error</li>
-                    </ul>
-                </span>
+                        <ul>
+                            <li class="alert-warning" th:each="err : ${#fields.errors('recordName')}" th:text="${err}">Error</li>
+                        </ul>
+                    </span>
                 </div>
                 <div>
                     <label>Guardian username</label>

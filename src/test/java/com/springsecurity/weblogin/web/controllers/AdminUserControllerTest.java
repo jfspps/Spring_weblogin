@@ -46,7 +46,10 @@ public class AdminUserControllerTest extends UserControllerTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postCreateAdmin(String username, String pwd) throws Exception {
-        mockMvc.perform(post("/createAdmin").with(httpBasic(username, pwd)).with(csrf()))
+        mockMvc.perform(post("/createAdmin").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "Grace Peters")
+                .param("username", "gracepeters")
+                .param("password", "gracepeters123"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/adminPage"));
     }

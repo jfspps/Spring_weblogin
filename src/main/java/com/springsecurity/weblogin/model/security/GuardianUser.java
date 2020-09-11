@@ -22,6 +22,7 @@ import java.util.Set;
 @Entity
 public class GuardianUser extends BaseEntity {
 
+    @Size(min = 1, max = 255)
     private String guardianUserName;
 
     @OneToMany(mappedBy = "guardianUser", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

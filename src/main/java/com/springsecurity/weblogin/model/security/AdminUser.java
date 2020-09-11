@@ -10,6 +10,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Builder
@@ -20,6 +21,7 @@ import java.util.Set;
 @Entity
 public class AdminUser extends BaseEntity {
 
+    @Size(min = 1, max = 255)
     private String adminUserName;
 
     @OneToMany(mappedBy = "adminUser", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

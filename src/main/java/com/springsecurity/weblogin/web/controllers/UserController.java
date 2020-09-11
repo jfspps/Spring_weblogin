@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -143,7 +144,7 @@ public class UserController {
     @PostMapping("/changePassword/{userID}")
     public String postChangePassword(@PathVariable String userID, @Valid @ModelAttribute("currentUser") User passwordChangeUser) {
         if (userService.findById(Long.valueOf(userID)) != null) {
-            if (!passwordChangeUser.getPassword().isBlank()){
+            if (!passwordChangeUser.getPassword().isBlank()) {
                 User saved = changeUserPassword(Long.valueOf(userID), passwordChangeUser);
                 return "redirect:/" + userTypePage(saved) + "/" + saved.getId();
             } else {
@@ -158,16 +159,16 @@ public class UserController {
 
     @AdminDelete
     @PostMapping("/deleteUser/{userID}")
-    public String postDeleteUser(@PathVariable String userID){
-        if (userService.findById(Long.valueOf(userID)) != null){
+    public String postDeleteUser(@PathVariable String userID) {
+        if (userService.findById(Long.valueOf(userID)) != null) {
             User currentUser = userService.findById(Long.valueOf(userID));
-            if (Long.valueOf(userID).equals(userService.findByUsername(getUsername()).getId())){
+            if (Long.valueOf(userID).equals(userService.findByUsername(getUsername()).getId())) {
                 log.debug("Cannot delete yourself");
                 return "redirect:/" + userTypePage(currentUser) + "/" + userID;
             } else {
                 userTypeDelete(currentUser);
-                if (userService.findById(Long.valueOf(userID)) != null){
-                    log.debug("User with ID: "  + userID + " was not deleted");
+                if (userService.findById(Long.valueOf(userID)) != null) {
+                    log.debug("User with ID: " + userID + " was not deleted");
                 }
             }
         } else {
@@ -176,19 +177,19 @@ public class UserController {
         return "redirect:/adminPage";
     }
 
-    private String userTypePage(User user){
-        if (user.getAdminUser() != null){
+    private String userTypePage(User user) {
+        if (user.getAdminUser() != null) {
             return "updateAdmin";
-        } else if (user.getTeacherUser() != null){
+        } else if (user.getTeacherUser() != null) {
             return "updateTeacher";
         } else
             return "updateGuardian";
     }
 
-    private void userTypeDelete(User user){
-        if (user.getAdminUser() != null){
+    private void userTypeDelete(User user) {
+        if (user.getAdminUser() != null) {
             deleteAdminUser(user.getId());
-        } else if (user.getTeacherUser() != null){
+        } else if (user.getTeacherUser() != null) {
             deleteTeacherUser(user.getId());
         } else
             deleteGuardianUser(user.getId());
@@ -209,29 +210,78 @@ public class UserController {
 
     @AdminCreate
     @PostMapping("/createAdmin")
-    public String postNewAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
-                           @Valid @ModelAttribute("newUser") User newUser) {
-        if (newAdminUser.getAdminUserName() != null
-                || newUser.getUsername() != null || newUser.getPassword() != null) {
-            if (userService.findByUsername(newUser.getUsername()) == null) {
-                if (adminUserService.findByAdminUserName(newAdminUser.getAdminUserName()) == null) {
-                    newAdminUser(newAdminUser, newUser);
-                } else {
-                    log.debug("AdminUser with name provided already exists");
-                }
-            } else {
-                log.debug("AdminUser with username provided already exists");
-            }
-        } else {
-            log.debug("All fields must be completed");
+    public String postNewAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser, BindingResult adminBindingResult,
+                               @Valid @ModelAttribute("newUser") User newUser, BindingResult userBindingResult) {
+        boolean checksOut = true;
+
+        if (newUser.getPassword() == null || newUser.getPassword().length() < 8) {
+            //if the password needs attention
+            log.debug("Password length must be >= 8 characters");
+            userBindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            checksOut = false;
         }
+
+        if (newUser.getUsername() == null || newUser.getUsername().length() < 8) {
+            //if the User username needs attention
+            log.debug("User's username length must be >= 8 characters");
+            userBindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            checksOut = false;
+        }
+
+        if (newAdminUser.getAdminUserName() == null || newAdminUser.getAdminUserName().length() < 8) {
+            log.debug("AdminUser's name length must be >= 8 characters");
+            adminBindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            checksOut = false;
+        }
+
+        if (!checksOut) {
+            return "adminCreate";
+        }
+
+        // At present, Weblogin saves new AdminUser and User concurrently (treated as one entity) since we require a User password.
+        // Different AdminUsers associated with the same User would require more functionality not offered here.
+        // We proceed here assuming that different AdminUsers can be associated with the same User.
+
+        // New Users, with given Roles, are instantiated before AdminUsers. One AdminUser is associated with many Users.
+        // All User usernames and hence Users are unique. Check that the new AdminUser is not registering with a User it is already
+        // associated with
+        User userFound;
+        AdminUser adminUserFound;
+        if (userService.findByUsername(newUser.getUsername()) != null) {
+            //User is already on file
+            userFound = userService.findByUsername(newUser.getUsername());
+            if (adminUserService.findByAdminUserName(newAdminUser.getAdminUserName()) != null) {
+                //AdminUser is also on file
+                adminUserFound = adminUserService.findByAdminUserName(newAdminUser.getAdminUserName());
+                if (adminUserFound.getUsers().stream().anyMatch(user ->
+                        user.getUsername().equals(userFound.getUsername()))) {
+                    //already registered/associated (only option is to change the AdminUserName
+                    log.debug("AdminUser is already registered with the given User");
+                    adminBindingResult.rejectValue("adminUserName", "exists",
+                            "AdminUser provided is already registered with given User. Please change the AdminUser name.");
+                    return "adminCreate";
+                }
+                //not currently registered with given User (can save current form data)
+            }
+            //AdminUser not found (can save current form data)
+        }
+        //User not found (can save current form data)
+
+        //all checks complete
+        newAdminUser(newAdminUser, newUser);
         return "redirect:/adminPage";
     }
 
     @AdminUpdate
     @GetMapping("/updateAdmin/{adminUserID}")
     public String getUpdateAdmin(Model model, @PathVariable String adminUserID) {
-        if (userService.findById(Long.valueOf(adminUserID)) == null){
+        if (userService.findById(Long.valueOf(adminUserID)) == null) {
             log.debug("User with ID " + adminUserID + " not found");
             throw new NotFoundException();
         }
@@ -254,7 +304,7 @@ public class UserController {
     public String postUpdateAdmin(@PathVariable String adminUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                   @Valid @ModelAttribute("currentAdminUser") AdminUser currentAdminUser) {
         User user = userService.findById(Long.valueOf(adminUserID));
-        if (currentUser.getUsername() != null && currentAdminUser.getAdminUserName() != null){
+        if (currentUser.getUsername() != null && currentAdminUser.getAdminUserName() != null) {
             user.setUsername(currentUser.getUsername());
             user.getAdminUser().setAdminUserName(currentAdminUser.getAdminUserName());
         } else {
@@ -283,7 +333,7 @@ public class UserController {
     @AdminCreate
     @PostMapping("/createTeacher")
     public String postNewTeacher(@Valid @ModelAttribute("newTeacher") TeacherUser newTeacherUser,
-                             @Valid @ModelAttribute("newUser") User newUser) {
+                                 @Valid @ModelAttribute("newUser") User newUser) {
         if (newTeacherUser.getTeacherUserName() != null
                 || newUser.getUsername() != null || newUser.getPassword() != null) {
             if (userService.findByUsername(newUser.getUsername()) == null) {
@@ -304,7 +354,7 @@ public class UserController {
     @AdminUpdate
     @GetMapping("/updateTeacher/{teacherUserID}")
     public String getUpdateTeacher(Model model, @PathVariable String teacherUserID) {
-        if (userService.findById(Long.valueOf(teacherUserID)) == null){
+        if (userService.findById(Long.valueOf(teacherUserID)) == null) {
             log.debug("User with ID " + teacherUserID + " not found");
             throw new NotFoundException();
         }
@@ -324,9 +374,9 @@ public class UserController {
     @AdminUpdate
     @PostMapping("/updateTeacher/{teacherUserID}")
     public String postUpdateTeacher(@PathVariable String teacherUserID, @Valid @ModelAttribute("currentUser") User currentUser,
-                                  @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser) {
+                                    @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser) {
         User user = userService.findById(Long.valueOf(teacherUserID));
-        if (currentUser.getUsername() != null && currentTeacherUser.getTeacherUserName() != null){
+        if (currentUser.getUsername() != null && currentTeacherUser.getTeacherUserName() != null) {
             user.setUsername(currentUser.getUsername());
             user.getTeacherUser().setTeacherUserName(currentTeacherUser.getTeacherUserName());
         } else {
@@ -355,7 +405,7 @@ public class UserController {
     @AdminCreate
     @PostMapping("/createGuardian")
     public String postNewGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
-                              @Valid @ModelAttribute("newUser") User newUser) {
+                                  @Valid @ModelAttribute("newUser") User newUser) {
         if (newGuardianUser.getGuardianUserName() != null
                 || newUser.getUsername() != null || newUser.getPassword() != null) {
             if (userService.findByUsername(newUser.getUsername()) == null) {
@@ -376,7 +426,7 @@ public class UserController {
     @AdminUpdate
     @GetMapping("/updateGuardian/{guardianUserID}")
     public String getUpdateGuardian(Model model, @PathVariable String guardianUserID) {
-        if (userService.findById(Long.valueOf(guardianUserID)) == null){
+        if (userService.findById(Long.valueOf(guardianUserID)) == null) {
             log.debug("User with ID " + guardianUserID + " not found");
             throw new NotFoundException();
         }
@@ -398,7 +448,7 @@ public class UserController {
     public String postUpdateTeacher(@PathVariable String guardianUserID, @Valid @ModelAttribute("currentUser") User currentUser,
                                     @Valid @ModelAttribute("currentGuardianUser") GuardianUser currentGuardianUser) {
         User user = userService.findById(Long.valueOf(guardianUserID));
-        if (currentUser.getUsername() != null && currentGuardianUser.getGuardianUserName() != null){
+        if (currentUser.getUsername() != null && currentGuardianUser.getGuardianUserName() != null) {
             user.setUsername(currentUser.getUsername());
             user.getGuardianUser().setGuardianUserName(currentGuardianUser.getGuardianUserName());
         } else {
@@ -486,7 +536,7 @@ public class UserController {
 
         String adminUserName = adminUser.getAdminUserName();
         Long adminUserId = adminUser.getId();
-        if(adminUser.getUsers().isEmpty()){
+        if (adminUser.getUsers().isEmpty()) {
             adminUserService.deleteById(adminUserId);
             log.debug("AdminUser, " + adminUserName + ", User set is now empty and has been deleted");
         } else {
@@ -509,7 +559,7 @@ public class UserController {
 
         String teacherUserName = teacherUser.getTeacherUserName();
         Long teacherUserId = teacherUser.getId();
-        if(teacherUser.getUsers().isEmpty()){
+        if (teacherUser.getUsers().isEmpty()) {
             teacherUserService.deleteById(teacherUserId);
             log.debug("TeacherUser, " + teacherUserName + ", User set is now empty and has been deleted");
         } else {
@@ -532,7 +582,7 @@ public class UserController {
 
         String guardianUserName = guardianUser.getGuardianUserName();
         Long guardianUserId = guardianUser.getId();
-        if(guardianUser.getUsers().isEmpty()){
+        if (guardianUser.getUsers().isEmpty()) {
             guardianUserService.deleteById(guardianUserId);
             log.debug("GuardianUser, " + guardianUserName + ", User set is now empty and has been deleted");
         } else {

@@ -137,6 +137,12 @@
             <version>5.13.1</version>
         </dependency>
 
+<!--        BindingResult-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

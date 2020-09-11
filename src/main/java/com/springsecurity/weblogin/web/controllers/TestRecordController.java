@@ -8,9 +8,11 @@ import com.springsecurity.weblogin.model.security.Role;
 import com.springsecurity.weblogin.model.security.User;
 import com.springsecurity.weblogin.services.TestRecordService;
 import com.springsecurity.weblogin.services.securityServices.AuthorityService;
+import com.springsecurity.weblogin.services.securityServices.GuardianUserService;
 import com.springsecurity.weblogin.services.securityServices.RoleService;
 import com.springsecurity.weblogin.services.securityServices.UserService;
 import com.springsecurity.weblogin.web.permissionAnnot.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -18,20 +20,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.*;
 import javax.validation.Valid;
 import java.util.Set;
 
 @Controller
+@RequiredArgsConstructor
 @Slf4j
 public class TestRecordController {
 
     private final TestRecordService testRecordService;
     private final UserService userService;
-
-    public TestRecordController(TestRecordService testRecordService, UserService userService) {
-        this.testRecordService = testRecordService;
-        this.userService = userService;
-    }
+    private final GuardianUserService guardianUserService;
 
     //prevent the HTTP form POST from editing listed properties
     @InitBinder
@@ -48,8 +48,6 @@ public class TestRecordController {
     @GuardianRead
     @GetMapping("/testRecord")
     public String getCRUDpage(@AuthenticationPrincipal User user, Model model){
-        log.debug("User logged in: " + user.getUsername());
-
         // the authenticated user is injected into the current session. If the authenticated user belongs to a
         // teacher or admin User (user.getTeacherUser and user.getAdminUser) then all records are presented
         if (user.getGuardianUser() != null){
@@ -75,9 +73,16 @@ public class TestRecordController {
     public String createTestRecordPOST(@Valid @ModelAttribute("newTestRecord") TestRecord testRecord,
                                        @Valid @ModelAttribute("guardianUser") User guardianUser){
         if (testRecord.getRecordName() != null && guardianUser.getUsername() != null){
-            TestRecord saved = testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
-            log.debug("Received guardianUser with id: " + saved.getUser().getId()
-                    + " and username: " + saved.getUser().getUsername());
+            //check that the testRecord does not already exist for the given Guardian
+            TestRecord TRfound = testRecordService.findByRecordName(testRecord.getRecordName());
+            GuardianUser Gfound = guardianUserService.findByGuardianUserName(guardianUser.getUsername());
+            if (!TRfound.getUser().getGuardianUser().equals(Gfound)){
+                TestRecord saved = testRecordService.createTestRecord(testRecord.getRecordName(), guardianUser.getUsername());
+                log.debug("Received guardianUser with id: " + saved.getUser().getId()
+                        + " and username: " + saved.getUser().getUsername());
+            } else {
+                log.debug("TestRecord is already associated with the provided Guardian details. No changes made.");
+            }
         } else
             log.debug("TestRecord not saved to DB");
         return "redirect:/testRecord";
@@ -91,20 +96,40 @@ public class TestRecordController {
             throw new NotFoundException("TestRecord with ID: " + id + " not found");
         }
         TestRecord found = testRecordService.findById(Long.valueOf(id));
+        User guardian = found.getUser();
+        model.addAttribute("guardian", guardian);
         model.addAttribute("testRecord", found);
         return "testRecordUpdate";
     }
 
     @TeacherUpdate
-    @PostMapping("/updateTestRecord/{testRecordID}")
+    @PostMapping("/{guardianId}/updateTestRecord/{testRecordID}")
     public String updateTestRecord(@Valid @ModelAttribute("testRecord") TestRecord testRecord,
-                                   @PathVariable String testRecordID){
-        if (testRecord.getRecordName() == null){
-            log.debug("Record name required");
+                                   @PathVariable String testRecordID, @PathVariable String guardianId){
+        if (testRecord.getRecordName() == null || userService.findById(Long.valueOf(guardianId)) == null){
+            log.debug("Record name and valid User (guardian) ID are required");
             return "redirect:/testRecord";
         } else {
-            TestRecord found = testRecordService.findById(Long.valueOf(testRecordID));
-            testRecordService.updateTestRecord(Long.valueOf(testRecordID), found.getUser().getId(), testRecord.getRecordName());
+            log.debug("Guardian ID: " + guardianId + ", testRecord string: " + testRecord.getRecordName() + " submitted");
+            //check whether the new testRecord as per the form already exists
+            if (testRecordService.findByRecordName(testRecord.getRecordName()) != null){
+                //check whether the testRecord as per the form is already assigned to the current Guardian
+                TestRecord testRecordByForm = testRecordService.findByRecordName(testRecord.getRecordName());
+                GuardianUser currentGuardian = guardianUserService.findById(Long.valueOf(guardianId));
+
+                if (!testRecordByForm.getUser().getGuardianUser().equals(currentGuardian)){
+                    TestRecord testRecordOnFile = testRecordService.findById(Long.valueOf(testRecordID));
+                    testRecordService.updateTestRecord(Long.valueOf(testRecordID),
+                            testRecordOnFile.getUser().getId(), testRecord.getRecordName());
+                } else {
+                    log.debug("The current guardian is already assigned a testRecord with the given values. " +
+                            "No changes made");
+                }
+            } else {
+                TestRecord testRecordOnFile = testRecordService.findById(Long.valueOf(testRecordID));
+                testRecordService.updateTestRecord(Long.valueOf(testRecordID),
+                        testRecordOnFile.getUser().getId(), testRecord.getRecordName());
+            }
         }
         return "redirect:/testRecord";
     }

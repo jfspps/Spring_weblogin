@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="utf-8">
@@ -12,45 +11,19 @@
 
 <body>
 
-<nav th:fragment="nav" class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
-    <a class="navbar-brand">Web-login</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">Navigation</a>
-                <div class="dropdown-menu" aria-labelledby="dbDropdown">
-                    <div class="dropdown-header">Web-login navigation</div>
-                    <a sec:authorize="hasAuthority('guardian.read')" class="dropdown-item" href="/authenticated">Index page</a>
-                    <a sec:authorize="hasAuthority('admin.read')" class="dropdown-item" href="/userPage">View DB user records</a>
-                    <a sec:authorize="hasAuthority('admin.create')" class="dropdown-item" href="/adminPage">Edit DB user records</a>
-                    <a sec:authorize="hasAuthority('guardian.read')" class="dropdown-item" th:href="@{/testRecord}">TestRecord CRUD page</a>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-header">Other options</div>
-                    <a class="dropdown-item" th:href="@{/logout}">Logout</a>
-                </div>
-            </li>
-        </ul>
-    </div>
-</nav>
-
 <div class="container">
     <div class="row">
-        <div class="row-md-12">
+        <div class="col-4">
+        </div>
+        <div class="col-4">
 
-            <h1>Access denied</h1>
-            <p>You are not permitted to access this resource</p>
+            <h1 class="text-center">Access denied</h1>
+            <p class="text-center">You are not permitted to access this resource</p>
 
             <!--/*@thymesVar id="exception" type="java.lang.Exception"*/-->
             <!--<p th:text="${exception.getMessage()}">The requested record does was not found on the database</p>-->
+        </div>
+        <div class="col-4">
         </div>
     </div>
 </div>

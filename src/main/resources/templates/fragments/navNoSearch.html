@@ -21,7 +21,7 @@
                 <div class="dropdown-menu" aria-labelledby="dbDropdown">
                     <div class="dropdown-header">Web-login navigation</div>
                     <a sec:authorize="hasAuthority('guardian.read')" class="dropdown-item" href="/authenticated">Index page</a>
-                    <a sec:authorize="hasAuthority('admin.read')" class="dropdown-item" href="/userPage">View DB user records</a>
+                    <a sec:authorize="hasAuthority('guardian.read')" class="dropdown-item" href="/userPage">View DB user records</a>
                     <a sec:authorize="hasAuthority('admin.create')" class="dropdown-item" href="/adminPage">Edit DB user records</a>
                     <a sec:authorize="hasAuthority('guardian.read')" class="dropdown-item" th:href="@{/testRecord}">TestRecord CRUD page</a>
                     <div class="dropdown-divider"></div>

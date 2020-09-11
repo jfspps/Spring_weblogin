@@ -107,6 +107,7 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    //test Guardian with ID 5 associated with testRecord ID 1
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
     @ParameterizedTest
     void postUpdateTestRecord(String username, String pwd) throws Exception {
@@ -116,7 +117,22 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
         when(testRecordServiceTEST.findById(anyLong())).thenReturn(testRecord);
         when(testRecordServiceTEST.updateTestRecord(anyLong(), anyLong(), anyString())).thenReturn(testRecord);
 
-        mockMvc.perform(post("/updateTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
+        mockMvc.perform(post("/5/updateTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/testRecord"));
+    }
+
+    //test Guardian with ID 6 associated with testRecord ID 1 (assign a testRecord to parents...)
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
+    @ParameterizedTest
+    void postUpdateTestRecord_wrongPairing(String username, String pwd) throws Exception {
+        TestRecord testRecord = new TestRecord();
+        when(testRecordServiceTEST.save(any())).thenReturn(testRecord);
+        when(testRecordServiceTEST.findByRecordName(anyString())).thenReturn(testRecord);
+        when(testRecordServiceTEST.findById(anyLong())).thenReturn(testRecord);
+        when(testRecordServiceTEST.updateTestRecord(anyLong(), anyLong(), anyString())).thenReturn(testRecord);
+
+        mockMvc.perform(post("/6/updateTestRecord/1").with(httpBasic(username, pwd)).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/testRecord"));
     }

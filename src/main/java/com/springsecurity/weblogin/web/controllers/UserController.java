@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.Binding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -177,6 +178,7 @@ public class UserController {
         return "redirect:/adminPage";
     }
 
+    @AdminRead
     private String userTypePage(User user) {
         if (user.getAdminUser() != null) {
             return "updateAdmin";
@@ -186,6 +188,7 @@ public class UserController {
             return "updateGuardian";
     }
 
+    @AdminDelete
     private void userTypeDelete(User user) {
         if (user.getAdminUser() != null) {
             deleteAdminUser(user.getId());
@@ -210,35 +213,19 @@ public class UserController {
 
     @AdminCreate
     @PostMapping("/createAdmin")
-    public String postNewAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser, BindingResult adminBindingResult,
-                               @Valid @ModelAttribute("newUser") User newUser, BindingResult userBindingResult) {
+    public String postNewAdmin(@Valid @ModelAttribute("newAdmin") AdminUser newAdminUser,
+                               BindingResult adminBindingResult, @Valid @ModelAttribute("newUser") User newUser,
+                               BindingResult userBindingResult) {
         boolean checksOut = true;
 
-        if (newUser.getPassword() == null || newUser.getPassword().length() < 8) {
-            //if the password needs attention
-            log.debug("Password length must be >= 8 characters");
-            userBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.toString());
-            });
-            checksOut = false;
-        }
+        checksOut = passwordIsOK(userBindingResult, checksOut, newUser.getPassword(),
+                "Password length must be >= 8 characters");
 
-        if (newUser.getUsername() == null || newUser.getUsername().length() < 8) {
-            //if the User username needs attention
-            log.debug("User's username length must be >= 8 characters");
-            userBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.toString());
-            });
-            checksOut = false;
-        }
+        checksOut = newUser_usernameIsOK(userBindingResult, checksOut, newUser.getUsername(),
+                "User's username length must be >= 8 characters");
 
-        if (newAdminUser.getAdminUserName() == null || newAdminUser.getAdminUserName().length() < 8) {
-            log.debug("AdminUser's name length must be >= 8 characters");
-            adminBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.toString());
-            });
-            checksOut = false;
-        }
+        checksOut = newUserType_nameIsOK(adminBindingResult, checksOut, newAdminUser.getAdminUserName(),
+                "AdminUser's name length must be >= 8 characters");
 
         if (!checksOut) {
             return "adminCreate";
@@ -330,24 +317,44 @@ public class UserController {
         return "teacherCreate";
     }
 
+    //see postNewAdmin for comments
     @AdminCreate
     @PostMapping("/createTeacher")
     public String postNewTeacher(@Valid @ModelAttribute("newTeacher") TeacherUser newTeacherUser,
-                                 @Valid @ModelAttribute("newUser") User newUser) {
-        if (newTeacherUser.getTeacherUserName() != null
-                || newUser.getUsername() != null || newUser.getPassword() != null) {
-            if (userService.findByUsername(newUser.getUsername()) == null) {
-                if (teacherUserService.findByTeacherUserName(newTeacherUser.getTeacherUserName()) == null) {
-                    newTeacherUser(newTeacherUser, newUser);
-                } else {
-                    log.debug("TeacherUser with name provided already exists");
-                }
-            } else {
-                log.debug("TeacherUser with username provided already exists");
-            }
-        } else {
-            log.debug("All fields must be completed");
+                                 BindingResult teacherBindingResult, @Valid @ModelAttribute("newUser") User newUser,
+                                 BindingResult userBindingResult) {
+        boolean checksOut = true;
+
+        checksOut = passwordIsOK(userBindingResult, checksOut, newUser.getPassword(),
+                "Password length must be >= 8 characters");
+
+        checksOut = newUser_usernameIsOK(userBindingResult, checksOut, newUser.getUsername(),
+                "User's username length must be >= 8 characters");
+
+        checksOut = newUserType_nameIsOK(teacherBindingResult, checksOut, newTeacherUser.getTeacherUserName(),
+                "TeacherUser's name length must be >= 8 characters");
+
+        if (!checksOut) {
+            return "teacherCreate";
         }
+
+        User userFound;
+        TeacherUser teacherUserFound;
+        if (userService.findByUsername(newUser.getUsername()) != null) {
+            userFound = userService.findByUsername(newUser.getUsername());
+            if (teacherUserService.findByTeacherUserName(newTeacherUser.getTeacherUserName()) != null) {
+                teacherUserFound = teacherUserService.findByTeacherUserName(newTeacherUser.getTeacherUserName());
+                if (teacherUserFound.getUsers().stream().anyMatch(user ->
+                        user.getUsername().equals(userFound.getUsername()))) {
+                    log.debug("TeacherUser is already registered with the given User");
+                    teacherBindingResult.rejectValue("teacherUserName", "exists",
+                            "TeacherUser provided is already registered with given User. Please change the TeacherUser name.");
+                    return "teacherCreate";
+                }
+            }
+        }
+
+        newTeacherUser(newTeacherUser, newUser);
         return "redirect:/adminPage";
     }
 
@@ -405,21 +412,40 @@ public class UserController {
     @AdminCreate
     @PostMapping("/createGuardian")
     public String postNewGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
-                                  @Valid @ModelAttribute("newUser") User newUser) {
-        if (newGuardianUser.getGuardianUserName() != null
-                || newUser.getUsername() != null || newUser.getPassword() != null) {
-            if (userService.findByUsername(newUser.getUsername()) == null) {
-                if (guardianUserService.findByGuardianUserName(newGuardianUser.getGuardianUserName()) == null) {
-                    newGuardianUser(newGuardianUser, newUser);
-                } else {
-                    log.debug("GuardianUser with name provided already exists");
-                }
-            } else {
-                log.debug("GuardianUser with username provided already exists");
-            }
-        } else {
-            log.debug("All fields must be completed");
+                                  BindingResult guardianBindingResult, @Valid @ModelAttribute("newUser") User newUser,
+                                  BindingResult userBindingResult) {
+        boolean checksOut = true;
+
+        checksOut = passwordIsOK(userBindingResult, checksOut, newUser.getPassword(),
+                "Password length must be >= 8 characters");
+
+        checksOut = newUser_usernameIsOK(userBindingResult, checksOut, newUser.getUsername(),
+                "User's username length must be >= 8 characters");
+
+        checksOut = newUserType_nameIsOK(guardianBindingResult, checksOut, newGuardianUser.getGuardianUserName(),
+                "GuardianUser's name length must be >= 8 characters");
+
+        if (!checksOut) {
+            return "guardianCreate";
         }
+
+        User userFound;
+        GuardianUser guardianUserFound;
+        if (userService.findByUsername(newUser.getUsername()) != null) {
+            userFound = userService.findByUsername(newUser.getUsername());
+            if (guardianUserService.findByGuardianUserName(newGuardianUser.getGuardianUserName()) != null) {
+                guardianUserFound = guardianUserService.findByGuardianUserName(newGuardianUser.getGuardianUserName());
+                if (guardianUserFound.getUsers().stream().anyMatch(user ->
+                        user.getUsername().equals(userFound.getUsername()))) {
+                    log.debug("GuardianUser is already registered with the given User");
+                    guardianBindingResult.rejectValue("guardianUserName", "exists",
+                            "GuardianUser provided is already registered with given User. Please change the GuardianUser name.");
+                    return "guardianCreate";
+                }
+            }
+        }
+
+        newGuardianUser(newGuardianUser, newUser);
         return "redirect:/adminPage";
     }
 
@@ -481,6 +507,44 @@ public class UserController {
         User saved = userService.save(found);
         log.debug("Password change for " + saved.getUsername() + " has been saved");
         return saved;
+    }
+
+    @AdminCreate
+    private boolean newUserType_nameIsOK(BindingResult adminBindingResult, boolean checksOut, String adminUserName, String s) {
+        if (adminUserName == null || adminUserName.length() < 8) {
+            log.debug(s);
+            adminBindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            checksOut = false;
+        }
+        return checksOut;
+    }
+
+    @AdminCreate
+    private boolean newUser_usernameIsOK(BindingResult userBindingResult, boolean checksOut, String username, String s) {
+        if (username == null || username.length() < 8) {
+            //if the User username needs attention
+            log.debug(s);
+            userBindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            checksOut = false;
+        }
+        return checksOut;
+    }
+
+    @AdminUpdate
+    private boolean passwordIsOK(BindingResult userBindingResult, boolean checksOut, String password, String s) {
+        if (password == null || password.length() < 8) {
+            //if the password needs attention
+            log.debug(s);
+            userBindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            checksOut = false;
+        }
+        return checksOut;
     }
 
     //assume here that all parameters are not null and not already on the DB

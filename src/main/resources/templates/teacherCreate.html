@@ -23,14 +23,29 @@
                 <div th:object="${newTeacher}">
                     <label>Teacher's full name: </label>
                     <input size="50" type="text" th:field="*{teacherUserName}"/>
+                    <span class="help-block" th:if="${#fields.hasErrors('teacherUserName')}">
+                        <ul>
+                            <li class="alert-warning" th:each="err : ${#fields.errors('teacherUserName')}" th:text="${err}">Error</li>
+                        </ul>
+                    </span>
                 </div>
                 <div>
                     <label>Weblogin username: </label>
                     <input size="50" type="text" th:field="*{username}"/>
+                    <span class="help-block" th:if="${#fields.hasErrors('username')}">
+                        <ul>
+                            <li class="alert-warning" th:each="err : ${#fields.errors('username')}" th:text="${err}">Error</li>
+                        </ul>
+                    </span>
                 </div>
                 <div>
                     <label>Weblogin password: </label>
                     <input size="50" type="password" th:field="*{password}"/>
+                    <span class="help-block" th:if="${#fields.hasErrors('password')}">
+                        <ul>
+                            <li class="alert-warning" th:each="err : ${#fields.errors('password')}" th:text="${err}">Error</li>
+                        </ul>
+                    </span>
                 </div>
                 <div>
                     <input style="width: 200px" type="submit" value="Submit"/>

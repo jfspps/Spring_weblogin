@@ -1,7 +1,5 @@
 package com.springsecurity.weblogin.web.controllers;
 
-import com.springsecurity.weblogin.model.security.GuardianUser;
-import com.springsecurity.weblogin.model.security.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -9,14 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
 @Transactional
@@ -48,12 +43,10 @@ public class GuardianUserControllerTest extends UserControllerTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postCreateGuardian(String username, String pwd) throws Exception {
-        when(userServiceTEST.findByUsername(anyString())).thenReturn(
-                User.builder().username("the dude").password("weakpwd").build());
-        when(guardianUserServiceTEST.findByGuardianUserName(anyString())).thenReturn(
-                GuardianUser.builder().guardianUserName("guardian").build());
-
-        mockMvc.perform(post("/createGuardian").with(httpBasic(username, pwd)).with(csrf()))
+        mockMvc.perform(post("/createGuardian").with(httpBasic(username, pwd)).with(csrf())
+                .param("guardianUserName", "TeamGreen and TeamRed")
+                .param("username", "bigteeee")
+                .param("password", "bigteeee123"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/adminPage"));
     }

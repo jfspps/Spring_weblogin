@@ -36,7 +36,9 @@
                 </div>
 
                 <div>
-                    <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
+                    <label>
+                        <input size="50" th:placeholder="${testRecord.recordName}" th:field="*{recordName}"/>
+                    </label>
                     <span class="help-block">
                         <!--/*@thymesVar id="error" type="java.lang.String"*/-->
                         <p class="alert-warning" th:text="${error}">Error</p>
@@ -44,7 +46,9 @@
                 </div>
 
                 <div>
-                    <input style="width: 200px" th:type="submit" value="Update"/>
+                    <label>
+                        <input style="width: 200px" th:type="submit" value="Update"/>
+                    </label>
                 </div>
             </form>
             <hr>

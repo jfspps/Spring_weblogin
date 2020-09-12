@@ -23,12 +23,12 @@
                 <!--/*@thymesVar id="currentTeacherUser" type="com.springsecurity.weblogin.model.security.TeacherUser"*/-->
                 <div th:object="${currentTeacherUser}">
                     <label>Teacher's full name: </label>
-                    <input size="50" type="text" th:field="*{teacherUserName}"/>
+                        <input size="50" type="text" th:field="*{teacherUserName}"/>
                     <span class="help-block">
                         <!--/*@thymesVar id="teacherUserNameError" type="java.lang.String"*/-->
-                        <p> class="alert-warning" th:text="${teacherUserNameError}">Error</p>
+                        <p class="alert-warning" th:text="${teacherUserNameError}">Error</p>
                         <!--/*@thymesVar id="teacherUserExists" type="java.lang.String"*/-->
-                        <p> class="alert-warning" th:text="${teacherUserExists}">Error</p>
+                        <p class="alert-warning" th:text="${teacherUserExists}">Error</p>
                     </span>
                 </div>
                 <div>
@@ -36,9 +36,9 @@
                     <input size="50" type="text" th:field="*{username}"/>
                     <span class="help-block">
                         <!--/*@thymesVar id="usernameError" type="java.lang.String"*/-->
-                        <p> class="alert-warning" th:text="${usernameError}">Error</p>
+                        <p class="alert-warning" th:text="${usernameError}">Error</p>
                         <!--/*@thymesVar id="usernameExists" type="java.lang.String"*/-->
-                        <p> class="alert-warning" th:text="${usernameExists}">Error</p>
+                        <p class="alert-warning" th:text="${usernameExists}">Error</p>
                     </span>
                 </div>
                 <br/>
@@ -46,7 +46,7 @@
                     <input style="width: 200px" type="submit" value="Submit"/>
                     <span class="help-block">
                         <!--/*@thymesVar id="TeacherUserSaved" type="java.lang.String"*/-->
-                        <p> class="alert-success" th:text="${TeacherUserSaved}">Error</p>
+                        <p class="alert-success" th:text="${TeacherUserSaved}">Error</p>
                     </span>
                 </div>
             </form>
@@ -62,7 +62,7 @@
                   sec:authorize="hasAuthority('admin.update')">
                 <div>
                     <label>Enter a new password: </label>
-                    <input size="50" name="newPassword" type="password" th:field="*{password}"/>
+                        <input size="50" name="newPassword" type="password" th:field="*{password}"/>
                     <span class="help-block" th:if="${#fields.hasErrors('password')}">
                         <ul>
                             <li class="alert-warning" th:each="err : ${#fields.errors('password')}" th:text="${err}">Error</li>

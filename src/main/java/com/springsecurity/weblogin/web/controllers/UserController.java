@@ -174,11 +174,13 @@ public class UserController {
                 model.addAttribute("pageTitle", "previous page");
             } else {
                 if (userTypeDelete(currentUser, userID)) {
-                    model.addAttribute("confirmDelete", "User with username \"" + currentUser.getUsername() + "\" successfully deleted");
+                    model.addAttribute("confirmDelete", "User with username \"" + currentUser.getUsername()
+                            + "\" successfully deleted");
                     model.addAttribute("returnURL", "adminPage");
                     model.addAttribute("pageTitle", "Admin page");
                 } else {
-                    model.addAttribute("deniedDelete", "User with username \"" + currentUser.getUsername() + "\" was not deleted");
+                    model.addAttribute("deniedDelete", "User with username \"" + currentUser.getUsername()
+                            + "\" was not deleted");
                     model.addAttribute("returnURL", "updateAdmin/" + currentUser.getId());
                     model.addAttribute("pageTitle", "previous page");
                 }
@@ -283,7 +285,7 @@ public class UserController {
         }
 
         User userToBeUpdated = userService.findById(Long.valueOf(adminUserID));
-
+        //either the username is empty or is already on file
         boolean allGood = true;
         if (userBindingResult.hasErrors()) {
             model.addAttribute("usernameError", INVALID_USERNAME);
@@ -296,6 +298,7 @@ public class UserController {
             allGood = false;
         }
 
+        //either the adminUser name field is empty or is already on file
         if (adminBindingResult.hasErrors()) {
             model.addAttribute("adminUserNameError", INVALID_ADMIN_NAME);
             allGood = false;
@@ -325,7 +328,6 @@ public class UserController {
         model.addAttribute("currentUser", saved);
         model.addAttribute("currentAdminUser", saved.getAdminUser());
         return "adminUpdate";
-
     }
 
     // Teacher CRUD ops =======================================================================================
@@ -350,9 +352,7 @@ public class UserController {
         boolean checksOut = true;
 
         checksOut = passwordIsOK(userBindingResult, checksOut, newUser.getPassword(), INVALID_PASSWORD);
-
         checksOut = newUser_usernameIsOK(userBindingResult, checksOut, newUser.getUsername(), INVALID_USERNAME);
-
         checksOut = newUserType_nameIsOK(teacherBindingResult, checksOut, newTeacherUser.getTeacherUserName(),
                 INVALID_TEACHER_NAME);
 
@@ -402,20 +402,58 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/updateTeacher/{teacherUserID}")
-    public String postUpdateTeacher(@PathVariable String teacherUserID, @Valid @ModelAttribute("currentUser") User currentUser,
-                                    @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser) {
-        User user = userService.findById(Long.valueOf(teacherUserID));
-        if (currentUser.getUsername() != null && currentTeacherUser.getTeacherUserName() != null) {
-            user.setUsername(currentUser.getUsername());
-            user.getTeacherUser().setTeacherUserName(currentTeacherUser.getTeacherUserName());
-        } else {
-            log.debug("Username and TeacherUserName not recognised. No changes made");
-            return "redirect:/updateTeacher/" + teacherUserID;
+    public String postUpdateTeacher(@PathVariable String teacherUserID,
+                                    @Valid @ModelAttribute("currentUser") User currentUser, BindingResult userBindingResult,
+                                    @Valid @ModelAttribute("currentTeacherUser") TeacherUser currentTeacherUser,
+                                    BindingResult teacherBindingResult, Model model) {
+        if (userService.findById(Long.valueOf(teacherUserID)) == null) {
+            throw new NotFoundException("User with given ID not found. No updates committed.");
         }
-        User saved = userService.save(user);
+
+        User userToBeUpdated = userService.findById(Long.valueOf(teacherUserID));
+        //either the username is empty or is already on file
+        boolean allGood = true;
+        if (userBindingResult.hasErrors()) {
+            model.addAttribute("usernameError", INVALID_USERNAME);
+            allGood = false;
+        } else if (userService.findByUsername(currentUser.getUsername()) == null
+                || userToBeUpdated.getUsername().equals(currentUser.getUsername())) {
+            userToBeUpdated.setUsername(currentUser.getUsername());
+        } else {
+            model.addAttribute("usernameExists", "Username already taken");
+            allGood = false;
+        }
+
+        //either the adminUser name field is empty or is already on file
+        if (teacherBindingResult.hasErrors()) {
+            model.addAttribute("teacherUserNameError", INVALID_TEACHER_NAME);
+            allGood = false;
+        } else if (teacherUserService.findByTeacherUserName(currentTeacherUser.getTeacherUserName()) == null
+                || userToBeUpdated.getTeacherUser().getTeacherUserName().equals(currentTeacherUser.getTeacherUserName())) {
+            userToBeUpdated.getTeacherUser().setTeacherUserName(currentTeacherUser.getTeacherUserName());
+        } else {
+            model.addAttribute("teacherUserExists", "TeacherUser with given name already exists");
+            allGood = false;
+        }
+
+        //models needed to set ID of POST path
+        if (!allGood) {
+            userToBeUpdated.setUsername(currentUser.getUsername());
+            userToBeUpdated.getTeacherUser().setTeacherUserName(currentTeacherUser.getTeacherUserName());
+            model.addAttribute("user", getUsername());
+            model.addAttribute("currentUser", userToBeUpdated);
+            model.addAttribute("currentAdminUser", userToBeUpdated.getTeacherUser());
+            return "teacherUpdate";
+        }
+
+        //save changes
+        User saved = userService.save(userToBeUpdated);
         log.debug("Username: " + saved.getUsername() + ", teacherUser name: " + saved.getTeacherUser().getTeacherUserName() +
                 " saved");
-        return "redirect:/updateTeacher/" + saved.getId();
+        model.addAttribute("TeacherUserSaved", "Updates applied successfully");
+        model.addAttribute("currentUser", saved);
+        model.addAttribute("currentTeacherUser", saved.getTeacherUser());
+        return "teacherUpdate";
     }
 
     // Guardian CRUD ops =======================================================================================
@@ -440,9 +478,7 @@ public class UserController {
         boolean checksOut = true;
 
         checksOut = passwordIsOK(userBindingResult, checksOut, newUser.getPassword(), INVALID_PASSWORD);
-
         checksOut = newUser_usernameIsOK(userBindingResult, checksOut, newUser.getUsername(), INVALID_USERNAME);
-
         checksOut = newUserType_nameIsOK(guardianBindingResult, checksOut, newGuardianUser.getGuardianUserName(),
                 INVALID_GUARDIAN_NAME);
 
@@ -492,20 +528,58 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/updateGuardian/{guardianUserID}")
-    public String postUpdateTeacher(@PathVariable String guardianUserID, @Valid @ModelAttribute("currentUser") User currentUser,
-                                    @Valid @ModelAttribute("currentGuardianUser") GuardianUser currentGuardianUser) {
-        User user = userService.findById(Long.valueOf(guardianUserID));
-        if (currentUser.getUsername() != null && currentGuardianUser.getGuardianUserName() != null) {
-            user.setUsername(currentUser.getUsername());
-            user.getGuardianUser().setGuardianUserName(currentGuardianUser.getGuardianUserName());
-        } else {
-            log.debug("Username and GuardianUserName not recognised. No changes made");
-            return "redirect:/updateGuardian/" + guardianUserID;
+    public String postUpdateTeacher(@PathVariable String guardianUserID,
+                                    @Valid @ModelAttribute("currentUser") User currentUser, BindingResult userBindingResult,
+                                    @Valid @ModelAttribute("currentGuardianUser") GuardianUser currentGuardianUser,
+                                    BindingResult guardianBindingResult, Model model) {
+        if (userService.findById(Long.valueOf(guardianUserID)) == null) {
+            throw new NotFoundException("User with given ID not found. No updates committed.");
         }
-        User saved = userService.save(user);
+
+        User userToBeUpdated = userService.findById(Long.valueOf(guardianUserID));
+        //either the username is empty or is already on file
+        boolean allGood = true;
+        if (userBindingResult.hasErrors()) {
+            model.addAttribute("usernameError", INVALID_USERNAME);
+            allGood = false;
+        } else if (userService.findByUsername(currentUser.getUsername()) == null
+                || userToBeUpdated.getUsername().equals(currentUser.getUsername())) {
+            userToBeUpdated.setUsername(currentUser.getUsername());
+        } else {
+            model.addAttribute("usernameExists", "Username already taken");
+            allGood = false;
+        }
+
+        //either the adminUser name field is empty or is already on file
+        if (guardianBindingResult.hasErrors()) {
+            model.addAttribute("guardianUserNameError", INVALID_GUARDIAN_NAME);
+            allGood = false;
+        } else if (guardianUserService.findByGuardianUserName(currentGuardianUser.getGuardianUserName()) == null
+                || userToBeUpdated.getGuardianUser().getGuardianUserName().equals(currentGuardianUser.getGuardianUserName())) {
+            userToBeUpdated.getGuardianUser().setGuardianUserName(currentGuardianUser.getGuardianUserName());
+        } else {
+            model.addAttribute("guardianUserExists", "GuardianUser with given name already exists");
+            allGood = false;
+        }
+
+        //models needed to set ID of POST path
+        if (!allGood) {
+            userToBeUpdated.setUsername(currentUser.getUsername());
+            userToBeUpdated.getGuardianUser().setGuardianUserName(currentGuardianUser.getGuardianUserName());
+            model.addAttribute("user", getUsername());
+            model.addAttribute("currentUser", userToBeUpdated);
+            model.addAttribute("currentGuardianUser", userToBeUpdated.getGuardianUser());
+            return "guardianUpdate";
+        }
+
+        //save changes
+        User saved = userService.save(userToBeUpdated);
         log.debug("Username: " + saved.getUsername() + ", guardianUser name: " + saved.getGuardianUser().getGuardianUserName() +
                 " saved");
-        return "redirect:/updateGuardian/" + saved.getId();
+        model.addAttribute("GuardianUserSaved", "Updates applied successfully");
+        model.addAttribute("currentUser", saved);
+        model.addAttribute("currentGuardianUser", saved.getGuardianUser());
+        return "guardianUpdate";
     }
 
     // end of CRUD ops ==========================================================================================
@@ -568,9 +642,7 @@ public class UserController {
     private boolean newUserType_nameIsOK(BindingResult adminBindingResult, boolean checksOut, String adminUserName, String inputErrorMsg) {
         if (adminUserName == null || adminUserName.length() < 8) {
             log.debug(inputErrorMsg);
-            adminBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.getDefaultMessage());
-            });
+            adminBindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getDefaultMessage()));
             checksOut = false;
         }
         return checksOut;
@@ -584,9 +656,7 @@ public class UserController {
         if (username == null || username.length() < 8) {
             //if the User username needs attention
             log.debug(inputErrorMsg);
-            userBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.getDefaultMessage());
-            });
+            userBindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getDefaultMessage()));
             checksOut = false;
         }
         return checksOut;
@@ -597,9 +667,7 @@ public class UserController {
         if (password == null || password.length() < 8) {
             //if the password needs attention
             log.debug(s);
-            userBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.getDefaultMessage());
-            });
+            userBindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getDefaultMessage()));
             checksOut = false;
         }
         return checksOut;

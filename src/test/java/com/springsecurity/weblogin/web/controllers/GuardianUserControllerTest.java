@@ -65,6 +65,7 @@ public class GuardianUserControllerTest extends UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("guardianUpdate"))
                 .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("currentUser"))
                 .andExpect(model().attributeExists("currentGuardianUser"));
     }
 
@@ -86,9 +87,70 @@ public class GuardianUserControllerTest extends UserControllerTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postUpdateGuardian(String username, String pwd) throws Exception {
-        mockMvc.perform(post("/updateGuardian/5").with(httpBasic(username, pwd)).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateGuardian/5"));
+        mockMvc.perform(post("/updateGuardian/5").with(httpBasic(username, pwd)).with(csrf())
+                .param("guardianUserName", "blablablabla")
+                .param("username", "someoneNotOnFile"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("guardianUpdate"))
+                .andExpect(model().attributeExists("GuardianUserSaved"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentGuardianUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateGuardian_UsernameBlank(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateGuardian/5").with(httpBasic(username, pwd)).with(csrf())
+                .param("guardianUserName", "blablablabla")
+                .param("username", ""))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("guardianUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("usernameError"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentGuardianUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateGuardian_GuardianUserNameBlank(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateGuardian/6").with(httpBasic(username, pwd)).with(csrf())
+                .param("guardianUserName", "")
+                .param("username", "asduafajlkasjdjlk"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("guardianUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("guardianUserNameError"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentGuardianUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateGuardian_UserExists(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateGuardian/5").with(httpBasic(username, pwd)).with(csrf())
+                .param("guardianUserName", "fdsfdsfds")
+                .param("username", "alexsmith"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("guardianUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("usernameExists"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentGuardianUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateGuardian_GuardianUserExists(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateGuardian/5").with(httpBasic(username, pwd)).with(csrf())
+                .param("guardianUserName", "Alex Smith")
+                .param("username", "paulsmith"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("guardianUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("guardianUserExists"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentGuardianUser"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")

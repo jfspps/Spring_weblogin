@@ -24,14 +24,30 @@
                 <div th:object="${currentTeacherUser}">
                     <label>Teacher's full name: </label>
                     <input size="50" type="text" th:field="*{teacherUserName}"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="teacherUserNameError" type="java.lang.String"*/-->
+                        <p> class="alert-warning" th:text="${teacherUserNameError}">Error</p>
+                        <!--/*@thymesVar id="teacherUserExists" type="java.lang.String"*/-->
+                        <p> class="alert-warning" th:text="${teacherUserExists}">Error</p>
+                    </span>
                 </div>
                 <div>
                     <label>Weblogin username: </label>
                     <input size="50" type="text" th:field="*{username}"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="usernameError" type="java.lang.String"*/-->
+                        <p> class="alert-warning" th:text="${usernameError}">Error</p>
+                        <!--/*@thymesVar id="usernameExists" type="java.lang.String"*/-->
+                        <p> class="alert-warning" th:text="${usernameExists}">Error</p>
+                    </span>
                 </div>
                 <br/>
                 <div>
                     <input style="width: 200px" type="submit" value="Submit"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="TeacherUserSaved" type="java.lang.String"*/-->
+                        <p> class="alert-success" th:text="${TeacherUserSaved}">Error</p>
+                    </span>
                 </div>
             </form>
             <hr>
@@ -47,6 +63,11 @@
                 <div>
                     <label>Enter a new password: </label>
                     <input size="50" name="newPassword" type="password" th:field="*{password}"/>
+                    <span class="help-block" th:if="${#fields.hasErrors('password')}">
+                        <ul>
+                            <li class="alert-warning" th:each="err : ${#fields.errors('password')}" th:text="${err}">Error</li>
+                        </ul>
+                    </span>
                 </div>
                 <div>
                     <input type="submit" value="Change password" style="width: 200px"/>

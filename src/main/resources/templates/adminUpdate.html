@@ -26,9 +26,9 @@
                     <input size="50" type="text" th:field="*{adminUserName}"/>
                     <span class="help-block">
                         <!--/*@thymesVar id="adminUserNameError" type="java.lang.String"*/-->
-                        <p class="alert-warning" th:text="${adminUserNameError}">Error</p>
+                        <p> class="alert-warning" th:text="${adminUserNameError}">Error</p>
                         <!--/*@thymesVar id="adminUserExists" type="java.lang.String"*/-->
-                        <p class="alert-warning" th:text="${adminUserExists}">Error</p>
+                        <p> class="alert-warning" th:text="${adminUserExists}">Error</p>
                     </span>
                 </div>
                 <div>
@@ -36,9 +36,9 @@
                     <input size="50" type="text" th:field="*{username}"/>
                     <span class="help-block">
                         <!--/*@thymesVar id="usernameError" type="java.lang.String"*/-->
-                        <p class="alert-warning" th:text="${usernameError}">Error</p>
+                        <p> class="alert-warning" th:text="${usernameError}">Error</p>
                         <!--/*@thymesVar id="usernameExists" type="java.lang.String"*/-->
-                        <p class="alert-warning" th:text="${usernameExists}">Error</p>
+                        <p> class="alert-warning" th:text="${usernameExists}">Error</p>
                     </span>
                 </div>
                 <br/>
@@ -46,13 +46,14 @@
                     <input style="width: 200px" type="submit" value="Submit"/>
                     <span class="help-block">
                         <!--/*@thymesVar id="AdminUserSaved" type="java.lang.String"*/-->
-                        <p class="alert-success" th:text="${AdminUserSaved}">Error</p>
+                        <p> class="alert-success" th:text="${AdminUserSaved}">Error</p>
                     </span>
                 </div>
             </form>
             <hr>
 
-            <form th:action="@{/resetPassword/{ID}(ID=${currentUser.id})}" method="post">
+            <form th:action="@{/resetPassword/{ID}(ID=${currentUser.id})}" method="post"
+                  sec:authorize="hasAuthority('admin.update')">
                 <input type="submit" value="Reset password" style="width: 200px"/>
             </form>
             <hr>

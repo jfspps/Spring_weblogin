@@ -87,9 +87,14 @@ public class TeacherUserControllerTest extends UserControllerTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postUpdateTeacher(String username, String pwd) throws Exception {
-        mockMvc.perform(post("/updateTeacher/3").with(httpBasic(username, pwd)).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateTeacher/3"));
+        mockMvc.perform(post("/updateTeacher/3").with(httpBasic(username, pwd)).with(csrf())
+                .param("teacherUserName", "blablablabla")
+                .param("username", "someoneNotOnFile"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("teacherUpdate"))
+                .andExpect(model().attributeExists("TeacherUserSaved"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentTeacherUser"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")

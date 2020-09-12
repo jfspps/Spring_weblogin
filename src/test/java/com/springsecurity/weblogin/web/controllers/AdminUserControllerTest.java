@@ -107,16 +107,16 @@ public class AdminUserControllerTest extends UserControllerTest {
     @Test
     void deleteOtherUser() throws Exception {
         mockMvc.perform(post("/deleteUser/2").with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/adminPage"));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("confirmDelete"));
     }
 
     @WithUserDetails("johnsmith")
     @Test
     void deleteYourself() throws Exception {
         mockMvc.perform(post("/deleteUser/1").with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateAdmin/1"));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("confirmDelete"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")

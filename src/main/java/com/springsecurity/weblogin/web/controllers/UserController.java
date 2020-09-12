@@ -17,10 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.Binding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -160,42 +158,29 @@ public class UserController {
 
     @AdminDelete
     @PostMapping("/deleteUser/{userID}")
-    public String postDeleteUser(@PathVariable String userID) {
+    public String postDeleteUser(@PathVariable String userID, Model model) {
         if (userService.findById(Long.valueOf(userID)) != null) {
             User currentUser = userService.findById(Long.valueOf(userID));
             if (Long.valueOf(userID).equals(userService.findByUsername(getUsername()).getId())) {
                 log.debug("Cannot delete yourself");
-                return "redirect:/" + userTypePage(currentUser) + "/" + userID;
+                model.addAttribute("deniedDelete", "You are not permitted to delete your own account");
+                model.addAttribute("returnURL", userTypePage(currentUser) + "/" + userID);
+                model.addAttribute("pageTitle", "previous page");
             } else {
-                userTypeDelete(currentUser);
-                if (userService.findById(Long.valueOf(userID)) != null) {
-                    log.debug("User with ID: " + userID + " was not deleted");
+                if (userTypeDelete(currentUser, userID)) {
+                    model.addAttribute("confirmDelete", "User with username \"" + currentUser.getUsername() + "\" successfully deleted");
+                    model.addAttribute("returnURL", "adminPage");
+                    model.addAttribute("pageTitle", "Admin page");
+                } else {
+                    model.addAttribute("deniedDelete", "User with username \"" + currentUser.getUsername() + "\" was not deleted");
+                    model.addAttribute("returnURL", "updateAdmin/" + currentUser.getId());
+                    model.addAttribute("pageTitle", "previous page");
                 }
             }
-        } else {
-            log.debug("User with ID: " + userID + " not found");
+            return "confirmDelete";
         }
+        log.debug("User with ID: " + userID + " not found");
         return "redirect:/adminPage";
-    }
-
-    @AdminRead
-    private String userTypePage(User user) {
-        if (user.getAdminUser() != null) {
-            return "updateAdmin";
-        } else if (user.getTeacherUser() != null) {
-            return "updateTeacher";
-        } else
-            return "updateGuardian";
-    }
-
-    @AdminDelete
-    private void userTypeDelete(User user) {
-        if (user.getAdminUser() != null) {
-            deleteAdminUser(user.getId());
-        } else if (user.getTeacherUser() != null) {
-            deleteTeacherUser(user.getId());
-        } else
-            deleteGuardianUser(user.getId());
     }
 
     // Admin CRUD ops =======================================================================================
@@ -409,6 +394,7 @@ public class UserController {
         return "guardianCreate";
     }
 
+    //see postNewAdmin for comments
     @AdminCreate
     @PostMapping("/createGuardian")
     public String postNewGuardian(@Valid @ModelAttribute("newGuardian") GuardianUser newGuardianUser,
@@ -490,6 +476,33 @@ public class UserController {
     // end of CRUD ops ==========================================================================================
     //the following methods are called by the above controller methods only if the required parameters are verified
 
+    /**inserts URL path related Strings dependent on the Usertype (AdminUser, TeacherUser or GuardianUser)*/
+    @AdminRead
+    private String userTypePage(User user) {
+        if (user.getAdminUser() != null) {
+            return "updateAdmin";
+        } else if (user.getTeacherUser() != null) {
+            return "updateTeacher";
+        } else
+            return "updateGuardian";
+    }
+
+    /**executes JPA User delete() dependent on the Usertype (AdminUser, TeacherUser or GuardianUser)*/
+    @AdminDelete
+    private boolean userTypeDelete(User user, String userID) {
+        if (user.getAdminUser() != null) {
+            deleteAdminUser(user.getId());
+        } else if (user.getTeacherUser() != null) {
+            deleteTeacherUser(user.getId());
+        } else
+            deleteGuardianUser(user.getId());
+        if (userService.findById(Long.valueOf(userID)) != null) {
+            log.debug("User with ID: " + userID + " was not deleted");
+            return false;
+        } else
+            return true;
+    }
+
     @AdminRead
     private String getUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -509,26 +522,28 @@ public class UserController {
         return saved;
     }
 
+    /**Checks if a AdminUser/TeacherUser/GuardianUser name property is valid*/
     @AdminCreate
     private boolean newUserType_nameIsOK(BindingResult adminBindingResult, boolean checksOut, String adminUserName, String s) {
         if (adminUserName == null || adminUserName.length() < 8) {
             log.debug(s);
-            adminBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.toString());
-            });
+//            adminBindingResult.getAllErrors().forEach(objectError -> {
+//                log.debug(objectError.toString());
+//            });
             checksOut = false;
         }
         return checksOut;
     }
 
+    /**Checks if a User username property is valid*/
     @AdminCreate
     private boolean newUser_usernameIsOK(BindingResult userBindingResult, boolean checksOut, String username, String s) {
         if (username == null || username.length() < 8) {
             //if the User username needs attention
             log.debug(s);
-            userBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.toString());
-            });
+//            userBindingResult.getAllErrors().forEach(objectError -> {
+//                log.debug(objectError.toString());
+//            });
             checksOut = false;
         }
         return checksOut;
@@ -539,9 +554,9 @@ public class UserController {
         if (password == null || password.length() < 8) {
             //if the password needs attention
             log.debug(s);
-            userBindingResult.getAllErrors().forEach(objectError -> {
-                log.debug(objectError.toString());
-            });
+//            userBindingResult.getAllErrors().forEach(objectError -> {
+//                log.debug(objectError.toString());
+//            });
             checksOut = false;
         }
         return checksOut;
@@ -549,7 +564,7 @@ public class UserController {
 
     //assume here that all parameters are not null and not already on the DB
     @AdminUpdate
-    private User newTeacherUser(TeacherUser newTeacherUser, User newUser) {
+    private void newTeacherUser(TeacherUser newTeacherUser, User newUser) {
         Role teacherRole = roleService.findByRoleName("TEACHER");
         TeacherUser savedTeacherUser = teacherUserService.save(
                 TeacherUser.builder().teacherUserName(newTeacherUser.getTeacherUserName()).build());
@@ -558,11 +573,10 @@ public class UserController {
                 .role(teacherRole).build());
         log.debug("New Teacher name: " + savedUser.getTeacherUser().getTeacherUserName() + " with username" +
                 savedUser.getUsername() + " and ID: " + savedUser.getId() + " added");
-        return savedUser;
     }
 
     @AdminUpdate
-    private User newAdminUser(AdminUser newAdminUser, User newUser) {
+    private void newAdminUser(AdminUser newAdminUser, User newUser) {
         Role adminRole = roleService.findByRoleName("ADMIN");
         AdminUser savedAdminUser = adminUserService.save(
                 AdminUser.builder().adminUserName(newAdminUser.getAdminUserName()).build());
@@ -571,11 +585,10 @@ public class UserController {
                 .role(adminRole).build());
         log.debug("New Admin name: " + savedUser.getAdminUser().getAdminUserName() + " with username" +
                 savedUser.getUsername() + " and ID: " + savedUser.getId() + " added");
-        return savedUser;
     }
 
     @AdminUpdate
-    private User newGuardianUser(GuardianUser newGuardianUser, User newUser) {
+    private void newGuardianUser(GuardianUser newGuardianUser, User newUser) {
         Role guardianRole = roleService.findByRoleName("GUARDIAN");
         GuardianUser savedGuardianUser = guardianUserService.save(
                 GuardianUser.builder().guardianUserName(newGuardianUser.getGuardianUserName()).build());
@@ -584,7 +597,6 @@ public class UserController {
                 .role(guardianRole).build());
         log.debug("New Guardian name: " + savedUser.getGuardianUser().getGuardianUserName() + " with username" +
                 savedUser.getUsername() + " and ID: " + savedUser.getId() + " added");
-        return savedUser;
     }
 
     @AdminDelete

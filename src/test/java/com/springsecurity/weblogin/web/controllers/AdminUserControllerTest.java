@@ -54,6 +54,17 @@ public class AdminUserControllerTest extends UserControllerTest {
                 .andExpect(view().name("redirect:/adminPage"));
     }
 
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postCreateAdmin_BlankFields(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/createAdmin").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "")
+                .param("username", "")
+                .param("password", ""))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminCreate"));
+    }
+
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
     @ParameterizedTest
     void postCreateAdmin_FAIL(String username, String pwd) throws Exception {
@@ -90,9 +101,70 @@ public class AdminUserControllerTest extends UserControllerTest {
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postUpdateAdmin(String username, String pwd) throws Exception {
-        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateAdmin/1"));
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "blablablabla")
+                .param("username", "someoneNotOnFile"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminUpdate"))
+                .andExpect(model().attributeExists("AdminUserSaved"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentAdminUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateAdmin_UsernameBlank(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "blablablabla")
+                .param("username", ""))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("usernameError"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentAdminUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateAdmin_AdminUserNameBlank(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "")
+                .param("username", "asduafajlkasjdjlk"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("adminUserNameError"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentAdminUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateAdmin_UserExists(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "fdsfdsfds")
+                .param("username", "paulsmith"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("usernameExists"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentAdminUser"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postUpdateAdmin_AdminUserExists(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/updateAdmin/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("adminUserName", "Amy Smith")
+                .param("username", "johnsmith"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("adminUserExists"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("currentAdminUser"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
@@ -108,7 +180,10 @@ public class AdminUserControllerTest extends UserControllerTest {
     void deleteOtherUser() throws Exception {
         mockMvc.perform(post("/deleteUser/2").with(csrf()))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("confirmDelete"));
+                .andExpect(view().name("confirmDelete"))
+                .andExpect(model().attributeExists("confirmDelete"))
+                .andExpect(model().attributeExists("returnURL"))
+                .andExpect(model().attributeExists("pageTitle"));
     }
 
     @WithUserDetails("johnsmith")
@@ -116,7 +191,10 @@ public class AdminUserControllerTest extends UserControllerTest {
     void deleteYourself() throws Exception {
         mockMvc.perform(post("/deleteUser/1").with(csrf()))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("confirmDelete"));
+                .andExpect(view().name("confirmDelete"))
+                .andExpect(model().attributeExists("deniedDelete"))
+                .andExpect(model().attributeExists("returnURL"))
+                .andExpect(model().attributeExists("pageTitle"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")

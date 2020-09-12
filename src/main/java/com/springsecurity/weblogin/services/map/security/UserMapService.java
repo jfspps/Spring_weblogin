@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,6 +48,14 @@ public class UserMapService extends AbstractMapService<User, Long> implements Us
                 .filter(user -> user.getUsername().equals(username))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public Set<User> findAllByUsername(String username) {
+        return this.findAll()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .collect(Collectors.toSet());
     }
 
     @Override

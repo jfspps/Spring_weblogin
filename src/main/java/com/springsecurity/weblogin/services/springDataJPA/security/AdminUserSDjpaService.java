@@ -37,6 +37,11 @@ public class AdminUserSDjpaService implements AdminUserService {
     }
 
     @Override
+    public Set<AdminUser> findAllByAdminUserName(String userName) {
+        return adminUserRepository.findAllByAdminUserName(userName);
+    }
+
+    @Override
     public Set<AdminUser> findAll() {
         Set<AdminUser> adminUsers = new HashSet<>();
         adminUsers.addAll(adminUserRepository.findAll());

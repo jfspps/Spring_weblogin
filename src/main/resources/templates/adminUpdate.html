@@ -14,7 +14,7 @@
         <div class="row-md-12">
             <h1>Update current admin</h1>
             <p><b>Your username:</b> <span sec:authentication="name"></span></p>
-            <p><b>your permissions:</b> <span sec:authentication="authorities"></span></p>
+            <p><b>Your permissions:</b> <span sec:authentication="authorities"></span></p>
 
             <!--/*@thymesVar id="currentUser" type="com.springsecurity.weblogin.model.security.User"*/-->
             <form th:object="${currentUser}" th:action="@{/updateAdmin/{userID}(userID=${currentUser.id})}" method="post"
@@ -24,14 +24,30 @@
                 <div th:object="${currentAdminUser}">
                     <label>Admin's full name: </label>
                     <input size="50" type="text" th:field="*{adminUserName}"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="adminUserNameError" type="java.lang.String"*/-->
+                        <p class="alert-warning" th:text="${adminUserNameError}">Error</p>
+                        <!--/*@thymesVar id="adminUserExists" type="java.lang.String"*/-->
+                        <p class="alert-warning" th:text="${adminUserExists}">Error</p>
+                    </span>
                 </div>
                 <div>
                     <label>Weblogin username: </label>
                     <input size="50" type="text" th:field="*{username}"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="usernameError" type="java.lang.String"*/-->
+                        <p class="alert-warning" th:text="${usernameError}">Error</p>
+                        <!--/*@thymesVar id="usernameExists" type="java.lang.String"*/-->
+                        <p class="alert-warning" th:text="${usernameExists}">Error</p>
+                    </span>
                 </div>
                 <br/>
                 <div>
                     <input style="width: 200px" type="submit" value="Submit"/>
+                    <span class="help-block">
+                        <!--/*@thymesVar id="AdminUserSaved" type="java.lang.String"*/-->
+                        <p class="alert-success" th:text="${AdminUserSaved}">Error</p>
+                    </span>
                 </div>
             </form>
             <hr>
@@ -46,6 +62,11 @@
                 <div>
                     <label>Enter a new password: </label>
                     <input size="50" name="newPassword" type="password" th:field="*{password}"/>
+                    <span class="help-block" th:if="${#fields.hasErrors('password')}">
+                        <ul>
+                            <li class="alert-warning" th:each="err : ${#fields.errors('password')}" th:text="${err}">Error</li>
+                        </ul>
+                    </span>
                 </div>
                 <div>
                     <input type="submit" value="Change password" style="width: 200px"/>

@@ -39,6 +39,11 @@ public class UserSDjpaService implements UserService {
     }
 
     @Override
+    public Set<User> findAllByUsername(String username) {
+        return userRepository.findAllByUsername(username);
+    }
+
+    @Override
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }

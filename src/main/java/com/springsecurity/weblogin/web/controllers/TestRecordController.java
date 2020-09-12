@@ -137,15 +137,20 @@ public class TestRecordController {
                 TestRecord testRecordByForm = testRecordService.findByRecordName(testRecord.getRecordName());
                 User currentGuardian = userService.findById(Long.valueOf(guardianId));
 
-                if (testRecordBelongsToGuardian(testRecordByForm, currentGuardian)) {
+                if (!testRecordBelongsToGuardian(testRecordByForm, currentGuardian)) {
                     updateTestRecord_recordName(testRecord, testRecordID);
                 } else {
                     log.debug("The current guardian is already assigned a testRecord with the given values. " +
                             "No changes made");
                     TRbindingResult.rejectValue("recordName", "exists", "Supplied testRecord already exists");
-                    return "/testRecordUpdate";
+                    model.addAttribute("testRecord", testRecordByForm);
+                    model.addAttribute("guardian", currentGuardian);
+                    model.addAttribute("error", "The testRecord supplied is already associated with guardian, "
+                            + currentGuardian.getUsername());
+                    return "testRecordUpdate";
                 }
             } else {
+                //testRecord doesn't exist, so save to Guardian's account
                 updateTestRecord_recordName(testRecord, testRecordID);
             }
         }

@@ -156,7 +156,24 @@ class TestRecordControllerTest extends SecurityCredentialsTest {
                 .with(csrf())
                 .param("recordName", ""))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("testRecordUpdate"));
+                .andExpect(view().name("testRecordUpdate"))
+                .andExpect(model().attributeExists("testRecord"))
+                .andExpect(model().attributeExists("guardian"))
+                .andExpect(model().attributeExists("error"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolStaff")
+    @ParameterizedTest
+    void postUpdateTestRecord_alreadyExists(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/5/updateTestRecord/1")
+                .with(httpBasic(username, pwd))
+                .with(csrf())
+                .param("recordName", "Test record 1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("testRecordUpdate"))
+                .andExpect(model().attributeExists("testRecord"))
+                .andExpect(model().attributeExists("guardian"))
+                .andExpect(model().attributeExists("error"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllGuardians")

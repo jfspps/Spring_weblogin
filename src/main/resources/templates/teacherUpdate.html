@@ -55,6 +55,10 @@
             <form th:action="@{/resetPassword/{ID}(ID=${currentUser.id})}" method="post"
                   sec:authorize="hasAuthority('admin.update')">
                 <input type="submit" value="Reset password" style="width: 200px"/>
+                <span class="help-block">
+                    <!--/*@thymesVar id="confirmReset" type="java.lang.String"*/-->
+                    <p class="alert-success" th:text="${confirmReset}">Done</p>
+                </span>
             </form>
             <hr>
 
@@ -63,11 +67,11 @@
                 <div>
                     <label>Enter a new password: </label>
                         <input size="50" name="newPassword" type="password" th:field="*{password}"/>
-                    <span class="help-block" th:if="${#fields.hasErrors('password')}">
-                        <ul>
-                            <li class="alert-warning" th:each="err : ${#fields.errors('password')}" th:text="${err}">Error</li>
-                        </ul>
-                    </span>
+                        <span class="help-block" th:if="${#fields.hasErrors('password')}">
+                            <ul>
+                                <li class="alert-warning" th:each="err : ${#fields.errors('password')}" th:text="${err}">Error</li>
+                            </ul>
+                        </span>
                 </div>
                 <div>
                     <input type="submit" value="Change password" style="width: 200px"/>

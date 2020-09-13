@@ -255,27 +255,88 @@ class UserControllerTest extends SecurityCredentialsTest {
     @ParameterizedTest
     void postResetPassword_ADMIN(String username, String pwd) throws Exception {
         mockMvc.perform(post("/resetPassword/1").with(httpBasic(username, pwd)).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateAdmin/1"));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("adminUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("confirmReset"))
+                .andExpect(model().attributeExists("currentAdminUser"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postResetPassword_TEACHER(String username, String pwd) throws Exception {
         mockMvc.perform(post("/resetPassword/3").with(httpBasic(username, pwd)).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateTeacher/3"));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("teacherUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("confirmReset"))
+                .andExpect(model().attributeExists("currentTeacherUser"));
     }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest
     void postResetPassword_GUARDIAN(String username, String pwd) throws Exception {
         mockMvc.perform(post("/resetPassword/5").with(httpBasic(username, pwd)).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/updateGuardian/5"));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("guardianUpdate"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeExists("currentUser"))
+                .andExpect(model().attributeExists("confirmReset"))
+                .andExpect(model().attributeExists("currentGuardianUser"));
     }
 
-    //todo: test postChangePassword
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_ADMIN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("password", "johnsmith12345678"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateAdmin/1"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_ADMIN_UnAuth(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/1").with(httpBasic(username, pwd)).with(csrf())
+                .param("password", "johnsmith12345678"))
+                .andExpect(status().isForbidden());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_TEACHER(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/4").with(httpBasic(username, pwd)).with(csrf())
+                .param("password", "johnsmith12345678"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateTeacher/4"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_TEACHER_UnAuth(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/3").with(httpBasic(username, pwd)).with(csrf())
+                .param("password", "johnsmith12345678"))
+                .andExpect(status().isForbidden());
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_GUARDIAN(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/6").with(httpBasic(username, pwd)).with(csrf())
+                .param("password", "johnsmith12345678"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/updateGuardian/6"));
+    }
+
+    @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamAllNonAdminUsers")
+    @ParameterizedTest
+    void postChangePassword_GUARDIAN_UnAuth(String username, String pwd) throws Exception {
+        mockMvc.perform(post("/changePassword/5").with(httpBasic(username, pwd)).with(csrf())
+                .param("password", "johnsmith12345678"))
+                .andExpect(status().isForbidden());
+    }
 
     @MethodSource("com.springsecurity.weblogin.web.controllers.SecurityCredentialsTest#streamSchoolAdminUsers")
     @ParameterizedTest

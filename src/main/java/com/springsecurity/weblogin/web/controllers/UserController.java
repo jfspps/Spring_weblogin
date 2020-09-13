@@ -133,13 +133,25 @@ public class UserController {
 
     @AdminUpdate
     @PostMapping("/resetPassword/{userID}")
-    public String postResetPassword(@PathVariable String userID) {
+    public String postResetPassword(@PathVariable String userID, Model model) {
         if (userService.findById(Long.valueOf(userID)) != null) {
             User currentUser = userService.findById(Long.valueOf(userID));
             currentUser.setPassword(passwordEncoder.encode(currentUser.getUsername() + "123"));
             userService.save(currentUser);
             log.debug("Password was reset");
-            return "redirect:/" + userTypePage(currentUser) + "/" + currentUser.getId();
+            model.addAttribute("user", getUsername());
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("confirmReset", "Password has been reset");
+            if (currentUser.getAdminUser() != null){
+                model.addAttribute("currentAdminUser", currentUser.getAdminUser());
+                return "adminUpdate";
+            } else if (currentUser.getTeacherUser() != null){
+                model.addAttribute("currentTeacherUser", currentUser.getTeacherUser());
+                return "teacherUpdate";
+            } else {
+                model.addAttribute("currentGuardianUser", currentUser.getGuardianUser());
+                return "guardianUpdate";
+            }
         }
         log.debug("User with ID: " + userID + " not found");
         return "redirect:/adminPage";
@@ -152,10 +164,10 @@ public class UserController {
         if (userService.findById(Long.valueOf(userID)) != null) {
             if (passwordIsOK(bindingResult, true, passwordChangeUser.getPassword(), INVALID_PASSWORD)) {
                 User saved = changeUserPassword(Long.valueOf(userID), passwordChangeUser);
-                return "redirect:/" + userTypePage(saved) + "/" + saved.getId();
+                return "redirect:/" + userTypeUpdatePage(saved) + "/" + saved.getId();
             } else {
                 User found = userService.findById(Long.valueOf(userID));
-                return "redirect:/" + userTypePage(found) + "/" + found.getId();
+                return "redirect:/" + userTypeUpdatePage(found) + "/" + found.getId();
             }
         }
         log.debug("User with ID: " + userID + " not found");
@@ -170,7 +182,7 @@ public class UserController {
             if (Long.valueOf(userID).equals(userService.findByUsername(getUsername()).getId())) {
                 log.debug("Cannot delete yourself");
                 model.addAttribute("deniedDelete", "You are not permitted to delete your own account");
-                model.addAttribute("returnURL", userTypePage(currentUser) + "/" + userID);
+                model.addAttribute("returnURL", userTypeUpdatePage(currentUser) + "/" + userID);
                 model.addAttribute("pageTitle", "previous page");
             } else {
                 if (userTypeDelete(currentUser, userID)) {
@@ -589,7 +601,7 @@ public class UserController {
      * inserts URL path related Strings dependent on the Usertype (AdminUser, TeacherUser or GuardianUser)
      */
     @AdminRead
-    private String userTypePage(User user) {
+    private String userTypeUpdatePage(User user) {
         if (user.getAdminUser() != null) {
             return "updateAdmin";
         } else if (user.getTeacherUser() != null) {

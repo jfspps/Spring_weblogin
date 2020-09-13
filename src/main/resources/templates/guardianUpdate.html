@@ -55,6 +55,10 @@
             <form th:action="@{/resetPassword/{ID}(ID=${currentUser.id})}" method="post"
                   sec:authorize="hasAuthority('admin.update')">
                 <input type="submit" value="Reset password" style="width: 200px"/>
+                <span class="help-block">
+                    <!--/*@thymesVar id="confirmReset" type="java.lang.String"*/-->
+                    <p class="alert-success" th:text="${confirmReset}">Done</p>
+                </span>
             </form>
             <hr>
 

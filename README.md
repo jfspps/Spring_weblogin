@@ -22,7 +22,7 @@ Developed with the following technologies:
 
 ### In-memory database ###
 
-There are two implementations of the in-memory service: a HashMap based service, @Profile 'map' and a JPA enabled service, @Profile 'SDjpa'. The latter is more the more developed and up to date of the two. To enable connection to MySQL (accessible via 'SDjpa' only), mark the [application.properties](./src/main/resources/application.properties) file with the @Profile 'dev' annotation.
+There are two implementations of the in-memory service: a HashMap based service, @Profile 'map' and a JPA enabled service, @Profile 'SDjpa'. The latter is the more developed and up to date of the two. The marking 'dev' is required to connect to a persistent MySQL database, so to enable connection to MySQL mark the [application.properties](./src/main/resources/application.properties) file with the 'SDjpa' and 'dev' annotations.
 
 ### Database tables and records ###
 

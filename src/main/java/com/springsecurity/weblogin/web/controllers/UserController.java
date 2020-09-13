@@ -332,6 +332,9 @@ public class UserController {
             return "adminUpdate";
         }
 
+        //sync. account related settings
+        syncAccountSettings(currentUser, userToBeUpdated);
+
         //save changes
         User saved = userService.save(userToBeUpdated);
         log.debug("Username: " + saved.getUsername() + ", adminUser name: " + saved.getAdminUser().getAdminUserName() +
@@ -457,6 +460,8 @@ public class UserController {
             model.addAttribute("currentAdminUser", userToBeUpdated.getTeacherUser());
             return "teacherUpdate";
         }
+
+        syncAccountSettings(currentUser, userToBeUpdated);
 
         //save changes
         User saved = userService.save(userToBeUpdated);
@@ -584,6 +589,8 @@ public class UserController {
             return "guardianUpdate";
         }
 
+        syncAccountSettings(currentUser, userToBeUpdated);
+
         //save changes
         User saved = userService.save(userToBeUpdated);
         log.debug("Username: " + saved.getUsername() + ", guardianUser name: " + saved.getGuardianUser().getGuardianUserName() +
@@ -683,6 +690,14 @@ public class UserController {
             checksOut = false;
         }
         return checksOut;
+    }
+
+    @AdminUpdate
+    private void syncAccountSettings(User currentUser, User userToBeUpdated) {
+        userToBeUpdated.setAccountNonLocked(currentUser.isAccountNonLocked());
+        userToBeUpdated.setAccountNonExpired(currentUser.isAccountNonExpired());
+        userToBeUpdated.setCredentialsNonExpired(currentUser.isCredentialsNonExpired());
+        userToBeUpdated.setEnabled(currentUser.isEnabled());
     }
 
     //assume here that all parameters are not null and not already on the DB

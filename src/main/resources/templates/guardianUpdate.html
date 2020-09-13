@@ -41,6 +41,28 @@
                         <p class="alert-warning" th:text="${usernameExists}">Error</p>
                     </span>
                 </div>
+                <div>
+                    <p th:text="${'Account created: ' + currentUser.getCreatedDate()}">
+                </div>
+                <div>
+                    <p th:text="${'Account last modified: ' + currentUser.getLastModifiedDate()}"></p>
+                </div>
+                <div>
+                    <label>Account is enabled: </label>
+                    <input type="checkbox" th:field="*{enabled}" th:value="${currentUser.enabled}"/>
+                </div>
+                <div>
+                    <label>Account is not locked: </label>
+                    <input type="checkbox" th:field="*{accountNonLocked}" th:value="${currentUser.accountNonLocked}"/>
+                </div>
+                <div>
+                    <label>Account has not expired: </label>
+                    <input type="checkbox" th:field="*{accountNonExpired}" th:value="${currentUser.accountNonExpired}"/>
+                </div>
+                <div>
+                    <label>Account credentials have not expired: </label>
+                    <input type="checkbox" th:field="*{credentialsNonExpired}" th:value="${currentUser.credentialsNonExpired}"/>
+                </div>
                 <br/>
                 <div>
                     <input style="width: 200px" type="submit" value="Submit"/>

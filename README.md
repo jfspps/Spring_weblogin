@@ -1,6 +1,6 @@
 # WebLogin, a Spring security and Thymeleaf login template #
 
-Web-login is Spring Security 5 application intended for other Spring based projects, and edited as desired. This project will be integrated with [SRM-Spring](https://github.com/jfspps/SRM-Spring) project, which also comes with instructions regarding the set-up of MySQL in a Docker container. 
+WebLogin is Spring Security 5 application intended as a starting point for other Spring security based projects. For example, this project has been integrated with [SRM-Spring](https://github.com/jfspps/SRM-Spring) project to yield [Secure-SRM](https://github.com/jfspps/Secure-SRM). 
 
 Developed with the following technologies:
 
